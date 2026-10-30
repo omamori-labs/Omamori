@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <ReferenceLazer>true</ReferenceLazer>
+    <AssemblyName>osu.Game.Rulesets.Omamori</AssemblyName>
+    <RootNamespace>Omamori.Loader</RootNamespace>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <Version>0.1.0</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Lib.Harmony" Version="2.4.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Omamori.API\Omamori.API.csproj" />
+  </ItemGroup>
+</Project>
