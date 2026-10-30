@@ -4,21 +4,28 @@
   "title": "Omamori mod manifest",
   "description": "canonical mod.json form for an Omamori mod.",
   "type": "object",
-  "required": ["id", "name", "version", "entry", "apiVersion", "capabilities"],
+  "required": [
+    "id",
+    "name",
+    "version",
+    "entry",
+    "apiVersion",
+    "capabilities"
+  ],
   "additionalProperties": false,
   "properties": {
     "$schema": {
       "type": "string"
     },
     "id": {
-      "description": "Unique id, used by other mods dependencies. Reverse domain style is recommended, e.g. \"yourname.coolmod\".",
-      "type": "string",
-      "minLength": 1
+      "description": "Unique id, used by other mods dependencies. Lowercase letters and digits in segments joined by . - or _, reverse domain style is recommended, e.g. \"yourname.coolmod\".",
+      "$ref": "#/$defs/id"
     },
     "name": {
-      "description": "Shown to users.",
+      "description": "Shown to users, no leading or trailing whitespace.",
       "type": "string",
-      "minLength": 1
+      "minLength": 1,
+      "pattern": "^\\S(.*\\S)?$"
     },
     "version": {
       "description": "Semantic version of the mod. Missing minor/patch count as 0 and a leading v is allowed.",
@@ -39,7 +46,9 @@
       "description": "The Omamori API version the mod was built against, major.minor. Loads on any Omamori with the same major and an equal or higher minor.",
       "type": "string",
       "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$",
-      "examples": ["0.2"]
+      "examples": [
+        "0.2"
+      ]
     },
     "capabilities": {
       "description": "What the mod does, shown to users before install. Gameplay affecting mods are not allowed.",
@@ -47,17 +56,26 @@
       "minItems": 1,
       "uniqueItems": true,
       "items": {
-        "enum": ["Cosmetic", "Informational"]
+        "enum": [
+          "Cosmetic",
+          "Informational"
+        ]
       }
     },
     "hooks": {
       "description": "Hooks the mod uses. A required hook that's unavailable skips the mod, an optional one only skips what uses it. Undeclared hooks count as optional.",
       "type": "object",
       "propertyNames": {
-        "enum": ["MainMenu", "GlobalOverlay"]
+        "enum": [
+          "MainMenu",
+          "GlobalOverlay"
+        ]
       },
       "additionalProperties": {
-        "enum": ["required", "optional"]
+        "enum": [
+          "required",
+          "optional"
+        ]
       }
     },
     "dependencies": {
@@ -65,12 +83,13 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["id"],
+        "required": [
+          "id"
+        ],
         "additionalProperties": false,
         "properties": {
           "id": {
-            "type": "string",
-            "minLength": 1
+            "$ref": "#/$defs/id"
           },
           "minVersion": {
             "description": "Lowest accepted version. A prerelease sorts before its release, so 1.0.0-beta does not satisfy 1.0.0.",
@@ -89,7 +108,18 @@
     "semver": {
       "type": "string",
       "pattern": "^[vV]?(0|[1-9][0-9]*)(\\.(0|[1-9][0-9]*)){0,2}(-(0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)(\\.(0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*))*)?(\\+[0-9A-Za-z-]+(\\.[0-9A-Za-z-]+)*)?$",
-      "examples": ["1.0.0", "1.2", "2.0.0-beta.1"]
+      "examples": [
+        "1.0.0",
+        "1.2",
+        "2.0.0-beta.1"
+      ]
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+([._-][a-z0-9]+)*$",
+      "examples": [
+        "yourname.coolmod"
+      ]
     }
   }
 }

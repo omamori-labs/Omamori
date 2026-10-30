@@ -6,11 +6,13 @@ using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Omamori.API;
+using QuikGraph;
+using QuikGraph.Algorithms;
 
 namespace Omamori.Core
 {
     /// <summary>
-    ///     discover -> validate -> required hooks -> dependencies -> load order -> load
+    ///     discover (schema) -> validate -> dedupe -> required hooks -> dependencies + load order -> load
     /// </summary>
     internal static class ModLoader
     {
@@ -18,7 +20,7 @@ namespace Omamori.Core
 
         private static readonly JsonSerializerOptions json_options = new JsonSerializerOptions
         {
-            PropertyNameCaseInsensitive = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             Converters = { new JsonStringEnumConverter(allowIntegerValues: false) },
         };
 
@@ -43,9 +45,8 @@ namespace Omamori.Core
             candidates = filter(candidates, skipped, validate);
             candidates = dedupe(candidates, skipped);
             candidates = filter(candidates, skipped, checkRequiredHooks);
-            candidates = resolveDependencies(candidates, skipped);
 
-            foreach (var candidate in order(candidates, skipped))
+            foreach (var candidate in resolveDependencies(candidates, skipped))
             {
                 try
                 {
@@ -81,10 +82,21 @@ namespace Omamori.Core
 
                 try
                 {
-                    var manifest = JsonSerializer.Deserialize<ModManifest>(File.ReadAllText(manifestPath), json_options)
+                    using var document = JsonDocument.Parse(File.ReadAllText(manifestPath));
+                    var problems = ManifestSchema.Validate(document.RootElement);
+
+                    if (problems.Count > 0)
+                    {
+                        foreach (string problem in problems)
+                            LoaderLog.Info($"  {folder}/{MANIFEST_FILENAME} {problem}");
+
+                        skipped.Add(new SkippedMod(folder, $"{MANIFEST_FILENAME} is invalid: {ManifestSchema.Summarise(problems)}"));
+                        continue;
+                    }
+
+                    var manifest = document.RootElement.Deserialize<ModManifest>(json_options)
                                    ?? throw new InvalidDataException("manifest is empty");
 
-                    normalize(manifest);
                     candidates.Add(new ModCandidate(directory, manifest));
                 }
                 catch (Exception e)
@@ -94,26 +106,6 @@ namespace Omamori.Core
             }
 
             return candidates;
-        }
-
-        private static void normalize(ModManifest manifest)
-        {
-            manifest.Id = manifest.Id?.Trim() ?? string.Empty;
-            manifest.Name = manifest.Name?.Trim() ?? string.Empty;
-            manifest.Version = manifest.Version?.Trim() ?? string.Empty;
-            manifest.Author = manifest.Author?.Trim() ?? string.Empty;
-            manifest.Description = manifest.Description?.Trim() ?? string.Empty;
-            manifest.Entry = manifest.Entry?.Trim() ?? string.Empty;
-            manifest.ApiVersion = manifest.ApiVersion?.Trim() ?? string.Empty;
-            manifest.Capabilities ??= [];
-            manifest.Hooks ??= [];
-            manifest.Dependencies = [.. (manifest.Dependencies ?? []).Where(d => d != null)];
-
-            foreach (var dependency in manifest.Dependencies)
-            {
-                dependency.Id = dependency.Id?.Trim() ?? string.Empty;
-                dependency.MinVersion = dependency.MinVersion?.Trim() ?? string.Empty;
-            }
         }
 
         private static List<ModCandidate> filter(List<ModCandidate> candidates, List<SkippedMod> skipped, Func<ModCandidate, string?> check)
@@ -147,35 +139,14 @@ namespace Omamori.Core
         {
             var manifest = candidate.Manifest;
 
-            if (string.IsNullOrWhiteSpace(manifest.Id))
-                return "manifest has no id";
-
             if (!ApiVersions.IsCompatible(manifest.ApiVersion, out string? apiProblem))
                 return apiProblem;
-
-            if (!ModVersions.TryParse(manifest.Version, out _))
-                return $"version \"{manifest.Version}\" isn't valid, expected something like 1.0.0";
-
-            if (manifest.Capabilities.Count == 0)
-                return "manifest declares no capabilities";
-
-            if (string.IsNullOrWhiteSpace(manifest.Entry) || Path.IsPathRooted(manifest.Entry) || manifest.Entry.Contains("..", StringComparison.Ordinal))
-                return "entry must be a file name inside the mod directory";
 
             if (!File.Exists(Path.Combine(candidate.Directory, manifest.Entry)))
                 return $"entry assembly {manifest.Entry} not found";
 
-            foreach (var dependency in manifest.Dependencies)
-            {
-                if (string.IsNullOrWhiteSpace(dependency.Id))
-                    return "a dependency has no id";
-
-                if (dependency.Id == manifest.Id)
-                    return "it depends on itself";
-
-                if (dependency.MinVersion.Length > 0 && !ModVersions.TryParse(dependency.MinVersion, out _))
-                    return $"dependency {dependency.Id} has an invalid minVersion \"{dependency.MinVersion}\"";
-            }
+            if (manifest.Dependencies.Any(d => d.Id == manifest.Id))
+                return "it depends on itself";
 
             return null;
         }
@@ -206,68 +177,97 @@ namespace Omamori.Core
             return missing.Count == 0 ? null : $"needs {string.Join(", ", missing)}, which this osu! version doesn't support";
         }
 
+        /// <summary>
+        ///     returns the mods that can load, deps before dependents, skips the rest with a reason
+        /// </summary>
         private static List<ModCandidate> resolveDependencies(List<ModCandidate> candidates, List<SkippedMod> skipped)
         {
-            var remaining = candidates.ToDictionary(c => c.Manifest.Id);
-            bool changed = true;
+            var byId = candidates.ToDictionary(c => c.Manifest.Id);
 
-            while (changed)
+            var required = graph(candidates, d => !d.Optional);
+            var inCycle = new HashSet<string>();
+
+            foreach (var cycle in cycles(required))
             {
-                changed = false;
-
-                foreach (var candidate in remaining.Values.ToList())
+                foreach (string id in cycle)
                 {
-                    foreach (var dependency in candidate.Manifest.Dependencies.Where(d => !d.Optional))
-                    {
-                        string? problem = !remaining.TryGetValue(dependency.Id, out var target)
-                            ? $"needs {dependency.Id}, which isn't installed or can't load"
-                            : VersionProblem(dependency, target.Manifest);
-
-                        if (problem == null)
-                            continue;
-
-                        remaining.Remove(candidate.Manifest.Id);
-                        skipped.Add(new SkippedMod(candidate.Label, problem));
-                        changed = true;
-                        break;
-                    }
+                    inCycle.Add(id);
+                    skipped.Add(new SkippedMod(byId[id].Label, $"dependency cycle with {string.Join(", ", cycle.Where(other => other != id))}"));
                 }
             }
 
-            return [.. candidates.Where(c => remaining.ContainsKey(c.Manifest.Id))];
-        }
+            var remaining = candidates.Where(c => !inCycle.Contains(c.Manifest.Id)).ToList();
+            var ordering = graph(remaining, _ => true);
 
-        /// <summary>
-        ///     deps before dependents otherwise folder order
-        /// </summary>
-        private static List<ModCandidate> order(List<ModCandidate> candidates, List<SkippedMod> skipped)
-        {
-            var ids = candidates.Select(c => c.Manifest.Id).ToHashSet();
-
-            var dependsOn = candidates.ToDictionary(
-                c => c.Manifest.Id,
-                c => c.Manifest.Dependencies.Select(d => d.Id).Where(ids.Contains).ToHashSet());
-
-            var ordered = new List<ModCandidate>();
-            var placed = new HashSet<string>();
-
-            // kahn's algorithm, picking the first ready mod in folder order each round keeps it deterministic
-            while (true)
+            foreach (var cycle in cycles(ordering))
             {
-                var next = candidates.FirstOrDefault(c => !placed.Contains(c.Manifest.Id) && dependsOn[c.Manifest.Id].All(placed.Contains));
+                foreach (var edge in ordering.Edges.Where(e => cycle.Contains(e.Source) && cycle.Contains(e.Target) && isOptional(byId[e.Target], e.Source)).ToList())
+                    ordering.RemoveEdge(edge);
 
-                if (next == null)
-                    break;
-
-                ordered.Add(next);
-                placed.Add(next.Manifest.Id);
+                LoaderLog.Info($"Optional dependencies between {string.Join(", ", cycle)} form a loop, ignoring them for load order.");
             }
 
-            foreach (var stuck in candidates.Where(c => !placed.Contains(c.Manifest.Id)))
-                skipped.Add(new SkippedMod(stuck.Label, $"dependency cycle with {string.Join(", ", dependsOn[stuck.Manifest.Id].Where(d => !placed.Contains(d)))}"));
+            var accepted = new List<ModCandidate>();
+            var acceptedIds = new HashSet<string>();
 
-            return ordered;
+            foreach (string id in ordering.SourceFirstTopologicalSort())
+            {
+                var candidate = byId[id];
+                string? problem = null;
+
+                foreach (var dependency in candidate.Manifest.Dependencies.Where(d => !d.Optional))
+                {
+                    if (!byId.TryGetValue(dependency.Id, out var target))
+                        problem = $"needs {dependency.Id}, which isn't installed or can't load";
+                    else if (!acceptedIds.Contains(dependency.Id))
+                        problem = $"needs {dependency.Id}, which was skipped";
+                    else
+                        problem = VersionProblem(dependency, target.Manifest);
+
+                    if (problem != null)
+                        break;
+                }
+
+                if (problem != null)
+                {
+                    skipped.Add(new SkippedMod(candidate.Label, problem));
+                    continue;
+                }
+
+                accepted.Add(candidate);
+                acceptedIds.Add(id);
+            }
+
+            return accepted;
         }
+
+        private static AdjacencyGraph<string, SEdge<string>> graph(List<ModCandidate> candidates, Func<ModDependency, bool> include)
+        {
+            var result = new AdjacencyGraph<string, SEdge<string>>();
+            result.AddVertexRange(candidates.Select(c => c.Manifest.Id));
+
+            foreach (var candidate in candidates)
+            {
+                foreach (var dependency in candidate.Manifest.Dependencies.Where(include))
+                {
+                    if (result.ContainsVertex(dependency.Id))
+                        result.AddEdge(new SEdge<string>(dependency.Id, candidate.Manifest.Id));
+                }
+            }
+
+            return result;
+        }
+
+        private static List<List<string>> cycles(AdjacencyGraph<string, SEdge<string>> graph)
+        {
+            var components = new Dictionary<string, int>();
+            graph.StronglyConnectedComponents(components);
+
+            return [.. components.GroupBy(c => c.Value).Where(g => g.Count() > 1).Select(g => g.Select(c => c.Key).ToList())];
+        }
+
+        private static bool isOptional(ModCandidate dependent, string dependencyId) =>
+            dependent.Manifest.Dependencies.Any(d => d.Id == dependencyId && d.Optional);
 
         private static string? checkDependenciesLoaded(ModCandidate candidate)
         {

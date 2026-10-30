@@ -9,6 +9,7 @@ updates:
         update-types: [minor, patch]
     ignore:
       - dependency-name: Microsoft.Extensions.Primitives
+      - dependency-name: Humanizer.Core
     commit-message:
       prefix: build
       include: scope
