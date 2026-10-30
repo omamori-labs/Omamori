@@ -19,6 +19,9 @@ namespace Omamori.Core
 
         public static FaultHistory? History { get; set; }
 
+        /// <summary>the mod's id, raised on whichever thread it threw</summary>
+        public static event Action<string>? Faulted;
+
         public static bool IsFaulted(string id)
         {
             lock (fault_lock)
@@ -54,6 +57,7 @@ namespace Omamori.Core
             else
                 cleanUp(mod);
 
+            Faulted?.Invoke(id);
             return true;
         }
 

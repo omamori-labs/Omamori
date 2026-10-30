@@ -1,8 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Text.Encodings.Web;
-using System.Text.Json;
 using Omamori.API;
 
 namespace Omamori.Core
@@ -16,13 +13,6 @@ namespace Omamori.Core
         public const string FILENAME = "faults.json";
 
         public const int STRIKES_TO_SKIP = 2;
-
-        private static readonly JsonSerializerOptions json_options = new JsonSerializerOptions
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            WriteIndented = true,
-            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
-        };
 
         private readonly string path;
         private readonly State state;
@@ -38,18 +28,7 @@ namespace Omamori.Core
 
         public static FaultHistory Open(string path)
         {
-            var state = new State();
-
-            try
-            {
-                if (File.Exists(path))
-                    state = JsonSerializer.Deserialize<State>(File.ReadAllText(path), json_options) ?? new State();
-            }
-            catch (Exception e)
-            {
-                LoaderLog.Error($"Couldn't read {path}, starting a new crash history.", e);
-            }
-
+            var state = JsonFile.Read<State>(path, "starting a new crash history");
             state.Session++;
 
             var history = new FaultHistory(path, state);
@@ -98,21 +77,7 @@ namespace Omamori.Core
             }
         }
 
-        private void save()
-        {
-            try
-            {
-                Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-
-                string temporary = path + ".tmp";
-                File.WriteAllText(temporary, JsonSerializer.Serialize(state, json_options));
-                File.Move(temporary, path, overwrite: true);
-            }
-            catch (Exception e)
-            {
-                LoaderLog.Error($"Couldn't save {path}.", e);
-            }
-        }
+        private void save() => JsonFile.Write(path, state);
 
         private sealed class State
         {

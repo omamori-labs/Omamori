@@ -12,7 +12,7 @@ using QuikGraph.Algorithms;
 namespace Omamori.Core
 {
     /// <summary>
-    ///     discover (schema) -> validate -> dedupe -> crash history -> required hooks -> dependencies + load order -> load
+    ///     discover (schema) -> validate -> dedupe -> turned off in settings -> crash history -> required hooks -> dependencies + load order -> load
     /// </summary>
     internal static class ModLoader
     {
@@ -26,13 +26,21 @@ namespace Omamori.Core
 
         public static readonly List<LoadedMod> LOADED = [];
 
+        public static readonly List<ModCandidate> TURNED_OFF = [];
+
+        public static readonly List<SkippedMod> SKIPPED = [];
+
+        /// <summary>null until mods load</summary>
+        public static ModSettings? Settings { get; private set; }
+
         public static bool IsLoaded(string id) => LOADED.Any(m => m.Manifest.Id == id);
 
         public static LoadedMod? Get(string id) => LOADED.FirstOrDefault(m => m.Manifest.Id == id);
 
-        public static void LoadAll(string modsDirectory, FaultHistory history)
+        public static void LoadAll(string modsDirectory, FaultHistory history, ModSettings settings)
         {
             ModFaults.History = history;
+            Settings = settings;
 
             if (!Directory.Exists(modsDirectory))
             {
@@ -41,31 +49,33 @@ namespace Omamori.Core
                 return;
             }
 
-            var skipped = new List<SkippedMod>();
+            var candidates = discover(modsDirectory, SKIPPED);
+            candidates = filter(candidates, SKIPPED, validate);
+            candidates = dedupe(candidates, SKIPPED);
 
-            var candidates = discover(modsDirectory, skipped);
-            candidates = filter(candidates, skipped, validate);
-            candidates = dedupe(candidates, skipped);
-            candidates = filter(candidates, skipped, c => history.SkipReason(c.Manifest));
-            candidates = filter(candidates, skipped, checkRequiredHooks);
+            TURNED_OFF.AddRange(candidates.Where(c => !settings.IsEnabled(c.Manifest.Id)));
+            candidates = [.. candidates.Where(c => settings.IsEnabled(c.Manifest.Id))];
 
-            foreach (var candidate in ResolveDependencies(candidates, skipped))
+            candidates = filter(candidates, SKIPPED, c => history.SkipReason(c.Manifest));
+            candidates = filter(candidates, SKIPPED, checkRequiredHooks);
+
+            foreach (var candidate in ResolveDependencies(candidates, SKIPPED, TURNED_OFF.Select(c => c.Manifest.Id).ToHashSet()))
             {
                 try
                 {
                     string? problem = checkDependenciesLoaded(candidate) ?? load(candidate);
 
                     if (problem != null)
-                        skipped.Add(new SkippedMod(candidate.Label, problem));
+                        SKIPPED.Add(new SkippedMod(candidate.Label, problem, candidate.Manifest));
                 }
                 catch (Exception e)
                 {
                     LoaderLog.Info(e.ToString());
-                    skipped.Add(new SkippedMod(candidate.Label, $"failed to load: {(e as TargetInvocationException)?.InnerException?.Message ?? e.Message}"));
+                    SKIPPED.Add(new SkippedMod(candidate.Label, $"failed to load: {(e as TargetInvocationException)?.InnerException?.Message ?? e.Message}", candidate.Manifest));
                 }
             }
 
-            report(skipped);
+            report(SKIPPED);
         }
 
         private static List<ModCandidate> discover(string modsDirectory, List<SkippedMod> skipped)
@@ -132,7 +142,7 @@ namespace Omamori.Core
                 if (problem == null)
                     passed.Add(candidate);
                 else
-                    skipped.Add(new SkippedMod(candidate.Label, problem));
+                    skipped.Add(new SkippedMod(candidate.Label, problem, candidate.Manifest));
             }
 
             return passed;
@@ -183,7 +193,7 @@ namespace Omamori.Core
         /// <summary>
         ///     returns the mods that can load, deps before dependents, skips the rest with a reason
         /// </summary>
-        internal static List<ModCandidate> ResolveDependencies(List<ModCandidate> candidates, List<SkippedMod> skipped)
+        internal static List<ModCandidate> ResolveDependencies(List<ModCandidate> candidates, List<SkippedMod> skipped, IReadOnlySet<string>? turnedOff = null)
         {
             var byId = candidates.ToDictionary(c => c.Manifest.Id);
 
@@ -195,7 +205,7 @@ namespace Omamori.Core
                 foreach (string id in cycle)
                 {
                     inCycle.Add(id);
-                    skipped.Add(new SkippedMod(byId[id].Label, $"dependency cycle with {string.Join(", ", cycle.Where(other => other != id))}"));
+                    skipped.Add(new SkippedMod(byId[id].Label, $"dependency cycle with {string.Join(", ", cycle.Where(other => other != id))}", byId[id].Manifest));
                 }
             }
 
@@ -220,7 +230,9 @@ namespace Omamori.Core
 
                 foreach (var dependency in candidate.Manifest.Dependencies.Where(d => !d.Optional))
                 {
-                    if (!byId.TryGetValue(dependency.Id, out var target))
+                    if (turnedOff?.Contains(dependency.Id) == true)
+                        problem = $"needs {dependency.Id}, which is turned off";
+                    else if (!byId.TryGetValue(dependency.Id, out var target))
                         problem = $"needs {dependency.Id}, which isn't installed or can't load";
                     else if (!acceptedIds.Contains(dependency.Id))
                         problem = $"needs {dependency.Id}, which was skipped";
@@ -233,7 +245,7 @@ namespace Omamori.Core
 
                 if (problem != null)
                 {
-                    skipped.Add(new SkippedMod(candidate.Label, problem));
+                    skipped.Add(new SkippedMod(candidate.Label, problem, candidate.Manifest));
                     continue;
                 }
 
@@ -325,7 +337,7 @@ namespace Omamori.Core
 
         private static void report(List<SkippedMod> skipped)
         {
-            LoaderLog.Info($"Loaded {LOADED.Count} mod(s), skipped {skipped.Count}.");
+            LoaderLog.Info($"Loaded {LOADED.Count} mod(s), skipped {skipped.Count}, {TURNED_OFF.Count} turned off in settings.");
 
             foreach (var mod in skipped)
                 LoaderLog.Info($"  skipped {mod.Name}: {mod.Reason}");
@@ -344,7 +356,8 @@ namespace Omamori.Core
         public string Label => string.IsNullOrWhiteSpace(Manifest.Name) ? Path.GetFileName(Directory) : Manifest.Name;
     }
 
-    internal sealed record SkippedMod(string Name, string Reason);
+    // no manifest when it couldn't be read, or another mod has the same id
+    internal sealed record SkippedMod(string Name, string Reason, ModManifest? Manifest = null);
 
     // Loader is kept so the mod's load context lives as long as the mod
     internal sealed record LoadedMod(ModManifest Manifest, IMod Instance, McMaster.NETCore.Plugins.PluginLoader Loader);

@@ -67,6 +67,15 @@ namespace Omamori.Tests
         }
 
         [Test]
+        public void TurnedOffDependencySaysSo()
+        {
+            var skipped = new List<SkippedMod>();
+            ModLoader.ResolveDependencies([mod("dependent", requires("base"))], skipped, new HashSet<string> { "base" });
+
+            Assert.That(skipped.Single().Reason, Is.EqualTo("needs base, which is turned off"));
+        }
+
+        [Test]
         public void MissingOptionalDependencyStillLoads()
         {
             var (order, skipped) = resolve(mod("a", optional("not.installed")));

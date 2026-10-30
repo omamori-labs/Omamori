@@ -17,6 +17,7 @@ namespace Omamori.Core
         GlobalOverlay,
         CrashReportFilter,
         ModContainment,
+        SettingsModList,
     }
 
     internal enum FeatureState
@@ -66,6 +67,7 @@ namespace Omamori.Core
             new FeatureInfo(Feature.GlobalOverlay, "global-overlay", "Global overlay", "mod overlays don't show", Hook.GlobalOverlay),
             new FeatureInfo(Feature.CrashReportFilter, "crash-report-filter", "Crash report filter", "crashes caused by mods may be reported to ppy as osu! bugs"),
             new FeatureInfo(Feature.ModContainment, "mod-containment", "Mod crash protection", "a crashing mod can crash osu! instead of being turned off"),
+            new FeatureInfo(Feature.SettingsModList, "settings-mod-list", "Mod list in settings", "mods can't be seen or turned off from settings"),
         ];
 
         private static readonly Dictionary<Feature, FeatureStatus> statuses = ALL.ToDictionary(f => f.Feature, f => new FeatureStatus(f, FeatureState.Pending, null));

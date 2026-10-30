@@ -4,6 +4,8 @@ using System.Linq;
 using HarmonyLib;
 using Omamori.API;
 using osu.Game;
+using osu.Game.Overlays;
+using osu.Game.Overlays.Settings.Sections;
 using osu.Game.Rulesets;
 using osu.Game.Screens.Menu;
 using osu.Game.Utils;
@@ -51,7 +53,7 @@ namespace Omamori.Core
             [HarmonyPrefix]
             private static void prefix()
             {
-                FeatureRegistry.Run(Feature.ModLoading, () => ModLoader.LoadAll(CoreEntry.ModsDirectory, FaultHistory.Open(CoreEntry.FaultsFile)));
+                FeatureRegistry.Run(Feature.ModLoading, () => ModLoader.LoadAll(CoreEntry.ModsDirectory, FaultHistory.Open(CoreEntry.FaultsFile), ModSettings.Open(CoreEntry.SettingsFile)));
             }
         }
 
@@ -63,6 +65,26 @@ namespace Omamori.Core
             private static void postfix(OsuGame __instance)
             {
                 FeatureRegistry.Run(Feature.GlobalOverlay, () => UiHooks.Populate(Hook.GlobalOverlay, __instance.topMostOverlayContent));
+            }
+        }
+
+        /// <summary>
+        ///     sections only load when settings first opens, so inserting into the pending list is enough
+        /// </summary>
+        [Feature(Feature.SettingsModList)]
+        [HarmonyPatch(typeof(SettingsOverlay), nameof(SettingsOverlay.load))]
+        internal static class SettingsModList
+        {
+            [HarmonyPostfix]
+            private static void postfix(SettingsOverlay __instance)
+            {
+                FeatureRegistry.Run(Feature.SettingsModList, () =>
+                {
+                    var sections = __instance.loadableSections;
+                    int maintenance = sections.FindIndex(s => s is MaintenanceSection);
+
+                    sections.Insert(maintenance < 0 ? sections.Count : maintenance, new ModListSection());
+                });
             }
         }
 
