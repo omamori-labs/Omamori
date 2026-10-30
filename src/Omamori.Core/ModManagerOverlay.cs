@@ -330,9 +330,6 @@ namespace Omamori.Core
         // ui bugs turn the manager off instead of counting towards osu!'s crash limit
         private static void guard(Action action) => FeatureRegistry.Run(Feature.ModManager, action);
 
-        public static string Byline(ModManifest manifest) =>
-            string.Join("\n", new[] { string.IsNullOrEmpty(manifest.Author) ? null : $"by {manifest.Author}", manifest.Description }.Where(s => !string.IsNullOrEmpty(s)));
-
         public static void OpenModsFolder(GameHost host)
         {
             Directory.CreateDirectory(CoreEntry.ModsDirectory);

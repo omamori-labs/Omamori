@@ -9,7 +9,6 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Localisation;
 using osu.Framework.Platform;
-using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Overlays;
 using osu.Game.Overlays.Settings;
 
@@ -28,7 +27,7 @@ namespace Omamori.Core
     }
 
     /// <summary>
-    ///     a summary and the way into <see cref="ModManagerOverlay"/>, lists every mod itself only when the manager isn't available
+    ///     a summary and the way into <see cref="ModManagerOverlay"/>, never a list of mods so it stays short
     /// </summary>
     internal sealed partial class ModListSubsection : SettingsSubsection
     {
@@ -81,13 +80,12 @@ namespace Omamori.Core
                     });
                 }
 
-                Add(openFolderButton(host));
-
-                if (ModManagerOverlay.Current == null)
+                else
                 {
-                    foreach (var mod in InstalledMods.All())
-                        Add(row(mod));
+                    Add(note("The mod manager isn't available on this osu! version.", SettingsNote.Type.Critical));
                 }
+
+                Add(openFolderButton(host));
 
                 refreshAll();
             });
@@ -116,39 +114,6 @@ namespace Omamori.Core
         }
 
         private void refreshAll() => refreshes.ForEach(r => r());
-
-        private SettingsItemV2 row(InstalledMod mod)
-        {
-            var enabled = new BindableBool(mod.Enabled) { Disabled = mod.Manifest == null };
-
-            var item = new SettingsItemV2(new FormCheckBox
-            {
-                Caption = mod.Manifest == null ? mod.Label : $"{mod.Label} {mod.Manifest.Version}",
-                HintText = mod.Manifest == null ? default(LocalisableString) : ModManagerOverlay.Byline(mod.Manifest),
-                Current = enabled,
-            })
-            {
-                ShowRevertToDefaultButton = false,
-                Keywords = mod.Manifest == null ? [] : [mod.Manifest.Id, mod.Manifest.Author],
-            };
-
-            enabled.BindValueChanged(e => InstalledMods.SetEnabled(mod, e.NewValue));
-
-            refreshes.Add(() =>
-            {
-                if (!enabled.Disabled)
-                    enabled.Value = mod.Enabled;
-
-                item.Note.Value = mod.StatusText is string text ? new SettingsNote.Data(text, noteType(mod)) : null;
-            });
-
-            return item;
-        }
-
-        private static SettingsNote.Type noteType(InstalledMod mod) =>
-            mod.Pending ? SettingsNote.Type.Informational
-            : mod.Status == ModStatus.Crashed ? SettingsNote.Type.Critical
-            : SettingsNote.Type.Warning;
 
         private static SettingsNote.Data summarise(IReadOnlyList<InstalledMod> mods)
         {
