@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/catforgor/Omamori/main/schemas/mod.schema.json",
+  "$id": "https://raw.githubusercontent.com/omamori-labs/Omamori/main/schemas/mod.schema.json",
   "title": "Omamori mod manifest",
   "description": "canonical mod.json form for an Omamori mod.",
   "type": "object",

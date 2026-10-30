@@ -13,8 +13,8 @@
     <Authors>catforgor</Authors>
     <Copyright>Copyright (c) 2026 catforgor</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/catforgor/Omamori</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/catforgor/Omamori</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/omamori-labs/Omamori</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/omamori-labs/Omamori</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 

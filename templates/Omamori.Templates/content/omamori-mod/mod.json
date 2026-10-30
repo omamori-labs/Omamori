@@ -1,5 +1,5 @@
 {
-  "$schema": "https://raw.githubusercontent.com/catforgor/Omamori/main/schemas/mod.schema.json",
+  "$schema": "https://raw.githubusercontent.com/omamori-labs/Omamori/main/schemas/mod.schema.json",
   "id": "yourname.mymod",
   "name": "OmamoriMod",
   "version": "1.0.0",

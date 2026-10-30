@@ -1,6 +1,6 @@
 # Omamori.ModBuildConfig
 
-Build setup for [Omamori](https://github.com/catforgor/Omamori) mods for osu!lazer
+Build setup for [Omamori](https://github.com/omamori-labs/Omamori) mods for osu!lazer
 
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
