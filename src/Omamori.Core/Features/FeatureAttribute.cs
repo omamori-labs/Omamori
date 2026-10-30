@@ -1,6 +1,6 @@
 using System;
 
-namespace Omamori.Core
+namespace Omamori.Core.Features
 {
     /// <summary>
     ///     marks a harmony patch class as part of a feature

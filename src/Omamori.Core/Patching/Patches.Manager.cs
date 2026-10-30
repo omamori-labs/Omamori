@@ -1,9 +1,11 @@
 using HarmonyLib;
+using Omamori.Core.Features;
+using Omamori.Core.Manager;
 using osu.Game;
 using osu.Game.Overlays;
 using osu.Game.Overlays.Settings.Sections;
 
-namespace Omamori.Core
+namespace Omamori.Core.Patching
 {
     // omamori's own ui, the settings section and the mod manager
     internal static partial class Patches

@@ -1,6 +1,6 @@
 using osu.Framework.Graphics;
 
-namespace Omamori.Core
+namespace Omamori.Core.Config
 {
     internal abstract class ConfigElement
     {

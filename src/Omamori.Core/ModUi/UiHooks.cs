@@ -2,10 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Omamori.API;
+using Omamori.Core.Features;
+using Omamori.Core.Safety;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 
-namespace Omamori.Core
+namespace Omamori.Core.ModUi
 {
     internal sealed class UiHooks : IUiHooks
     {

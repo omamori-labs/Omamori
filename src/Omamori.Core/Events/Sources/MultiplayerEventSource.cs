@@ -1,14 +1,12 @@
 using Omamori.API;
+using Omamori.Core.Features;
 using osu.Game;
 
-namespace Omamori.Core
+namespace Omamori.Core.Events.Sources
 {
-    /// <summary>
-    ///     RoomUpdated fires for every ready state and so on, comparing the room's summary leaves joins, leaves and real changes
-    /// </summary>
     internal static class MultiplayerEventSource
     {
-        private static RoomDetails? current;
+        private static readonly RoomTracker room = new RoomTracker();
 
         public static void Watch(OsuGame game)
         {
@@ -16,7 +14,7 @@ namespace Omamori.Core
 
             client.RoomUpdated += () => game.Schedule(() => FeatureRegistry.Run(Feature.MultiplayerEvents, () =>
             {
-                var room = client.Room is { } r
+                var details = client.Room is { } r
                     ? new RoomDetails
                     {
                         Id = r.RoomID,
@@ -28,14 +26,8 @@ namespace Omamori.Core
                     }
                     : null;
 
-                if (room == current)
-                    return;
-
-                var kind = current == null ? RoomChangeKind.Joined : room == null ? RoomChangeKind.Left : RoomChangeKind.Updated;
-                var reported = (room ?? current)!;
-
-                current = room;
-                GameEvents.Raise(GameEvent.RoomChanged, new RoomChange { Kind = kind, Room = reported });
+                if (room.Update(details) is { } change)
+                    GameEvents.Raise(GameEvent.RoomChanged, change);
             }));
         }
     }

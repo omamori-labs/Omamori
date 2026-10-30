@@ -1,8 +1,11 @@
 using HarmonyLib;
+using Omamori.Core.Config;
+using Omamori.Core.Events.Sources;
+using Omamori.Core.Features;
 using osu.Framework.Platform;
 using osu.Game;
 
-namespace Omamori.Core
+namespace Omamori.Core.Patching
 {
     // read-only, each group subscribes to the game's public state once it has loaded, nothing else is patched
     internal static partial class Patches

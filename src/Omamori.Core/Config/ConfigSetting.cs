@@ -1,7 +1,7 @@
 using Omamori.API;
 using osu.Framework.Localisation;
 
-namespace Omamori.Core
+namespace Omamori.Core.Config
 {
     internal abstract class ConfigSetting(string key, string label, SettingOptions options) : ConfigElement
     {

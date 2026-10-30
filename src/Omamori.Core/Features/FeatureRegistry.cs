@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using HarmonyLib;
 using Omamori.API;
+using Omamori.Core.Safety;
 
-namespace Omamori.Core
+namespace Omamori.Core.Features
 {
     internal static class FeatureRegistry
     {

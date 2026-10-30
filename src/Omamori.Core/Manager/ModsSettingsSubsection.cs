@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Omamori.Core.Config;
+using Omamori.Core.Features;
+using Omamori.Core.Safety;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
@@ -10,7 +13,7 @@ using osu.Framework.Platform;
 using osu.Game.Overlays;
 using osu.Game.Overlays.Settings;
 
-namespace Omamori.Core
+namespace Omamori.Core.Manager
 {
     /// <summary>
     ///     a summary and the way into <see cref="ModManagerOverlay"/>, never a list of mods so it stays short

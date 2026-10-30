@@ -11,7 +11,7 @@ using osu.Game.Screens.Menu;
 using osu.Game.Screens.Play;
 using osu.Game.Users;
 
-namespace Omamori.Core
+namespace Omamori.Core.Events
 {
     /// <summary>
     ///     turns lazer's objects into the read-only copies mods get

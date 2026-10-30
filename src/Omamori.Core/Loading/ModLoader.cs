@@ -6,8 +6,10 @@ using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Omamori.API;
+using Omamori.Core.Features;
+using Omamori.Core.Safety;
 
-namespace Omamori.Core
+namespace Omamori.Core.Loading
 {
     /// <summary>
     ///     discover (schema) -> validate -> dedupe -> turned off in settings -> crash history -> required hooks -> dependencies + load order -> load

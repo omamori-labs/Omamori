@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Runtime.Loader;
 using HarmonyLib;
 
-namespace Omamori.Core
+namespace Omamori.Core.Safety
 {
     /// <summary>
     ///     decides whether a crash is omamori's or a mod's, so it isn't reported to ppy as an osu! bug

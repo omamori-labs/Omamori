@@ -6,7 +6,7 @@ using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using NUnit.Framework;
-using Omamori.Core;
+using Omamori.Core.Loading;
 using static VerifyNUnit.Verifier;
 
 namespace Omamori.Tests

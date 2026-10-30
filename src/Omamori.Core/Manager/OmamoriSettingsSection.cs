@@ -3,7 +3,7 @@ using osu.Framework.Graphics.Sprites;
 using osu.Framework.Localisation;
 using osu.Game.Overlays.Settings;
 
-namespace Omamori.Core
+namespace Omamori.Core.Manager
 {
     internal sealed partial class OmamoriSettingsSection : SettingsSection
     {

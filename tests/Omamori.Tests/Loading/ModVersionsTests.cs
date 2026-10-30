@@ -1,5 +1,5 @@
 using NUnit.Framework;
-using Omamori.Core;
+using Omamori.Core.Loading;
 
 namespace Omamori.Tests
 {

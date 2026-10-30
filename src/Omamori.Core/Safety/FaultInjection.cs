@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Omamori.Core.Features;
 
-namespace Omamori.Core
+namespace Omamori.Core.Safety
 {
     /// <summary>
     ///     testing only

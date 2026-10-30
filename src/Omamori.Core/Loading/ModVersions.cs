@@ -1,7 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Semver;
 
-namespace Omamori.Core
+namespace Omamori.Core.Loading
 {
     internal static class ModVersions
     {

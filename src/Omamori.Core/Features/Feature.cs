@@ -1,4 +1,4 @@
-namespace Omamori.Core
+namespace Omamori.Core.Features
 {
     /// <summary>
     ///     a group of patches that works or fail altogether

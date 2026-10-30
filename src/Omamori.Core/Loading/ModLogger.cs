@@ -1,7 +1,7 @@
 using System;
 using Omamori.API;
 
-namespace Omamori.Core
+namespace Omamori.Core.Loading
 {
     internal sealed class ModLogger : IModLogger
     {

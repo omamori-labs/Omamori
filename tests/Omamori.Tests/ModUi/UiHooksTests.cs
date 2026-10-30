@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using NSubstitute;
 using NUnit.Framework;
 using Omamori.API;
-using Omamori.Core;
+using Omamori.Core.Features;
+using Omamori.Core.ModUi;
 using osu.Framework.Graphics.Containers;
 
 namespace Omamori.Tests

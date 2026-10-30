@@ -1,7 +1,7 @@
 using System.IO;
 using Omamori.API;
 
-namespace Omamori.Core
+namespace Omamori.Core.Loading
 {
     internal sealed record ModCandidate(string Directory, ModManifest Manifest)
     {

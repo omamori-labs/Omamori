@@ -1,7 +1,7 @@
 using System;
 using HarmonyLib;
 using NUnit.Framework;
-using Omamori.Core;
+using Omamori.Core.Features;
 
 namespace Omamori.Tests
 {

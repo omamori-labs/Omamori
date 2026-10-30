@@ -3,7 +3,7 @@ using System.IO;
 using System.Text.Json;
 using Microsoft.Build.Framework;
 using Omamori.API;
-using Omamori.Core;
+using Omamori.Core.Loading;
 using MSBuildTask = Microsoft.Build.Utilities.Task;
 
 namespace Omamori.ModBuildConfig

@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.Loader;
 using HarmonyLib;
 using NUnit.Framework;
-using Omamori.Core;
+using Omamori.Core.Safety;
 
 namespace Omamori.Tests
 {

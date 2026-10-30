@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Omamori.Core
+namespace Omamori.Core.Loading
 {
     /// <summary>
     ///     omamori/settings.json, what the player turned off in the settings mod list, read once per launch

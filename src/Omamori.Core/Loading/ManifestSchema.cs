@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text.Json;
 using Json.Schema;
 
-namespace Omamori.Core
+namespace Omamori.Core.Loading
 {
     /// <summary>
     ///     validates mod.json against schemas/mod.schema.json

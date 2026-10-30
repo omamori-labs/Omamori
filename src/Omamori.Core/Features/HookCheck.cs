@@ -1,7 +1,8 @@
 using System.Collections.Generic;
 using Omamori.API;
+using Omamori.Core.Loading;
 
-namespace Omamori.Core
+namespace Omamori.Core.Features
 {
     internal static class HookCheck
     {

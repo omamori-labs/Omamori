@@ -1,8 +1,10 @@
 using Omamori.API;
+using Omamori.Core.Features;
+using Omamori.Core.Patching;
 using osu.Framework.Configuration;
 using osu.Game;
 
-namespace Omamori.Core
+namespace Omamori.Core.Events.Sources
 {
     /// <summary>
     ///     the window, and the game closing, see <see cref="Patches.GameExitingHook"/>

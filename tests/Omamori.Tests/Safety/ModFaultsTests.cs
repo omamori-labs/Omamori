@@ -6,7 +6,10 @@ using System.Runtime.CompilerServices;
 using HarmonyLib;
 using NUnit.Framework;
 using Omamori.API;
-using Omamori.Core;
+using Omamori.Core.Features;
+using Omamori.Core.Loading;
+using Omamori.Core.ModUi;
+using Omamori.Core.Safety;
 using osu.Framework.Graphics.Containers;
 using Semver;
 

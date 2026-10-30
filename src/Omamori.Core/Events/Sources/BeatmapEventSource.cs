@@ -1,17 +1,16 @@
-using System.Collections.Generic;
-using System.Linq;
 using Omamori.API;
+using Omamori.Core.Features;
 using osu.Game;
 using osu.Game.Beatmaps;
 
-namespace Omamori.Core
+namespace Omamori.Core.Events.Sources
 {
     /// <summary>
     ///     the global beatmap, ruleset and selected mods
     /// </summary>
     internal static class BeatmapEventSource
     {
-        private static IReadOnlyList<string> lastMods = [];
+        private static readonly SelectedModsTracker selected_mods = new SelectedModsTracker();
 
         public static void Watch(OsuGame game)
         {
@@ -30,13 +29,10 @@ namespace Omamori.Core
 
             game.SelectedMods.BindValueChanged(e => FeatureRegistry.Run(Feature.BeatmapEvents, () =>
             {
-                // lazer reorders the same mods, that isn't a change
                 var mods = EventDetails.Acronyms(e.NewValue);
-                if (mods.ToHashSet().SetEquals(lastMods))
-                    return;
 
-                lastMods = mods;
-                GameEvents.Raise(GameEvent.ModsChanged, mods);
+                if (selected_mods.Update(mods))
+                    GameEvents.Raise(GameEvent.ModsChanged, mods);
             }));
         }
     }

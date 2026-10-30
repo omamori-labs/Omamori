@@ -1,7 +1,7 @@
 using System.IO;
 using osu.Framework.Platform;
 
-namespace Omamori.Core
+namespace Omamori.Core.Manager
 {
     internal static class ModsFolder
     {

@@ -1,17 +1,18 @@
 using Omamori.API;
+using Omamori.Core.Features;
 using osu.Framework.Bindables;
 using osu.Game;
 using osu.Game.Scoring;
 using osu.Game.Screens.Play;
 
-namespace Omamori.Core
+namespace Omamori.Core.Events.Sources
 {
     /// <summary>
     ///     a play starts when a player screen is pushed and ends when it exits, or completes when it pushes results
     /// </summary>
     internal static class PlayEventSource
     {
-        private static PlayDetails? activePlay;
+        private static readonly PlayTracker plays = new PlayTracker();
         private static IBindable<bool>? paused;
 
         public static void Watch(OsuGame game)
@@ -25,7 +26,7 @@ namespace Omamori.Core
                     start(player);
             });
 
-            // results exiting resumes the player, which isn't valid for resume and exits too, activePlay keeps that from ending twice
+            // results exiting resumes the player, which isn't valid for resume and exits too, the tracker keeps that from ending twice
             game.ScreenStack.ScreenExited += (last, _) => FeatureRegistry.Run(Feature.PlayEvents, () =>
             {
                 if (last is Player player)
@@ -35,10 +36,7 @@ namespace Omamori.Core
 
         private static void start(Player player)
         {
-            if (activePlay != null)
-                end(player, null);
-
-            activePlay = new PlayDetails
+            var play = new PlayDetails
             {
                 Beatmap = EventDetails.Beatmap(player.Beatmap.Value.BeatmapInfo),
                 Ruleset = player.Ruleset.Value is { } ruleset ? ruleset.ShortName : string.Empty,
@@ -46,7 +44,10 @@ namespace Omamori.Core
                 IsReplay = player is ReplayPlayer or SpectatorPlayer,
             };
 
-            GameEvents.Raise(GameEvent.PlayStarted, activePlay);
+            if (plays.Start(play) is { } interrupted)
+                raiseEnded(interrupted, player, null);
+
+            GameEvents.Raise(GameEvent.PlayStarted, play);
 
             // the clock only exists once the player has loaded
             if (player.GameplayClockContainer != null)
@@ -55,33 +56,26 @@ namespace Omamori.Core
                 player.OnLoadComplete += _ => watchPause(player);
         }
 
-        // the clock starts paused and stops when the play ends, only pauses in between are reported
         private static void watchPause(Player player)
         {
-            bool started = false;
+            var tracker = new PauseTracker();
 
             paused = player.GameplayClockContainer.IsPaused.GetBoundCopy();
             paused.BindValueChanged(e => FeatureRegistry.Run(Feature.PlayEvents, () =>
             {
-                if (player.GameplayState.HasCompleted)
-                    return;
-
-                if (!started)
-                {
-                    started = !e.NewValue;
-                    return;
-                }
-
-                GameEvents.Raise(GameEvent.PlayPaused, e.NewValue);
+                if (tracker.IsPlayerPause(e.NewValue, player.GameplayState.HasCompleted))
+                    GameEvents.Raise(GameEvent.PlayPaused, e.NewValue);
             }));
         }
 
         private static void end(Player player, ScoreInfo? score)
         {
-            if (activePlay is not { } play)
-                return;
+            if (plays.End() is { } play)
+                raiseEnded(play, player, score);
+        }
 
-            activePlay = null;
+        private static void raiseEnded(PlayDetails play, Player player, ScoreInfo? score)
+        {
             paused?.UnbindAll();
             paused = null;
 

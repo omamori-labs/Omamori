@@ -5,7 +5,7 @@ using Omamori.API;
 using QuikGraph;
 using QuikGraph.Algorithms;
 
-namespace Omamori.Core
+namespace Omamori.Core.Loading
 {
     /// <summary>
     ///     which mods can load and in what order, from their required and optional dependencies

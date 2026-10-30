@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Omamori.Core.Config;
+using Omamori.Core.Features;
+using Omamori.Core.Safety;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
@@ -15,7 +18,7 @@ using osu.Game.Overlays;
 using osu.Game.Overlays.Mods;
 using osuTK;
 
-namespace Omamori.Core
+namespace Omamori.Core.Manager
 {
     /// <summary>
     ///     full screen list of every installed mod, opened from settings, built like mod select and first-run setup

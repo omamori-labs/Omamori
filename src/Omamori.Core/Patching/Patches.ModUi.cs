@@ -1,9 +1,11 @@
 using HarmonyLib;
 using Omamori.API;
+using Omamori.Core.Features;
+using Omamori.Core.ModUi;
 using osu.Game;
 using osu.Game.Screens.Menu;
 
-namespace Omamori.Core
+namespace Omamori.Core.Patching
 {
     // where mods' own drawables go, see UiHooks
     internal static partial class Patches

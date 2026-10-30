@@ -1,9 +1,11 @@
 using System;
 using HarmonyLib;
+using Omamori.Core.Features;
+using Omamori.Core.Safety;
 using osu.Game;
 using osu.Game.Utils;
 
-namespace Omamori.Core
+namespace Omamori.Core.Patching
 {
     // keeping mods' crashes from crashing osu! or reaching ppy
     internal static partial class Patches

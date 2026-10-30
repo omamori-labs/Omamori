@@ -1,22 +1,21 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Omamori.API;
+using Omamori.Core.Features;
 using osu.Game;
 using osu.Game.Beatmaps;
 using osu.Game.Scoring;
 using Realms;
 
-namespace Omamori.Core
+namespace Omamori.Core.Events.Sources
 {
     /// <summary>
     ///     realm subscriptions, only made when a mod listens
-    ///     realm's deletion indices point at rows that are already gone, so the set list is mirrored to describe removed sets
     /// </summary>
     internal static class LibraryEventSource
     {
         private static readonly List<IDisposable> subscriptions = [];
-        private static List<BeatmapSetDetails> sets = [];
+        private static readonly BeatmapSetMirror sets = new BeatmapSetMirror();
 
         public static void Watch(OsuGame game)
         {
@@ -42,26 +41,20 @@ namespace Omamori.Core
             // the first call, or realm resubscribing, is the whole library
             if (changes == null)
             {
-                sets = [.. sender.Select(EventDetails.BeatmapSet)];
+                sets.Reset(sender.Select(EventDetails.BeatmapSet));
                 return;
             }
 
-            foreach (int i in changes.DeletedIndices.OrderDescending())
-            {
-                var removed = sets[i];
-                sets.RemoveAt(i);
+            foreach (var removed in sets.Remove(changes.DeletedIndices))
                 GameEvents.Raise(GameEvent.BeatmapSetRemoved, removed);
-            }
 
-            foreach (int i in changes.InsertedIndices.Order())
-            {
-                var added = EventDetails.BeatmapSet(sender[i]);
-                sets.Insert(i, added);
+            var inserted = changes.InsertedIndices.Select(i => (i, EventDetails.BeatmapSet(sender[i]))).ToList();
+            sets.Insert(inserted);
+
+            foreach (var (_, added) in inserted.OrderBy(i => i.Item1))
                 GameEvents.Raise(GameEvent.BeatmapSetAdded, added);
-            }
 
-            foreach (int i in changes.NewModifiedIndices)
-                sets[i] = EventDetails.BeatmapSet(sender[i]);
+            sets.Replace(changes.NewModifiedIndices.Select(i => (i, EventDetails.BeatmapSet(sender[i]))));
         });
     }
 }

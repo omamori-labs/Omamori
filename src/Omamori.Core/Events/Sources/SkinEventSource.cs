@@ -1,7 +1,8 @@
 using Omamori.API;
+using Omamori.Core.Features;
 using osu.Game;
 
-namespace Omamori.Core
+namespace Omamori.Core.Events.Sources
 {
     internal static class SkinEventSource
     {

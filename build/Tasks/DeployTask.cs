@@ -9,7 +9,7 @@ using Cake.Frosting;
 namespace Omamori.Build
 {
     [TaskName("Deploy")]
-    [TaskDescription("install the staged build and the mods from --mods (default examples/) into the sandbox")]
+    [TaskDescription("install the staged build into the sandbox, plus every mod project under each --mods folder")]
     [IsDependentOn(typeof(BuildTask))]
     public sealed class DeployTask : FrostingTask<BuildContext>
     {

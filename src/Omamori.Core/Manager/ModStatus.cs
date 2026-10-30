@@ -1,4 +1,4 @@
-namespace Omamori.Core
+namespace Omamori.Core.Manager
 {
     internal enum ModStatus
     {

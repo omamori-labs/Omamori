@@ -1,6 +1,6 @@
 using Omamori.API;
 
-namespace Omamori.Core
+namespace Omamori.Core.Features
 {
     /// <param name="Feature">the feature this describes</param>
     /// <param name="Id">stable kebab-case id for logs, fault injection and the manager</param>

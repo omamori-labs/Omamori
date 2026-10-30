@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Loader;
+using Omamori.Core.Loading;
+using Omamori.Core.ModUi;
 using osu.Framework.Threading;
 
-namespace Omamori.Core
+namespace Omamori.Core.Safety
 {
     /// <summary>
     ///     turns off a mod that throws an unhandled exception, removing its ui and patches

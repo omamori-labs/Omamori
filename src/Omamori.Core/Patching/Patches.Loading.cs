@@ -1,10 +1,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using HarmonyLib;
+using Omamori.Core.Features;
+using Omamori.Core.Loading;
+using Omamori.Core.Safety;
 using osu.Game;
 using osu.Game.Rulesets;
 
-namespace Omamori.Core
+namespace Omamori.Core.Patching
 {
     internal static partial class Patches
     {

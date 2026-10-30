@@ -1,4 +1,6 @@
-namespace Omamori.Core
+using Omamori.Core.Features;
+
+namespace Omamori.Core.Patching
 {
     /// <summary>
     ///     the only code that hooks into lazer, one file per area

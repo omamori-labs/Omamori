@@ -1,13 +1,14 @@
 using System;
 using System.Collections.Generic;
 using Omamori.API;
+using Omamori.Core.Safety;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Overlays.Settings;
 
-namespace Omamori.Core
+namespace Omamori.Core.Config
 {
     /// <summary>
     ///     the player edits stored, the mod reads live, they only differ for restart only settings

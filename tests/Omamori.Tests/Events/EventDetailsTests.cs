@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using NUnit.Framework;
 using Omamori.API;
-using Omamori.Core;
+using Omamori.Core.Events;
 using osu.Game.Beatmaps;
 using osu.Game.Scoring;
 

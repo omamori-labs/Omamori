@@ -9,7 +9,7 @@ using osu.Game.Graphics.UserInterface;
 using osu.Game.Overlays;
 using osuTK;
 
-namespace Omamori.Core
+namespace Omamori.Core.Manager
 {
     /// <summary>
     ///     what the manager puts in lazer's screen footer, the pending change count and the mods folder

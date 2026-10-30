@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using NUnit.Framework;
 using Omamori.API;
-using Omamori.Core;
+using Omamori.Core.Config;
 using osu.Framework.Graphics;
 
 namespace Omamori.Tests

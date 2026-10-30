@@ -10,7 +10,7 @@ using osu.Framework.Graphics;
 using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Overlays.Settings;
 
-namespace Omamori.Core
+namespace Omamori.Core.Config
 {
     /// <summary>
     ///     one per mod, values live in omamori/config/[id].json so they survive the mod updating

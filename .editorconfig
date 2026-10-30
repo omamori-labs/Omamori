@@ -284,3 +284,9 @@ indent_style = unset
 insert_final_newline = false
 tab_width = unset
 trim_trailing_whitespace = false
+
+# core's folders are its namespaces, ArchitectureTests checks the layering between them
+# the api stays one namespace for mods, the tests and build are only grouped for browsing
+[src/Omamori.Core/**.cs]
+dotnet_style_namespace_match_folder = true
+dotnet_diagnostic.IDE0130.severity = warning

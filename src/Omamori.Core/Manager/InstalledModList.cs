@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Omamori.Core.Loading;
+using Omamori.Core.Safety;
 
-namespace Omamori.Core
+namespace Omamori.Core.Manager
 {
     /// <summary>
     ///     what the settings list and the mod manager show, changes apply next launch since a mod's Load only runs once

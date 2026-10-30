@@ -1,6 +1,8 @@
 using Omamori.API;
+using Omamori.Core.Loading;
+using Omamori.Core.Safety;
 
-namespace Omamori.Core
+namespace Omamori.Core.Manager
 {
     // no manifest when it couldn't be read or another mod has its id, it can't be switched
     internal sealed record InstalledMod(string Label, ModManifest? Manifest, bool OnAtLaunch, string? Problem)

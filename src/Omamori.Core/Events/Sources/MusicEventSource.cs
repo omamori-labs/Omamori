@@ -1,7 +1,8 @@
+using Omamori.Core.Features;
 using osu.Game;
 using osu.Game.Beatmaps;
 
-namespace Omamori.Core
+namespace Omamori.Core.Events.Sources
 {
     internal static class MusicEventSource
     {

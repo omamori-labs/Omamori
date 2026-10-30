@@ -10,7 +10,7 @@ using osu.Game.Graphics.Sprites;
 using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Overlays;
 
-namespace Omamori.Core
+namespace Omamori.Core.Manager
 {
     /// <summary>
     ///     one mod in the manager's list, a coloured status bar, its name and status, and a quick switch

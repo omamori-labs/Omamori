@@ -1,10 +1,11 @@
 using Omamori.API;
+using Omamori.Core.Features;
 using osu.Framework.Allocation;
 using osu.Game;
 using osu.Game.Online;
 using osu.Game.Users;
 
-namespace Omamori.Core
+namespace Omamori.Core.Events.Sources
 {
     /// <summary>
     ///     logging in and out, and statistics after the server processes a play

@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Runtime.Loader;
 using HarmonyLib;
 
-namespace Omamori.Core
+namespace Omamori.Core.Safety
 {
     internal static class PatchRemoval
     {

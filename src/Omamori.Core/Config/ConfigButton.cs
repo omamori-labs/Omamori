@@ -1,8 +1,9 @@
 using System;
+using Omamori.Core.Safety;
 using osu.Framework.Graphics;
 using osu.Game.Graphics.UserInterfaceV2;
 
-namespace Omamori.Core
+namespace Omamori.Core.Config
 {
     internal sealed class ConfigButton(string modId, string label, string buttonText, Action onClick) : ConfigElement
     {

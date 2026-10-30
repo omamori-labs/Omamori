@@ -3,7 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Omamori.API;
-using Omamori.Core;
+using Omamori.Core.Loading;
 using static VerifyNUnit.Verifier;
 
 namespace Omamori.Tests

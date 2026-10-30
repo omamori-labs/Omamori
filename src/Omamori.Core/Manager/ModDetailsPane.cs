@@ -1,6 +1,8 @@
 using System;
 using System.Linq;
 using Omamori.API;
+using Omamori.Core.Config;
+using Omamori.Core.Features;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
@@ -15,7 +17,7 @@ using osu.Game.Overlays.Mods;
 using osu.Game.Overlays.Settings;
 using osuTK;
 
-namespace Omamori.Core
+namespace Omamori.Core.Manager
 {
     /// <summary>
     ///     the right side of the mod manager, an info tab and, for mods that declared any, a settings tab

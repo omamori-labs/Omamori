@@ -1,7 +1,7 @@
 using osu.Framework.Graphics;
 using osu.Game.Overlays.Settings;
 
-namespace Omamori.Core
+namespace Omamori.Core.Config
 {
     internal sealed class ConfigNote(string text) : ConfigElement
     {

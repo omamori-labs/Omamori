@@ -6,7 +6,7 @@ using Omamori.API;
 using osu.Framework.Graphics;
 using osu.Game;
 
-namespace Omamori.Core
+namespace Omamori.Core.Loading
 {
     /// <summary>
     ///     each mod gets its own load context so mods can bundle different versions of the same library

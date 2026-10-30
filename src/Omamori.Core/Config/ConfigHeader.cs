@@ -3,7 +3,7 @@ using osu.Game.Graphics;
 using osu.Game.Graphics.Sprites;
 using osu.Game.Overlays;
 
-namespace Omamori.Core
+namespace Omamori.Core.Config
 {
     internal sealed class ConfigHeader(string text) : ConfigElement
     {

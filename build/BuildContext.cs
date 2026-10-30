@@ -49,8 +49,9 @@ namespace Omamori.Build
             Sandbox = Path.GetFullPath(context.Argument("sandbox", Path.Combine(Root, "sandbox", "lazer")));
             LazerVersion = File.ReadAllText(Path.Combine(Root, "build", "lazer-version.txt")).Trim();
             ForceSetup = context.HasArgument("force-setup");
-            ModSources = context.Arguments<string>("mods", [Path.Combine(Root, "examples")]);
-            Faults = context.Argument("faults", string.Empty);        }
+            ModSources = context.Arguments<string>("mods", []);
+            Faults = context.Argument("faults", string.Empty);
+        }
 
         private static string findRoot()
         {

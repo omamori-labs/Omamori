@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Omamori.API;
 
-namespace Omamori.Core
+namespace Omamori.Core.Safety
 {
     /// <summary>
     ///     omamori/faults.json, which mods crashed in which session

@@ -1,7 +1,8 @@
+using Omamori.Core.Features;
 using osu.Framework.Graphics;
 using osu.Game.Overlays;
 
-namespace Omamori.Core
+namespace Omamori.Core.Events.Sources
 {
     /// <summary>
     ///     MusicController.IsPlaying has no event, so it's compared each frame

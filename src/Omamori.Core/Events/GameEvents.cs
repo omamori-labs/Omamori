@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using Omamori.API;
+using Omamori.Core.Features;
+using Omamori.Core.Safety;
 
-namespace Omamori.Core
+namespace Omamori.Core.Events
 {
     internal sealed class GameEvents : IGameEvents
     {
@@ -115,6 +117,8 @@ namespace Omamori.Core
         {
             lock (handlers)
                 handlers.Clear();
+
+            last_raised.Clear();
         }
     }
 }

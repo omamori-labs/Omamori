@@ -2,6 +2,10 @@ using System;
 using System.IO;
 using System.Reflection;
 using HarmonyLib;
+using Omamori.Core.Config;
+using Omamori.Core.Features;
+using Omamori.Core.Loading;
+using Omamori.Core.Safety;
 
 namespace Omamori.Core
 {
@@ -12,7 +16,7 @@ namespace Omamori.Core
     {
         public const string HARMONY_ID = "omamori.core";
 
-        /// <summary>hidden by <see cref="Patches.HideHostRuleset"/></summary>
+        /// <summary>hidden by <see cref="Patching.Patches.HideHostRuleset"/></summary>
         internal static string HostRulesetShortName { get; private set; } = string.Empty;
 
         internal static string DataDirectory { get; private set; } = string.Empty;
@@ -34,7 +38,7 @@ namespace Omamori.Core
 
         /// <summary>
         ///     runs inside lazers ruleset store ctor, so only patch here
-        ///     mods load later, see <see cref="Patches.ModLoadingHook"/>
+        ///     mods load later, see <see cref="Patching.Patches.ModLoadingHook"/>
         /// </summary>
         public static void Start(int contractVersion, string dataDirectory, string hostRulesetShortName)
         {

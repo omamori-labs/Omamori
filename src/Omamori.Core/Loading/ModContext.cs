@@ -1,7 +1,12 @@
 using System.Linq;
 using Omamori.API;
+using Omamori.Core.Config;
+using Omamori.Core.Events;
+using Omamori.Core.Features;
+using Omamori.Core.ModUi;
+using Omamori.Core.Safety;
 
-namespace Omamori.Core
+namespace Omamori.Core.Loading
 {
     internal sealed class ModContext : IModContext
     {
