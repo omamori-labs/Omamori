@@ -1,0 +1,82 @@
+name: release
+
+# a v* tag builds, tests and packs that exact commit, publishes both packages to nuget and makes a github release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    runs-on: windows-latest
+    # nuget's trusted publishing policy can be limited to this environment, and the environment can require approval
+    environment: nuget
+
+    permissions:
+      # the github release
+      contents: write
+      # trusted publishing, a short-lived nuget key from github's oidc token instead of a stored one
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: "**/packages.lock.json"
+
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: sandbox/lazer
+          key: lazer-${{ runner.os }}-${{ hashFiles('lazer-version.txt') }}
+
+      - name: setup, build, test and pack
+        run: dotnet run --project build/Build.csproj -- --target=CI
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # minver takes the version from the tag, a mismatch means the tag isn't what got built (eg a lightweight tag on the wrong commit)
+      - name: check the version
+        id: version
+        shell: pwsh
+        run: |
+          $version = "${{ github.ref_name }}".Substring(1)
+          foreach ($package in "Omamori.ModBuildConfig", "Omamori.Templates") {
+            if (-not (Test-Path "artifacts/packages/$package.$version.nupkg")) {
+              Get-ChildItem artifacts/packages
+              throw "expected $package.$version.nupkg"
+            }
+          }
+          "version=$version" >> $env:GITHUB_OUTPUT
+
+      # players extract this into osu!'s data folder, it has rulesets/ and omamori/core/
+      - name: zip omamori
+        shell: pwsh
+        run: Compress-Archive -Path artifacts/stage/Release/* -DestinationPath "artifacts/omamori-${{ steps.version.outputs.version }}.zip"
+
+      - uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841 # v1.2.0
+        id: nuget
+        with:
+          user: ${{ vars.NUGET_USER }}
+
+      # skip-duplicate so a rerun after a failed github release step doesn't fail here
+      - name: publish to nuget
+        shell: pwsh
+        run: dotnet nuget push "artifacts/packages/*.nupkg" --api-key "${{ steps.nuget.outputs.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
+
+      - name: github release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $version = "${{ steps.version.outputs.version }}"
+          $flags = @("--generate-notes", "--verify-tag")
+          if ($version.Contains("-")) { $flags += "--prerelease" }
+          gh release create "${{ github.ref_name }}" @flags --title "Omamori $version" "artifacts/omamori-$version.zip" (Get-ChildItem artifacts/packages/*.nupkg).FullName
