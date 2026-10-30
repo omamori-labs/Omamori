@@ -192,6 +192,8 @@ namespace Omamori.Core
             [HarmonyPrefix]
             private static void prefix()
             {
+                // the debounced save might not get to run otherwise
+                ModSettingsStore.FlushAll();
                 FeatureRegistry.Run(Feature.LifecycleEvents, GameEventSources.Exiting);
             }
         }

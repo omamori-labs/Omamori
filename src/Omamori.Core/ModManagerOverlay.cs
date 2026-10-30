@@ -7,6 +7,7 @@ using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
+using osu.Framework.Graphics.Cursor;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Input.Events;
 using osu.Framework.Platform;
@@ -23,6 +24,12 @@ using osuTK;
 
 namespace Omamori.Core
 {
+    internal enum DetailsTab
+    {
+        Info,
+        Settings,
+    }
+
     internal enum ModFilter
     {
         All,
@@ -43,6 +50,7 @@ namespace Omamori.Core
         private readonly Bindable<string> search = new Bindable<string>(string.Empty);
         private readonly Bindable<ModFilter> filter = new Bindable<ModFilter>();
         private readonly Bindable<InstalledMod?> selected = new Bindable<InstalledMod?>();
+        private readonly Bindable<DetailsTab> tab = new Bindable<DetailsTab>();
 
         private readonly Dictionary<ModFilter, ShearedToggleButton> filterButtons = [];
 
@@ -88,7 +96,8 @@ namespace Omamori.Core
                 toolbar.Add(button);
             }
 
-            MainAreaContent.Add(new Container
+            // the colour picker and file selector open as popovers
+            MainAreaContent.Add(new PopoverContainer
             {
                 RelativeSizeAxes = Axes.Both,
                 Padding = new MarginPadding { Horizontal = OsuGame.SCREEN_EDGE_MARGIN, Top = PADDING },
@@ -147,8 +156,10 @@ namespace Omamori.Core
 
             search.BindValueChanged(_ => applyFilter());
             selected.BindValueChanged(_ => guard(showDetails));
+            tab.BindValueChanged(_ => guard(showDetails));
 
             InstalledMods.Changed += scheduleRefresh;
+            ModSettingsStore.PendingChanged += updatePending;
             ModFaults.Faulted += onFaulted;
             FeatureRegistry.Faulted += onFeatureFaulted;
         }
@@ -156,6 +167,7 @@ namespace Omamori.Core
         protected override void Dispose(bool isDisposing)
         {
             InstalledMods.Changed -= scheduleRefresh;
+            ModSettingsStore.PendingChanged -= updatePending;
             ModFaults.Faulted -= onFaulted;
             FeatureRegistry.Faulted -= onFeatureFaulted;
             base.Dispose(isDisposing);
@@ -213,10 +225,13 @@ namespace Omamori.Core
             foreach (var (value, button) in filterButtons)
                 button.Text = $"{value} ({mods.Count(m => matches(m, value))})";
 
-            footerContent?.SetPending(mods.Count(m => m.Pending));
+            updatePending();
             applyFilter();
             showDetails();
         });
+
+        // only the footer, a settings change must not rebuild the pane under the slider being dragged
+        private void updatePending() => footerContent?.SetPending(list.Children.Count(i => i.Mod.Pending) + ModSettingsStore.PendingCount());
 
         private void applyFilter()
         {
@@ -257,6 +272,22 @@ namespace Omamori.Core
                 details.Add(text(string.Join("  ·  ", facts.Where(f => f.Length > 0)), 14, dim: true));
             }
 
+            // a mod declares its settings in Load, so only loaded mods have any
+            var settings = mod.Id is { } id ? ModSettingsStore.For(id)?.Declared ?? [] : [];
+
+            if (settings.Count > 0)
+            {
+                details.Add(tabs());
+
+                if (tab.Value == DetailsTab.Settings)
+                {
+                    foreach (var setting in settings)
+                        details.Add(setting.CreateItem());
+
+                    return;
+                }
+            }
+
             if (mod.StatusText is string status)
             {
                 details.Add(new SettingsNote
@@ -293,6 +324,32 @@ namespace Omamori.Core
                 details.Add(text($"Uses: {string.Join(", ", m.Hooks.Select(h => hookName(h.Key) + (h.Value == HookRequirement.Optional ? " (optional)" : string.Empty)))}", 14));
 
             details.Add(text($"Id: {m.Id}", 12, dim: true));
+        }
+
+        private FillFlowContainer tabs()
+        {
+            var flow = new FillFlowContainer
+            {
+                AutoSizeAxes = Axes.Both,
+                Direction = FillDirection.Horizontal,
+                Spacing = new Vector2(PADDING, 0),
+                Margin = new MarginPadding { Vertical = 4 },
+            };
+
+            foreach (var value in Enum.GetValues<DetailsTab>())
+            {
+                var button = new ShearedToggleButton { Text = value.ToString(), Width = 140, Height = 36, Active = { Value = tab.Value == value } };
+                button.Active.BindValueChanged(e =>
+                {
+                    if (e.NewValue)
+                        Schedule(() => tab.Value = value);
+                    else if (tab.Value == value)
+                        button.Active.Value = true;
+                });
+                flow.Add(button);
+            }
+
+            return flow;
         }
 
         private static string hookName(Hook hook)
