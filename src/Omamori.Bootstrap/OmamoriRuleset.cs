@@ -39,11 +39,11 @@ namespace Omamori.Bootstrap
         public override DifficultyCalculator CreateDifficultyCalculator(IWorkingBeatmap beatmap) =>
             throw new NotSupportedException("The Omamori host ruleset is not playable.");
 
-        private class HostHitObject : HitObject
+        private sealed class HostHitObject : HitObject
         {
         }
 
-        private class HostBeatmapConverter : BeatmapConverter<HostHitObject>
+        private sealed class HostBeatmapConverter : BeatmapConverter<HostHitObject>
         {
             public HostBeatmapConverter(IBeatmap beatmap, Ruleset ruleset)
                 : base(beatmap, ruleset)

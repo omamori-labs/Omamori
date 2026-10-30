@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/catforgor/Omamori/main/schemas/mod.schema.json",
+  "title": "Omamori mod manifest",
+  "description": "canonical mod.json form for an Omamori mod.",
+  "type": "object",
+  "required": ["id", "name", "version", "entry", "apiVersion", "capabilities"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "id": {
+      "description": "Unique id, used by other mods dependencies. Reverse domain style is recommended, e.g. \"yourname.coolmod\".",
+      "type": "string",
+      "minLength": 1
+    },
+    "name": {
+      "description": "Shown to users.",
+      "type": "string",
+      "minLength": 1
+    },
+    "version": {
+      "description": "Semantic version of the mod. Missing minor/patch count as 0 and a leading v is allowed.",
+      "$ref": "#/$defs/semver"
+    },
+    "author": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "entry": {
+      "description": "The mod's assembly, relative to the mod folder.",
+      "type": "string",
+      "pattern": "^(?![\\\\/])(?![A-Za-z]:)(?!.*\\.\\.).+\\.dll$"
+    },
+    "apiVersion": {
+      "description": "The Omamori API version the mod was built against, major.minor. Loads on any Omamori with the same major and an equal or higher minor.",
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$",
+      "examples": ["0.2"]
+    },
+    "capabilities": {
+      "description": "What the mod does, shown to users before install. Gameplay affecting mods are not allowed.",
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "enum": ["Cosmetic", "Informational"]
+      }
+    },
+    "hooks": {
+      "description": "Hooks the mod uses. A required hook that's unavailable skips the mod, an optional one only skips what uses it. Undeclared hooks count as optional.",
+      "type": "object",
+      "propertyNames": {
+        "enum": ["MainMenu", "GlobalOverlay"]
+      },
+      "additionalProperties": {
+        "enum": ["required", "optional"]
+      }
+    },
+    "dependencies": {
+      "description": "Other mods this one needs. They always load first.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minVersion": {
+            "description": "Lowest accepted version. A prerelease sorts before its release, so 1.0.0-beta does not satisfy 1.0.0.",
+            "$ref": "#/$defs/semver"
+          },
+          "optional": {
+            "description": "Optional dependencies load first when present, the mod loads without them otherwise.",
+            "type": "boolean",
+            "default": false
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "semver": {
+      "type": "string",
+      "pattern": "^[vV]?(0|[1-9][0-9]*)(\\.(0|[1-9][0-9]*)){0,2}(-(0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)(\\.(0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*))*)?(\\+[0-9A-Za-z-]+(\\.[0-9A-Za-z-]+)*)?$",
+      "examples": ["1.0.0", "1.2", "2.0.0-beta.1"]
+    }
+  }
+}

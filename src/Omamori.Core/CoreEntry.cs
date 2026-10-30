@@ -25,8 +25,14 @@ namespace Omamori.Core
         private static readonly string[] shared_assemblies = ["Omamori.API", "0Harmony"];
 
         /// <summary>
+        ///     the real version from the git tag via minver, eg 0.1.0 or 0.1.0-alpha.0.5+sha
+        /// </summary>
+        internal static string Version { get; } =
+            typeof(CoreEntry).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "unknown";
+
+        /// <summary>
         ///     runs inside lazers ruleset store ctor, so only patch here
-        ///     mods load later, see <see cref="Patches.GameLoadHooks"/>
+        ///     mods load later, see <see cref="Patches.ModLoadingHook"/>
         /// </summary>
         public static void Start(int contractVersion, string dataDirectory, string hostRulesetShortName)
         {
@@ -38,10 +44,12 @@ namespace Omamori.Core
 
             AppDomain.CurrentDomain.AssemblyResolve += resolveSharedAssembly;
 
-            LoaderLog.Info($"Omamori core {typeof(CoreEntry).Assembly.GetName().Version} starting (API {API.ApiInfo.VERSION}).");
+            LoaderLog.Info($"Omamori core {Version} starting (API {API.ApiInfo.VERSION}).");
 
-            new Harmony(HARMONY_ID).PatchAll(typeof(CoreEntry).Assembly);
-            LoaderLog.Info("Game patches applied.");
+            if (FaultInjection.Any)
+                LoaderLog.Info($"Fault injection on: {Environment.GetEnvironmentVariable(FaultInjection.ENVIRONMENT_VARIABLE)}");
+
+            FeatureRegistry.ApplyAll(new Harmony(HARMONY_ID));
         }
 
         private static Assembly? resolveSharedAssembly(object? sender, ResolveEventArgs args)

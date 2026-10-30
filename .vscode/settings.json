@@ -1,3 +1,9 @@
 {
-  "dotnet.defaultSolution": "Omamori.sln"
+  "dotnet.defaultSolution": "Omamori.sln",
+  "json.schemas": [
+    {
+      "fileMatch": ["**/mod.json"],
+      "url": "./schemas/mod.schema.json"
+    }
+  ]
 }

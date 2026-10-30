@@ -1,0 +1,17 @@
+﻿<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageVersion Include="Lib.Harmony" Version="2.4.3" />
+    <PackageVersion Include="Semver" Version="3.0.0" />
+    <PackageVersion Include="Krafs.Publicizer" Version="2.3.2" />
+    <PackageVersion Include="Microsoft.Extensions.Primitives" Version="10.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <GlobalPackageReference Include="MinVer" Version="8.0.0" />
+    <GlobalPackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="5.6.0" />
+  </ItemGroup>
+</Project>

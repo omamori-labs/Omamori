@@ -1,9 +1,9 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <ReferenceLazer>true</ReferenceLazer>
     <!-- lazer only loads user rulesets matching osu.Game.Rulesets.*.dll -->
     <AssemblyName>osu.Game.Rulesets.Omamori</AssemblyName>
     <RootNamespace>Omamori.Bootstrap</RootNamespace>
-    <Version>0.1.0</Version>
+    <OmamoriStageDir>rulesets</OmamoriStageDir>
   </PropertyGroup>
 </Project>

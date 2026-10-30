@@ -1,16 +1,19 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <ReferenceLazer>true</ReferenceLazer>
     <RootNamespace>Omamori.Core</RootNamespace>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-    <Version>0.1.0</Version>
+    <OmamoriStageDir>omamori\core</OmamoriStageDir>
     <!-- lazer runs on coreclr -->
     <PublicizerRuntimeStrategies>IgnoresAccessChecksTo</PublicizerRuntimeStrategies>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Lib.Harmony" Version="2.4.3" />
-    <PackageReference Include="Krafs.Publicizer" Version="2.3.2" PrivateAssets="all" />
+    <PackageReference Include="Lib.Harmony" />
+    <PackageReference Include="Semver" />
+    <PackageReference Include="Microsoft.Extensions.Primitives" ExcludeAssets="all" />
+    <Reference Include="Microsoft.Extensions.Primitives" HintPath="$(LazerPath)\Microsoft.Extensions.Primitives.dll" Private="false" />
+    <PackageReference Include="Krafs.Publicizer" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>

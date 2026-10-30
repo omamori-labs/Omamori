@@ -1,0 +1,29 @@
+M:HarmonyLib.Harmony.PatchAll();Bypasses the feature registry, mark patch classes with [Feature] and let FeatureRegistry.ApplyAll patch them.
+M:HarmonyLib.Harmony.PatchAll(System.Reflection.Assembly);Bypasses the feature registry, mark patch classes with [Feature] and let FeatureRegistry.ApplyAll patch them.
+M:HarmonyLib.Harmony.PatchCategory(System.String)Bypasses the feature registry, mark patch classes with [Feature] and let FeatureRegistry.ApplyAll patch them.
+M:HarmonyLib.Harmony.PatchCategory(System.Reflection.Assembly,System.String);Bypasses the feature registry, mark patch classes with [Feature] and let FeatureRegistry.ApplyAll patch them.
+M:HarmonyLib.Harmony.PatchAllUncategorized();BBypasses the feature registry, mark patch classes with [Feature] and let FeatureRegistry.ApplyAll patch them.
+M:HarmonyLib.Harmony.PatchAllUncategorized(System.Reflection.Assembly);Bypasses the feature registry, mark patch classes with [Feature] and let FeatureRegistry.ApplyAll patch them.
+T:HarmonyLib.AccessTools;String reflection breaks when lazer renames something, use the publicized member directly so it breaks build.
+T:HarmonyLib.Traverse;String reflection breaks when lazer renames something, use the publicized member directly so it breaks build.
+M:osu.Framework.Logging.Logger.Error(System.Exception,System.String,osu.Framework.Logging.LoggingTarget,System.Boolean);Use LoaderLog instead.
+M:osu.Framework.Logging.Logger.Error(System.Exception,System.String,System.String,System.Boolean);Use LoaderLog instead.
+M:System.Reflection.Assembly.LoadFile(System.String);Loads a copy that can't share types with core or other mods, use Assembly.LoadFrom.
+M:System.Threading.Thread.Sleep(System.Int32);Blocks the thread, usually the game's update thread, schedule instead.
+M:System.Threading.Thread.Sleep(System.TimeSpan);Blocks the thread, usually the game's update thread, schedule instead.
+M:System.String.ToLower();Depends on the user's culture (e.g. Turkish i). Use ToLowerInvariant.
+M:System.String.ToLower(System.Globalization.CultureInfo);Use ToLowerInvariant.
+M:System.String.ToUpper();Depends on the user's culture (e.g. Turkish i). Use ToUpperInvariant.
+M:System.String.ToUpper(System.Globalization.CultureInfo);Use ToUpperInvariant.
+M:System.Object.Equals(System.Object,System.Object)~System.Boolean;Don't use object.Equals. Use IEquatable<T> or EqualityComparer<T>.Default instead.
+M:System.Object.Equals(System.Object)~System.Boolean;Don't use object.Equals. Use IEquatable<T> or EqualityComparer<T>.Default instead.
+M:System.ValueType.Equals(System.Object)~System.Boolean;Don't use object.Equals (falls back to ValueType). Use IEquatable<T> or EqualityComparer<T>.Default instead.
+M:System.Nullable`1.Equals(System.Object)~System.Boolean;Use == instead.
+T:System.IComparable;Don't use non-generic IComparable. Use the generic version instead.
+M:System.Guid.#ctor;Probably meant Guid.NewGuid(). If you want an empty one, use Guid.Empty.
+M:System.Threading.Tasks.Task.Wait();Can deadlock on the game's threads. Await it or schedule a continuation.
+P:System.Threading.Tasks.Task`1.Result;Can deadlock on the game's threads. Await it or schedule a continuation.
+M:System.Threading.ManualResetEventSlim.Wait();Specify a timeout to avoid waiting forever.
+M:osuTK.MathHelper.Clamp(System.Int32,System.Int32,System.Int32)~System.Int32;Use Math.Clamp() instead.
+M:osuTK.MathHelper.Clamp(System.Single,System.Single,System.Single)~System.Single;Unsafe when a bound is NaN. Use Math.Clamp() instead.
+M:osuTK.MathHelper.Clamp(System.Double,System.Double,System.Double)~System.Double;Unsafe when a bound is NaN. Use Math.Clamp() instead.

@@ -1,0 +1,25 @@
+﻿<Project>
+  <PropertyGroup>
+    <OmamoriStageRoot>$(MSBuildThisFileDirectory)artifacts\stage\$(Configuration)\</OmamoriStageRoot>
+  </PropertyGroup>
+
+  <Target Name="OmamoriStage" AfterTargets="Build" Condition="'$(OmamoriStageDir)' != ''">
+    <PropertyGroup>
+      <_OmamoriStageTarget>$(OmamoriStageRoot)$(OmamoriStageDir)\</_OmamoriStageTarget>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <_OmamoriOutput Include="$(OutDir)*.dll;$(OutDir)*.pdb" />
+      <_OmamoriGameProvided Include="@(_OmamoriOutput)" Condition="Exists('$(LazerPath)\%(Filename)%(Extension)')" />
+      <_OmamoriShipped Include="@(_OmamoriOutput)" Exclude="@(_OmamoriGameProvided)" />
+    </ItemGroup>
+
+    <Error Condition="'@(_OmamoriShipped)' == ''" Text="Nothing to stage for $(MSBuildProjectName) from $(OutDir)." />
+
+    <RemoveDir Directories="$(_OmamoriStageTarget)" />
+    <Copy SourceFiles="@(_OmamoriShipped)" DestinationFolder="$(_OmamoriStageTarget)" />
+
+    <Message Importance="high" Text="$(MSBuildProjectName) staged @(_OmamoriShipped->'%(Filename)%(Extension)', ', ') -> $(_OmamoriStageTarget)" />
+    <Message Importance="high" Condition="'@(_OmamoriGameProvided)' != ''" Text="$(MSBuildProjectName) not shipping game-provided @(_OmamoriGameProvided->'%(Filename)%(Extension)', ', ')" />
+  </Target>
+</Project>

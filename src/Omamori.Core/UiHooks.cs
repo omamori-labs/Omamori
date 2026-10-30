@@ -5,23 +5,41 @@ using osu.Framework.Graphics;
 
 namespace Omamori.Core
 {
-    internal record UiRegistration(string ModId, Func<Drawable> Factory);
+    internal sealed record UiRegistration(string ModId, Func<Drawable> Factory);
 
-    internal class UiHooks : IUiHooks
+    internal sealed class UiHooks : IUiHooks
     {
         public static readonly List<UiRegistration> MAIN_MENU = [];
         public static readonly List<UiRegistration> GLOBAL_OVERLAY = [];
 
-        private readonly string modId;
+        private readonly ModManifest manifest;
+        private readonly IModLogger log;
+        private readonly HashSet<Hook> hinted = [];
 
-        public UiHooks(string modId)
+        public UiHooks(ModManifest manifest, IModLogger log)
         {
-            this.modId = modId;
+            this.manifest = manifest;
+            this.log = log;
         }
 
-        public void AddToMainMenu(Func<Drawable> factory) => MAIN_MENU.Add(new UiRegistration(modId, factory));
+        public void AddToMainMenu(Func<Drawable> factory) => register(Hook.MainMenu, MAIN_MENU, factory);
 
-        public void AddGlobalOverlay(Func<Drawable> factory) => GLOBAL_OVERLAY.Add(new UiRegistration(modId, factory));
+        public void AddGlobalOverlay(Func<Drawable> factory) => register(Hook.GlobalOverlay, GLOBAL_OVERLAY, factory);
+
+        // an unavailable hook is skipped
+        private void register(Hook hook, List<UiRegistration> target, Func<Drawable> factory)
+        {
+            if (!manifest.Hooks.ContainsKey(hook) && hinted.Add(hook))
+                log.Info($"uses the {hook} hook without declaring it in {ModLoader.MANIFEST_FILENAME}, treating it as optional.");
+
+            if (!FeatureRegistry.IsAvailable(hook))
+            {
+                log.Info($"{hook} hook isn't available on this osu! version, skipping this UI.");
+                return;
+            }
+
+            target.Add(new UiRegistration(manifest.Id, factory));
+        }
 
         /// <summary>
         ///     creates each registered drawable and passes it to <paramref name="add"/>

@@ -11,6 +11,9 @@ namespace Omamori.Core
     {
         public static void Info(string message) => Logger.Log($"[Omamori] {message}");
 
+        // "important" shows up as ingame notification
+        public static void Notify(string message) => Logger.Log($"[Omamori] {message}", level: LogLevel.Important);
+
         public static void Error(string message, Exception? exception = null)
         {
             Logger.Log($"[Omamori] {message}", level: LogLevel.Error);
@@ -20,7 +23,7 @@ namespace Omamori.Core
         }
     }
 
-    internal class ModLogger : IModLogger
+    internal sealed class ModLogger : IModLogger
     {
         private readonly string modId;
 
