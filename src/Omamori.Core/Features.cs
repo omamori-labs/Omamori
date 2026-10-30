@@ -19,6 +19,9 @@ namespace Omamori.Core
         ModContainment,
         SettingsModList,
         ModManager,
+        ScreenEvents,
+        BeatmapEvents,
+        PlayEvents,
     }
 
     internal enum FeatureState
@@ -70,6 +73,9 @@ namespace Omamori.Core
             new FeatureInfo(Feature.ModContainment, "mod-containment", "Mod crash protection", "a crashing mod can crash osu! instead of being turned off"),
             new FeatureInfo(Feature.SettingsModList, "settings-mod-list", "Mod list in settings", "mods can't be seen or turned off from settings"),
             new FeatureInfo(Feature.ModManager, "mod-manager", "Mod manager", "mods can't be managed in game, only by editing the mods folder"),
+            new FeatureInfo(Feature.ScreenEvents, "screen-events", "Screen events", "mods aren't told when the screen changes", Hook.ScreenEvents),
+            new FeatureInfo(Feature.BeatmapEvents, "beatmap-events", "Beatmap events", "mods aren't told when the beatmap or ruleset changes", Hook.BeatmapEvents),
+            new FeatureInfo(Feature.PlayEvents, "play-events", "Play events", "mods aren't told when a play starts or ends", Hook.PlayEvents),
         ];
 
         private static readonly Dictionary<Feature, FeatureStatus> statuses = ALL.ToDictionary(f => f.Feature, f => new FeatureStatus(f, FeatureState.Pending, null));

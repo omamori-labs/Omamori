@@ -29,17 +29,10 @@ namespace Omamori.Core
 
         public void AddGlobalOverlay(Func<Drawable> factory) => register(Hook.GlobalOverlay, factory);
 
-        // an unavailable hook is skipped
         private void register(Hook hook, Func<Drawable> factory)
         {
-            if (!manifest.Hooks.ContainsKey(hook) && hinted.Add(hook))
-                log.Info($"uses the {hook} hook without declaring it in {ModLoader.MANIFEST_FILENAME}, treating it as optional.");
-
-            if (!FeatureRegistry.IsAvailable(hook))
-            {
-                log.Info($"{hook} hook isn't available on this osu! version, skipping this UI.");
+            if (!HookUse.CanRegister(manifest, log, hinted, hook, "UI"))
                 return;
-            }
 
             if (!registrations.TryGetValue(hook, out var list))
                 registrations[hook] = list = [];

@@ -68,7 +68,10 @@
       "propertyNames": {
         "enum": [
           "MainMenu",
-          "GlobalOverlay"
+          "GlobalOverlay",
+          "ScreenEvents",
+          "BeatmapEvents",
+          "PlayEvents"
         ]
       },
       "additionalProperties": {

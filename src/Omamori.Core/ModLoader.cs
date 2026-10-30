@@ -368,6 +368,7 @@ namespace Omamori.Core
         public string ModDirectory { get; }
         public IModLogger Log { get; }
         public IUiHooks Ui { get; }
+        public IGameEvents Events { get; }
 
         public ModContext(ModManifest manifest, string modDirectory)
         {
@@ -375,6 +376,7 @@ namespace Omamori.Core
             ModDirectory = modDirectory;
             Log = new ModLogger(manifest.Id);
             Ui = new UiHooks(manifest, Log);
+            Events = new GameEvents(manifest, Log);
         }
 
         public bool IsHookAvailable(Hook hook) => FeatureRegistry.IsAvailable(hook);

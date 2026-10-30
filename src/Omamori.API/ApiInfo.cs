@@ -2,6 +2,6 @@ namespace Omamori.API
 {
     public static class ApiInfo
     {
-        public const string VERSION = "0.2";
+        public const string VERSION = "0.3";
     }
 }

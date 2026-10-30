@@ -69,6 +69,42 @@ namespace Omamori.Core
         }
 
         /// <summary>
+        ///     read-only, the game's public screen stack and bindables, nothing is patched beyond this hook
+        /// </summary>
+        [Feature(Feature.ScreenEvents)]
+        [HarmonyPatch(typeof(OsuGame), nameof(OsuGame.LoadComplete))]
+        internal static class ScreenEventsHook
+        {
+            [HarmonyPostfix]
+            private static void postfix(OsuGame __instance)
+            {
+                FeatureRegistry.Run(Feature.ScreenEvents, () => GameEventSources.WatchScreens(__instance));
+            }
+        }
+
+        [Feature(Feature.BeatmapEvents)]
+        [HarmonyPatch(typeof(OsuGame), nameof(OsuGame.LoadComplete))]
+        internal static class BeatmapEventsHook
+        {
+            [HarmonyPostfix]
+            private static void postfix(OsuGame __instance)
+            {
+                FeatureRegistry.Run(Feature.BeatmapEvents, () => GameEventSources.WatchBeatmap(__instance));
+            }
+        }
+
+        [Feature(Feature.PlayEvents)]
+        [HarmonyPatch(typeof(OsuGame), nameof(OsuGame.LoadComplete))]
+        internal static class PlayEventsHook
+        {
+            [HarmonyPostfix]
+            private static void postfix(OsuGame __instance)
+            {
+                FeatureRegistry.Run(Feature.PlayEvents, () => GameEventSources.WatchPlays(__instance));
+            }
+        }
+
+        /// <summary>
         ///     sheared overlays sit beside first-run setup, they need the screen footer
         /// </summary>
         [Feature(Feature.ModManager)]

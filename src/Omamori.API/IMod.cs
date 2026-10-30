@@ -25,6 +25,8 @@ namespace Omamori.API
 
         IUiHooks Ui { get; }
 
+        IGameEvents Events { get; }
+
         /// <summary>
         ///     false when this osu! version doesn't support the hook, or it broke this session.
         ///     registering for an unavailable hook is safe, it's just skipped.
@@ -47,6 +49,15 @@ namespace Omamori.API
 
         /// <summary><see cref="IUiHooks.AddGlobalOverlay"/></summary>
         GlobalOverlay,
+
+        /// <summary><see cref="IGameEvents.OnScreenChanged"/></summary>
+        ScreenEvents,
+
+        /// <summary><see cref="IGameEvents.OnBeatmapChanged"/> and <see cref="IGameEvents.OnRulesetChanged"/></summary>
+        BeatmapEvents,
+
+        /// <summary><see cref="IGameEvents.OnPlayStarted"/> and <see cref="IGameEvents.OnPlayEnded"/></summary>
+        PlayEvents,
     }
 
     public enum HookRequirement
