@@ -272,3 +272,13 @@ trim_trailing_whitespace = true
 [*.md]
 insert_final_newline = true
 trim_trailing_whitespace = false
+
+# verify snapshots, editors mustn't reformat them, see verify's recommended settings
+[*.{received,verified}.{txt,json}]
+charset = utf-8-bom
+end_of_line = lf
+indent_size = unset
+indent_style = unset
+insert_final_newline = false
+tab_width = unset
+trim_trailing_whitespace = false

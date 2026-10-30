@@ -26,16 +26,22 @@ namespace Omamori.Core
             if (result.IsValid)
                 return [];
 
-            return
+            List<string> problems =
             [
                 .. (result.Details ?? [])
-                   .Where(d => d.Errors != null && d.InstanceLocation.ToString().Length > 0)
-                   .SelectMany(d => d.Errors!.Select(e => describe(d.InstanceLocation.ToString(), e.Key, e.Value)))
+                   .Where(d => d.Errors != null)
+                   .SelectMany(d => d.Errors!.Select(e => describe(location(d.InstanceLocation.ToString()), e.Key, e.Value)))
                    .Where(p => p != null)
                    .Distinct()
                    .Cast<string>()
             ];
+
+            // an invalid manifest must never come back with nothing or the loader would treat it as valid
+            return problems.Count > 0 ? problems : ["doesn't match the schema"];
         }
+
+        // root errors (eg missing required properties) have an empty location
+        private static string location(string pointer) => pointer.Length == 0 ? "/" : pointer;
 
         public static string Summarise(List<string> problems) =>
             string.Join("; ", problems.Take(max_reported)) + (problems.Count > max_reported ? $" (+{problems.Count - max_reported} more)" : string.Empty);

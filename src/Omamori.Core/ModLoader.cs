@@ -46,7 +46,7 @@ namespace Omamori.Core
             candidates = dedupe(candidates, skipped);
             candidates = filter(candidates, skipped, checkRequiredHooks);
 
-            foreach (var candidate in resolveDependencies(candidates, skipped))
+            foreach (var candidate in ResolveDependencies(candidates, skipped))
             {
                 try
                 {
@@ -180,7 +180,7 @@ namespace Omamori.Core
         /// <summary>
         ///     returns the mods that can load, deps before dependents, skips the rest with a reason
         /// </summary>
-        private static List<ModCandidate> resolveDependencies(List<ModCandidate> candidates, List<SkippedMod> skipped)
+        internal static List<ModCandidate> ResolveDependencies(List<ModCandidate> candidates, List<SkippedMod> skipped)
         {
             var byId = candidates.ToDictionary(c => c.Manifest.Id);
 

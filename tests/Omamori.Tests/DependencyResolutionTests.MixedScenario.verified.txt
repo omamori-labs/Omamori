@@ -1,0 +1,14 @@
+﻿{
+  order: [
+    test.menu,
+    a.dependent,
+    prebeta
+  ],
+  skipped: {
+    chain: needs cycle.a, which was skipped,
+    cycle.a: dependency cycle with cycle.b,
+    cycle.b: dependency cycle with cycle.a,
+    prealpha: needs test.menu 0.1.1-alpha or newer, 0.1.0 is installed,
+    too.old: needs test.menu 9.0 or newer, 0.1.0 is installed
+  }
+}

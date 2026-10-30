@@ -14,6 +14,13 @@ updates:
         update-types: ["version-update:semver-major"]
       - dependency-name: Json.More.Net
         update-types: ["version-update:semver-major"]
+      - dependency-name: Verify.NUnit
+        update-types: ["version-update:semver-major"]
+      - dependency-name: Verify
+        update-types: ["version-update:semver-major"]
+      - dependency-name: NUnit
+        update-types:
+          ["version-update:semver-major", "version-update:semver-minor"]
     commit-message:
       prefix: build
       include: scope

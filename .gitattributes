@@ -24,3 +24,7 @@
 *.dll binary
 *.png binary
 *.jpg binary
+
+# verify snapshots, compared byte for byte so git must not convert them
+*.verified.txt text eol=lf working-tree-encoding=UTF-8
+*.verified.json text eol=lf working-tree-encoding=UTF-8

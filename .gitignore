@@ -36,3 +36,6 @@ desktop.ini
 .DS_Store
 
 sandbox/
+
+# verify snapshot diffs, only *.verified.* is committed
+*.received.*

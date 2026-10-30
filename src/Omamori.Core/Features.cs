@@ -40,6 +40,11 @@ namespace Omamori.Core
 
     internal sealed record FeatureStatus(FeatureInfo Info, FeatureState State, string? Reason);
 
+    /// <param name="Applied">methods patched before success or failure</param>
+    /// <param name="RolledBack">patches removed again after a failure</param>
+    /// <param name="Error">null when every class patched</param>
+    internal sealed record ApplyResult(int Applied, int RolledBack, Exception? Error);
+
     /// <summary>
     ///     marks a harmony patch class as part of a feature
     /// </summary>
@@ -104,30 +109,22 @@ namespace Omamori.Core
 
                 if (classes.Count == 0)
                 {
-                    set(info.Feature, FeatureState.Failed, "no patch classes");
+                    Set(info.Feature, FeatureState.Failed, "no patch classes");
                     continue;
                 }
 
-                int applied = 0;
+                var result = Apply(harmony, classes, () => FaultInjection.ThrowIfInjected(FaultInjection.APPLY, info));
+                Set(info.Feature, result.Error == null ? FeatureState.Active : FeatureState.Failed, result.Error == null ? null : describe(result.Error));
 
-                try
+                // details only go to the log, the user gets one summary notification in report()
+                if (result.Error == null)
                 {
-                    foreach (var type in classes)
-                        applied += harmony.CreateClassProcessor(type).Patch().Count;
-
-                    FaultInjection.ThrowIfInjected(FaultInjection.APPLY, info);
-
-                    set(info.Feature, FeatureState.Active, null);
-                    LoaderLog.Info($"  {info.Id}: active, {applied} method(s) patched");
+                    LoaderLog.Info($"  {info.Id}: active, {result.Applied} method(s) patched");
                 }
-                catch (Exception e)
+                else
                 {
-                    int removed = rollback(harmony, classes);
-                    set(info.Feature, FeatureState.Failed, describe(e));
-
-                    // details only go to the log, the user gets one summary notification in report()
-                    LoaderLog.Info($"  {info.Id}: failed after patching {applied} method(s), rolled back {removed} patch(es)");
-                    LoaderLog.Info(e.ToString());
+                    LoaderLog.Info($"  {info.Id}: failed after patching {result.Applied} method(s), rolled back {result.RolledBack} patch(es)");
+                    LoaderLog.Info(result.Error.ToString());
                 }
             }
 
@@ -186,7 +183,28 @@ namespace Omamori.Core
             (patchClass.GetCustomAttributes(typeof(FeatureAttribute), false).FirstOrDefault() as FeatureAttribute)?.Feature;
 
         // removes exactly the patches these classes added
-        private static int rollback(Harmony harmony, List<Type> classes)
+        /// <summary>
+        ///     patches one feature's classes, if any of them throws (or <paramref name="afterPatch"/> does) everything they added is rolled back
+        /// </summary>
+        internal static ApplyResult Apply(Harmony harmony, IReadOnlyList<Type> classes, Action? afterPatch = null)
+        {
+            int applied = 0;
+
+            try
+            {
+                foreach (var type in classes)
+                    applied += harmony.CreateClassProcessor(type).Patch().Count;
+
+                afterPatch?.Invoke();
+                return new ApplyResult(applied, 0, null);
+            }
+            catch (Exception e)
+            {
+                return new ApplyResult(applied, rollback(harmony, classes), e);
+            }
+        }
+
+        private static int rollback(Harmony harmony, IReadOnlyList<Type> classes)
         {
             int removed = 0;
 
@@ -217,7 +235,7 @@ namespace Omamori.Core
             return removed;
         }
 
-        private static void set(Feature feature, FeatureState state, string? reason)
+        internal static void Set(Feature feature, FeatureState state, string? reason)
         {
             lock (state_lock)
                 statuses[feature] = new FeatureStatus(Info(feature), state, reason);
