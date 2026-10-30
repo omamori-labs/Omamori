@@ -69,7 +69,11 @@ jobs:
       # skip-duplicate so a rerun after a failed github release step doesn't fail here
       - name: publish to nuget
         shell: pwsh
-        run: dotnet nuget push "artifacts/packages/*.nupkg" --api-key "${{ steps.nuget.outputs.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
+        run: |
+          foreach ($package in Get-ChildItem artifacts/packages/*.nupkg) {
+            dotnet nuget push $package.FullName --api-key "${{ steps.nuget.outputs.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
+            if ($LASTEXITCODE -ne 0) { throw "pushing $($package.Name) failed" }
+          }
 
       - name: github release
         shell: pwsh
