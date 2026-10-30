@@ -9,6 +9,7 @@
   "apiVersion": "__OMAMORI_API__",
   "capabilities": ["Cosmetic"],
   "hooks": {
-    "MainMenu": "optional"
+    "MainMenu": "optional",
+    "PlayEvents": "optional"
   }
 }

@@ -1,4 +1,5 @@
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Game.Graphics;
@@ -12,14 +13,14 @@ namespace OmamoriMod
     /// </summary>
     public partial class Greeting : CompositeDrawable
     {
-        private readonly string modName;
+        private readonly IBindable<string> text;
 
         [Resolved]
         private OsuColour colours { get; set; } = null!;
 
-        public Greeting(string modName)
+        public Greeting(IBindable<string> text)
         {
-            this.modName = modName;
+            this.text = text.GetBoundCopy();
         }
 
         [BackgroundDependencyLoader]
@@ -28,12 +29,14 @@ namespace OmamoriMod
             AutoSizeAxes = Axes.Both;
             Position = new Vector2(20, 60);
 
-            InternalChild = new OsuSpriteText
+            var label = new OsuSpriteText
             {
-                Text = $"hello from {modName}",
                 Font = OsuFont.GetFont(size: 24, weight: FontWeight.Bold),
                 Colour = colours.Pink,
             };
+
+            InternalChild = label;
+            text.BindValueChanged(e => label.Text = e.NewValue, true);
         }
     }
 }
