@@ -108,6 +108,7 @@ namespace Omamori.Build
 
             var start = DateTime.Now;
             var info = new ProcessStartInfo(context.GameExecutable) { WorkingDirectory = context.Sandbox, UseShellExecute = false };
+            info.Environment["OSU_DISABLE_ERROR_REPORTING"] = "1";
             if (context.Faults.Length > 0)
                 info.Environment["OMAMORI_FAULTS"] = context.Faults;
 

@@ -67,7 +67,7 @@ namespace Omamori.Tests
         [Test]
         public void OnlyTheShimUsesHarmony() =>
             Types().That().ResideInAssembly(core).And().DependOnAny(Types().That().ResideInNamespace("HarmonyLib"))
-                   .Should().HaveFullNameMatching(@"^Omamori\.Core\.(Patches(\+.*)?|FeatureRegistry|CoreEntry|ModIsolation)$")
+                   .Should().HaveFullNameMatching(@"^Omamori\.Core\.(Patches(\+.*)?|FeatureRegistry|CoreEntry|ModIsolation|CrashAttribution)$")
                    .Check(architecture);
 
         [Test]

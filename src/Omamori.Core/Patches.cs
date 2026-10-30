@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using HarmonyLib;
@@ -5,6 +6,7 @@ using Omamori.API;
 using osu.Game;
 using osu.Game.Rulesets;
 using osu.Game.Screens.Menu;
+using osu.Game.Utils;
 
 namespace Omamori.Core
 {
@@ -61,6 +63,27 @@ namespace Omamori.Core
             private static void postfix(OsuGame __instance)
             {
                 FeatureRegistry.Run(Feature.GlobalOverlay, () => UiHooks.Populate(Hook.GlobalOverlay, __instance.topMostOverlayContent.Add));
+            }
+        }
+
+        /// <summary>
+        ///     crashes involving omamori or a mod aren't sent to ppy
+        /// </summary>
+        [Feature(Feature.CrashReportFilter)]
+        [HarmonyPatch(typeof(SentryLogger), nameof(SentryLogger.shouldSubmitException))]
+        internal static class CrashReportFilter
+        {
+            [HarmonyPostfix]
+            private static void postfix(Exception exception, ref bool __result)
+            {
+                __result = FeatureRegistry.Run(Feature.CrashReportFilter, __result, submit =>
+                {
+                    if (!submit || CrashAttribution.Involvement(exception) is not string involved)
+                        return submit;
+
+                    LoaderLog.Info($"Not reporting {exception.GetType().Name} to ppy, it involves {involved}.");
+                    return false;
+                });
             }
         }
     }

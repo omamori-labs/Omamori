@@ -42,6 +42,8 @@ namespace Omamori.Core
             if (FaultInjection.Any)
                 LoaderLog.Info($"Fault injection on: {Environment.GetEnvironmentVariable(FaultInjection.ENVIRONMENT_VARIABLE)}");
 
+            LazerBuild.Check();
+
             FeatureRegistry.ApplyAll(new Harmony(HARMONY_ID));
         }
     }

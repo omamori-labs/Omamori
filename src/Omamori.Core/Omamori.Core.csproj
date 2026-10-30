@@ -6,6 +6,7 @@
     <OmamoriStageDir>omamori\core</OmamoriStageDir>
     <!-- ships LICENSE and THIRD-PARTY-NOTICES.md next to the bundled libraries -->
     <OmamoriStageNotices>true</OmamoriStageNotices>
+    <OmamoriRecordLazerBuild>true</OmamoriRecordLazerBuild>
     <!-- lazer runs on coreclr -->
     <PublicizerRuntimeStrategies>IgnoresAccessChecksTo</PublicizerRuntimeStrategies>
   </PropertyGroup>

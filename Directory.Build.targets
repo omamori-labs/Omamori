@@ -20,6 +20,23 @@
     <Message Importance="normal" Condition="'@(_OmamoriGameAssembly)' != ''" Text="$(MSBuildProjectName) using the game's @(_OmamoriGameAssembly, ', ') instead of nuget's" />
   </Target>
 
+  <Target Name="OmamoriRecordLazerBuild" BeforeTargets="GetAssemblyAttributes" Condition="'$(OmamoriRecordLazerBuild)' == 'true'">
+    <XmlPeek XmlInputPath="$(LazerPath)\sq.version" Query="/n:package/n:metadata/n:version/text()"
+             Namespaces="&lt;Namespace Prefix='n' Uri='http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd' /&gt;"
+             Condition="Exists('$(LazerPath)\sq.version')">
+      <Output TaskParameter="Result" PropertyName="_OmamoriLazerBuild" />
+    </XmlPeek>
+
+    <Warning Condition="'$(_OmamoriLazerBuild)' == ''" Text="$(LazerPath)\sq.version is missing, $(MSBuildProjectName) won't know which lazer it was built for" />
+
+    <ItemGroup>
+      <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+        <_Parameter1>LazerBuild</_Parameter1>
+        <_Parameter2>$(_OmamoriLazerBuild)</_Parameter2>
+      </AssemblyAttribute>
+    </ItemGroup>
+  </Target>
+
   <Target Name="OmamoriStage" AfterTargets="Build" Condition="'$(OmamoriStageDir)' != ''">
     <PropertyGroup>
       <_OmamoriStageTarget>$(OmamoriStageRoot)$(OmamoriStageDir)\</_OmamoriStageTarget>
