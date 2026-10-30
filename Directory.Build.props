@@ -22,6 +22,7 @@
     <AnalysisLevel>latest-recommended</AnalysisLevel>
     <WarningLevel>9999</WarningLevel>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <MSBuildTreatWarningsAsErrors>true</MSBuildTreatWarningsAsErrors>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
@@ -45,5 +46,7 @@
     <Reference Include="osu.Game" HintPath="$(LazerPath)\osu.Game.dll" Private="false" />
     <Reference Include="osu.Framework" HintPath="$(LazerPath)\osu.Framework.dll" Private="false" />
     <Reference Include="osuTK" HintPath="$(LazerPath)\osuTK.dll" Private="false" />
+    <!-- generates dependency injection code for partial drawables instead of the framework falling back to reflection, compile-time only -->
+    <PackageReference Include="ppy.osu.Framework.SourceGeneration" PrivateAssets="all" />
   </ItemGroup>
 </Project>

@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using HarmonyLib;
 
@@ -22,8 +21,6 @@ namespace Omamori.Core
 
         internal static string ModsDirectory => Path.Combine(DataDirectory, "omamori", "mods");
 
-        private static readonly string[] shared_assemblies = ["Omamori.API", "0Harmony"];
-
         /// <summary>
         ///     the real version from the git tag via minver, eg 0.1.0 or 0.1.0-alpha.0.5+sha
         /// </summary>
@@ -42,24 +39,12 @@ namespace Omamori.Core
             DataDirectory = dataDirectory;
             HostRulesetShortName = hostRulesetShortName;
 
-            AppDomain.CurrentDomain.AssemblyResolve += resolveSharedAssembly;
-
             LoaderLog.Info($"Omamori core {Version} starting (API {API.ApiInfo.VERSION}).");
 
             if (FaultInjection.Any)
                 LoaderLog.Info($"Fault injection on: {Environment.GetEnvironmentVariable(FaultInjection.ENVIRONMENT_VARIABLE)}");
 
             FeatureRegistry.ApplyAll(new Harmony(HARMONY_ID));
-        }
-
-        private static Assembly? resolveSharedAssembly(object? sender, ResolveEventArgs args)
-        {
-            string? name = new AssemblyName(args.Name).Name;
-
-            if (name == null || !shared_assemblies.Contains(name))
-                return null;
-
-            return AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.GetName().Name == name);
         }
     }
 }

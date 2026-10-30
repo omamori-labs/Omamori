@@ -13,6 +13,12 @@
         "requested": "[8.0.0, )",
         "resolved": "8.0.0",
         "contentHash": "AJy/KVjXgUbgjf6HiI8wAk4DSSq0SCmvXQF8aU6IB+pnIQq+YJvofvMczug2hqO8yEvnQY557ryew66KPpyCsA=="
+      },
+      "ppy.osu.Framework.SourceGeneration": {
+        "type": "Direct",
+        "requested": "[2025.1121.1, )",
+        "resolved": "2025.1121.1",
+        "contentHash": "aKapKe8XtU6+bM+5vWxfF8P3IEI6N/oN0xwSqNr+T/czDSKlHAMsEvNJy2mCdcJeEU1e0SxIM703wWrb8g1jqA=="
       }
     }
   }

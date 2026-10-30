@@ -278,7 +278,8 @@ namespace Omamori.Core
         private static string? load(ModCandidate candidate)
         {
             var manifest = candidate.Manifest;
-            var assembly = Assembly.LoadFrom(Path.Combine(candidate.Directory, manifest.Entry));
+            var loader = ModIsolation.CreateLoader(Path.Combine(candidate.Directory, manifest.Entry));
+            var assembly = loader.LoadDefaultAssembly();
 
             var entryTypes = assembly.GetTypes().Where(t => typeof(IMod).IsAssignableFrom(t) && t is { IsAbstract: false, IsInterface: false }).ToList();
 
@@ -298,7 +299,7 @@ namespace Omamori.Core
             var instance = (IMod)Activator.CreateInstance(entryTypes[0])!;
             instance.Load(new ModContext(manifest, candidate.Directory));
 
-            LOADED.Add(new LoadedMod(manifest, instance));
+            LOADED.Add(new LoadedMod(manifest, instance, loader));
             string author = manifest.Author.Length > 0 ? $" by {manifest.Author}" : string.Empty;
             LoaderLog.Info($"Loaded {manifest.Name} {manifest.Version}{author} [{string.Join(", ", manifest.Capabilities)}].");
             return null;
@@ -342,7 +343,8 @@ namespace Omamori.Core
 
     internal sealed record SkippedMod(string Name, string Reason);
 
-    internal sealed record LoadedMod(ModManifest Manifest, IMod Instance);
+    // Loader is kept so the mod's load context lives as long as the mod
+    internal sealed record LoadedMod(ModManifest Manifest, IMod Instance, McMaster.NETCore.Plugins.PluginLoader Loader);
 
     internal sealed class ModContext : IModContext
     {
