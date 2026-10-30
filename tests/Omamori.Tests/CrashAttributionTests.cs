@@ -79,19 +79,7 @@ namespace Omamori.Tests
         [MethodImpl(MethodImplOptions.NoInlining)]
         private static void throwHere() => throw new InvalidOperationException("from the tests");
 
-        private static Exception caught(Action action)
-        {
-            try
-            {
-                action();
-            }
-            catch (Exception e)
-            {
-                return e;
-            }
-
-            throw new AssertionException("expected a throw");
-        }
+        private static Exception caught(Action action) => TestSetup.Caught(action);
 
         public static class Thrower
         {

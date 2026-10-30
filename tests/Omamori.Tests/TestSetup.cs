@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Runtime.CompilerServices;
 using DiffEngine;
@@ -15,6 +16,20 @@ namespace Omamori.Tests
             DiffRunner.Disabled = true;
 
             VerifierSettings.DontIgnoreEmptyCollections();
+        }
+
+        internal static Exception Caught(Action action)
+        {
+            try
+            {
+                action();
+            }
+            catch (Exception e)
+            {
+                return e;
+            }
+
+            throw new NUnit.Framework.AssertionException("expected a throw");
         }
 
         private static string thisDirectory([CallerFilePath] string path = "") => Path.GetDirectoryName(path)!;

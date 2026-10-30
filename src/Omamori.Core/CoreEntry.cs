@@ -19,6 +19,8 @@ namespace Omamori.Core
 
         internal static string ModsDirectory => Layout.ModsDirectory(DataDirectory);
 
+        internal static string FaultsFile => Path.Combine(Layout.Root(DataDirectory), FaultHistory.FILENAME);
+
         /// <summary>
         ///     the real version from the git tag via minver, eg 0.1.0 or 0.1.0-alpha.0.5+sha
         /// </summary>

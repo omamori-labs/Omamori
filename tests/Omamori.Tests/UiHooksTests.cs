@@ -58,9 +58,9 @@ namespace Omamori.Tests
             hooks.AddGlobalOverlay(() => throw new InvalidOperationException("broken mod"));
             hooks.AddGlobalOverlay(() => marker);
 
-            var added = new List<Drawable>();
-            Assert.DoesNotThrow(() => UiHooks.Populate(Hook.GlobalOverlay, added.Add));
-            Assert.That(added, Does.Contain(marker));
+            var overlay = new Container();
+            Assert.DoesNotThrow(() => UiHooks.Populate(Hook.GlobalOverlay, overlay));
+            Assert.That(overlay, Does.Contain(marker));
         }
 
         private static ModManifest manifest(bool declared) => new ModManifest

@@ -37,7 +37,7 @@ namespace Omamori.Core
             [HarmonyPostfix]
             private static void postfix(MainMenu __instance)
             {
-                FeatureRegistry.Run(Feature.MainMenuUi, () => UiHooks.Populate(Hook.MainMenu, __instance.AddInternal));
+                FeatureRegistry.Run(Feature.MainMenuUi, () => UiHooks.Populate(Hook.MainMenu, __instance));
             }
         }
 
@@ -51,7 +51,7 @@ namespace Omamori.Core
             [HarmonyPrefix]
             private static void prefix()
             {
-                FeatureRegistry.Run(Feature.ModLoading, () => ModLoader.LoadAll(CoreEntry.ModsDirectory));
+                FeatureRegistry.Run(Feature.ModLoading, () => ModLoader.LoadAll(CoreEntry.ModsDirectory, FaultHistory.Open(CoreEntry.FaultsFile)));
             }
         }
 
@@ -62,7 +62,7 @@ namespace Omamori.Core
             [HarmonyPostfix]
             private static void postfix(OsuGame __instance)
             {
-                FeatureRegistry.Run(Feature.GlobalOverlay, () => UiHooks.Populate(Hook.GlobalOverlay, __instance.topMostOverlayContent.Add));
+                FeatureRegistry.Run(Feature.GlobalOverlay, () => UiHooks.Populate(Hook.GlobalOverlay, __instance.topMostOverlayContent));
             }
         }
 
@@ -84,6 +84,25 @@ namespace Omamori.Core
                     LoaderLog.Info($"Not reporting {exception.GetType().Name} to ppy, it involves {involved}.");
                     return false;
                 });
+            }
+        }
+
+        /// <summary>
+        ///     an exception from a mod turns that mod off instead of counting towards osu!'s crash limit
+        /// </summary>
+        [Feature(Feature.ModContainment)]
+        [HarmonyPatch(typeof(OsuGameBase), nameof(OsuGameBase.onExceptionThrown))]
+        internal static class ModContainment
+        {
+            [HarmonyPrefix]
+            private static bool prefix(OsuGameBase __instance, Exception ex, ref bool __result)
+            {
+                bool contained = FeatureRegistry.Run(Feature.ModContainment, false, _ => ModFaults.TryContain(ex, __instance.Host.UpdateThread.Scheduler));
+
+                if (contained)
+                    __result = true;
+
+                return !contained;
             }
         }
     }

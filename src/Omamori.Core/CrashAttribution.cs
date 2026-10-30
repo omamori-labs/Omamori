@@ -20,24 +20,22 @@ namespace Omamori.Core
 
         internal static string? Involvement(Exception? exception, Func<Assembly, bool> isOurAssembly)
         {
-            foreach (var e in flatten(exception))
+            foreach (var frame in Frames(exception))
             {
-                foreach (var frame in new StackTrace(e).GetFrames())
-                {
-                    var method = frame.GetMethod();
-                    var assembly = method?.DeclaringType?.Assembly;
+                var method = frame.GetMethod();
+                var assembly = method?.DeclaringType?.Assembly;
 
-                    if (assembly != null && isOurAssembly(assembly))
-                        return assembly.GetName().Name;
+                if (assembly != null && isOurAssembly(assembly))
+                    return assembly.GetName().Name;
 
-                    // a patched method runs as harmony's replacement, a dynamic method with no declaring type, harmony maps it back
-                    if (method != null && Harmony.GetOriginalMethodFromStackframe(frame) is { } original && original != method && Harmony.GetPatchInfo(original) != null)
-                        return $"{original.DeclaringType?.Name}.{original.Name}, which is patched";
-                }
+                if (method != null && Harmony.GetOriginalMethodFromStackframe(frame) is { } original && original != method && Harmony.GetPatchInfo(original) != null)
+                    return $"{original.DeclaringType?.Name}.{original.Name}, which is patched";
             }
 
             return null;
         }
+
+        internal static IEnumerable<StackFrame> Frames(Exception? exception) => flatten(exception).SelectMany(e => new StackTrace(e).GetFrames());
 
         // omamori itself
         private static bool isOurs(Assembly assembly) =>

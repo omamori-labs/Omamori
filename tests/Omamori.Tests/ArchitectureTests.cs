@@ -63,11 +63,11 @@ namespace Omamori.Tests
                                                    .Or().ResideInNamespace("HarmonyLib"))
                    .Check(architecture);
 
-        // harmony touches lazer internals, keep it to the shim and the registry that applies it
+        // harmony touches lazer internals, keep it to the shim, the registry that applies it and the one place that removes patches
         [Test]
         public void OnlyTheShimUsesHarmony() =>
             Types().That().ResideInAssembly(core).And().DependOnAny(Types().That().ResideInNamespace("HarmonyLib"))
-                   .Should().HaveFullNameMatching(@"^Omamori\.Core\.(Patches(\+.*)?|FeatureRegistry|CoreEntry|ModIsolation|CrashAttribution)$")
+                   .Should().HaveFullNameMatching(@"^Omamori\.Core\.(Patches(\+.*)?|FeatureRegistry|CoreEntry|ModIsolation|CrashAttribution|PatchRemoval)$")
                    .Check(architecture);
 
         [Test]

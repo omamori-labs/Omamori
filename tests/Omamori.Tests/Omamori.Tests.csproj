@@ -15,6 +15,10 @@
     <OmamoriOwnCopy Include="nunit.framework.legacy" />
   </ItemGroup>
 
+  <Target Name="_OmamoriCopyGameAssemblies" AfterTargets="Build">
+    <Copy SourceFiles="@(_OmamoriGameRuntime->'$(LazerPath)\%(Filename)%(Extension)')" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
+  </Target>
+
   <ItemGroup>
     <PackageReference Include="NUnit" />
     <PackageReference Include="NUnit3TestAdapter" />

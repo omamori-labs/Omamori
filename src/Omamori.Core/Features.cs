@@ -16,6 +16,7 @@ namespace Omamori.Core
         MainMenuUi,
         GlobalOverlay,
         CrashReportFilter,
+        ModContainment,
     }
 
     internal enum FeatureState
@@ -64,6 +65,7 @@ namespace Omamori.Core
             new FeatureInfo(Feature.MainMenuUi, "main-menu-ui", "Main menu UI", "mod UI on the main menu doesn't show", Hook.MainMenu),
             new FeatureInfo(Feature.GlobalOverlay, "global-overlay", "Global overlay", "mod overlays don't show", Hook.GlobalOverlay),
             new FeatureInfo(Feature.CrashReportFilter, "crash-report-filter", "Crash report filter", "crashes caused by mods may be reported to ppy as osu! bugs"),
+            new FeatureInfo(Feature.ModContainment, "mod-containment", "Mod crash protection", "a crashing mod can crash osu! instead of being turned off"),
         ];
 
         private static readonly Dictionary<Feature, FeatureStatus> statuses = ALL.ToDictionary(f => f.Feature, f => new FeatureStatus(f, FeatureState.Pending, null));
@@ -206,36 +208,8 @@ namespace Omamori.Core
             }
         }
 
-        private static int rollback(Harmony harmony, IReadOnlyList<Type> classes)
-        {
-            int removed = 0;
-
-            foreach (var original in harmony.GetPatchedMethods().ToList())
-            {
-                var info = Harmony.GetPatchInfo(original);
-                if (info == null)
-                    continue;
-
-                var ours = info.Prefixes.Concat(info.Postfixes).Concat(info.Transpilers).Concat(info.Finalizers)
-                               .Where(p => p.owner == harmony.Id && classes.Contains(p.PatchMethod.DeclaringType!))
-                               .ToList();
-
-                foreach (var patch in ours)
-                {
-                    try
-                    {
-                        harmony.Unpatch(original, patch.PatchMethod);
-                        removed++;
-                    }
-                    catch (Exception e)
-                    {
-                        LoaderLog.Error($"Couldn't roll back {patch.PatchMethod.DeclaringType?.Name}.{patch.PatchMethod.Name} on {original.Name}.", e);
-                    }
-                }
-            }
-
-            return removed;
-        }
+        private static int rollback(Harmony harmony, IReadOnlyList<Type> classes) =>
+            PatchRemoval.Remove(harmony.GetPatchedMethods(), p => p.owner == harmony.Id && classes.Contains(p.PatchMethod.DeclaringType!));
 
         internal static void Set(Feature feature, FeatureState state, string? reason)
         {

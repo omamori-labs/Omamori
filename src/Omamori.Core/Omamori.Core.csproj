@@ -23,6 +23,7 @@
   <ItemGroup>
     <Publicize Include="osu.Game;osu.Framework" IncludeVirtualMembers="false" IncludeCompilerGeneratedMembers="false" />
     <Publicize Include="osu.Framework:osu.Framework.Graphics.Containers.CompositeDrawable.AddInternal" />
+    <Publicize Include="osu.Framework:osu.Framework.Graphics.Containers.CompositeDrawable.RemoveInternal" />
     <Publicize Include="osu.Game:osu.Game.OsuGame.LoadComplete" />
     <Publicize Include="osu.Game:osu.Game.Screens.Menu.MainMenu.LoadComplete" />
   </ItemGroup>

@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Omamori.API;
 using osu.Framework.Graphics;
+using osu.Framework.Graphics.Containers;
 
 namespace Omamori.Core
 {
@@ -10,6 +12,8 @@ namespace Omamori.Core
     internal sealed class UiHooks : IUiHooks
     {
         private static readonly Dictionary<Hook, List<UiRegistration>> registrations = [];
+
+        private static readonly List<(string ModId, Drawable Drawable, CompositeDrawable Target)> added = [];
 
         private readonly ModManifest manifest;
         private readonly IModLogger log;
@@ -44,24 +48,63 @@ namespace Omamori.Core
         }
 
         /// <summary>
-        ///     creates each drawable registered for <paramref name="hook"/> and passes it to <paramref name="add"/>
+        ///     a factory that throws turns its mod off
         /// </summary>
-        public static void Populate(Hook hook, Action<Drawable> add)
+        public static void Populate(Hook hook, CompositeDrawable target)
         {
             if (!registrations.TryGetValue(hook, out var list))
                 return;
 
-            foreach (var registration in list)
+            foreach (var registration in list.Where(r => !ModFaults.IsFaulted(r.ModId)))
             {
                 try
                 {
-                    add(registration.Factory());
+                    var drawable = registration.Factory();
+                    target.AddInternal(drawable);
+
+                    lock (added)
+                    {
+                        added.RemoveAll(a => a.Drawable.IsDisposed);
+                        added.Add((registration.ModId, drawable, target));
+                    }
                 }
                 catch (Exception e)
                 {
-                    LoaderLog.Error($"[{registration.ModId}] UI factory threw.", e);
+                    if (ModLoader.Get(registration.ModId) is { } mod)
+                        ModFaults.Contain(mod, e, scheduler: null);
+                    else
+                        LoaderLog.Error($"[{registration.ModId}] UI factory threw.", e);
                 }
             }
+        }
+
+        // update thread only
+        public static int Remove(string modId)
+        {
+            List<(string ModId, Drawable Drawable, CompositeDrawable Target)> ours;
+
+            lock (added)
+            {
+                ours = [.. added.Where(a => a.ModId == modId)];
+                added.RemoveAll(a => a.ModId == modId);
+            }
+
+            int removed = 0;
+
+            foreach (var (_, drawable, target) in ours)
+            {
+                try
+                {
+                    if (target.RemoveInternal(drawable, disposeImmediately: true))
+                        removed++;
+                }
+                catch (Exception e)
+                {
+                    LoaderLog.Error($"[{modId}] couldn't remove {drawable.GetType().Name}.", e);
+                }
+            }
+
+            return removed;
         }
     }
 }

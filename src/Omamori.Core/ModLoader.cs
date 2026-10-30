@@ -12,7 +12,7 @@ using QuikGraph.Algorithms;
 namespace Omamori.Core
 {
     /// <summary>
-    ///     discover (schema) -> validate -> dedupe -> required hooks -> dependencies + load order -> load
+    ///     discover (schema) -> validate -> dedupe -> crash history -> required hooks -> dependencies + load order -> load
     /// </summary>
     internal static class ModLoader
     {
@@ -30,8 +30,10 @@ namespace Omamori.Core
 
         public static LoadedMod? Get(string id) => LOADED.FirstOrDefault(m => m.Manifest.Id == id);
 
-        public static void LoadAll(string modsDirectory)
+        public static void LoadAll(string modsDirectory, FaultHistory history)
         {
+            ModFaults.History = history;
+
             if (!Directory.Exists(modsDirectory))
             {
                 Directory.CreateDirectory(modsDirectory);
@@ -44,6 +46,7 @@ namespace Omamori.Core
             var candidates = discover(modsDirectory, skipped);
             candidates = filter(candidates, skipped, validate);
             candidates = dedupe(candidates, skipped);
+            candidates = filter(candidates, skipped, c => history.SkipReason(c.Manifest));
             candidates = filter(candidates, skipped, checkRequiredHooks);
 
             foreach (var candidate in ResolveDependencies(candidates, skipped))
@@ -366,7 +369,7 @@ namespace Omamori.Core
         public bool IsModLoaded(string id)
         {
             var target = ModLoader.Get(id);
-            if (target == null)
+            if (target == null || ModFaults.IsFaulted(id))
                 return false;
 
             var dependency = Manifest.Dependencies.FirstOrDefault(d => d.Id == id);
