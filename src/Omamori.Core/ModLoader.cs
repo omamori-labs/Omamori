@@ -7,7 +7,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Omamori.API;
 
-namespace Omamori.Loader
+namespace Omamori.Core
 {
     internal static class ModLoader
     {
@@ -19,7 +19,7 @@ namespace Omamori.Loader
             Converters = { new JsonStringEnumConverter() },
         };
 
-        public static readonly List<LoadedMod> LOADED = new List<LoadedMod>();
+        public static readonly List<LoadedMod> LOADED = [];
 
         public static void LoadAll(string modsDirectory)
         {

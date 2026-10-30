@@ -2,7 +2,7 @@ using System;
 using Omamori.API;
 using osu.Framework.Logging;
 
-namespace Omamori.Loader
+namespace Omamori.Core
 {
     /// <summary>
     ///     writes to lazer's runtime log (logs/runtime.log)  prefixed with [Omamori]

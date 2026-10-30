@@ -8,13 +8,13 @@ using osu.Game;
 using osu.Game.Rulesets;
 using osu.Game.Screens.Menu;
 
-namespace Omamori.Loader
+namespace Omamori.Core
 {
     internal static class Patches
     {
         private static readonly MethodInfo add_internal = AccessTools.Method(typeof(CompositeDrawable), "AddInternal");
 
-        private static void addInternal(CompositeDrawable target, Drawable drawable) => add_internal.Invoke(target, new object[] { drawable });
+        private static void addInternal(CompositeDrawable target, Drawable drawable) => add_internal.Invoke(target, [drawable]);
 
         /// <summary>
         ///     hides host ruleset from toolbar, settings, etc
@@ -24,7 +24,7 @@ namespace Omamori.Loader
         {
             private static void Postfix(ref IEnumerable<RulesetInfo> __result)
             {
-                __result = __result.Where(r => r.ShortName != OmamoriRuleset.SHORT_NAME).ToList();
+                __result = __result.Where(r => r.ShortName != CoreEntry.HostRulesetShortName).ToList();
             }
         }
 
@@ -38,9 +38,14 @@ namespace Omamori.Loader
         }
 
         [HarmonyPatch(typeof(OsuGame), "LoadComplete")]
-        internal static class GlobalOverlayInjection
+        internal static class GameLoadHooks
         {
             private static readonly FieldInfo top_most_overlay_content = AccessTools.Field(typeof(OsuGame), "topMostOverlayContent");
+
+            private static void Prefix()
+            {
+                ModLoader.LoadAll(CoreEntry.ModsDirectory);
+            }
 
             private static void Postfix(OsuGame __instance)
             {

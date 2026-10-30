@@ -1,8 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <ReferenceLazer>true</ReferenceLazer>
-    <AssemblyName>osu.Game.Rulesets.Omamori</AssemblyName>
-    <RootNamespace>Omamori.Loader</RootNamespace>
+    <RootNamespace>Omamori.Core</RootNamespace>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <Version>0.1.0</Version>
   </PropertyGroup>

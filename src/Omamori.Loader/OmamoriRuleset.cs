@@ -14,7 +14,7 @@ namespace Omamori.Loader
     /// <summary>
     ///     lazer creates every ruleset in rulesets/ on startup which loads omamori
     ///     hidden from the game (<see cref="Patches.HideHostRuleset"/>), never played
-    ///     still has to pass lazer's compat check so the factories return empty
+    ///     still has to pass lazer compat check so the factories return empty
     /// </summary>
     public class OmamoriRuleset : Ruleset
     {

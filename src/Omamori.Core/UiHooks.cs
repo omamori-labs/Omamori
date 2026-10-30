@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using Omamori.API;
 using osu.Framework.Graphics;
 
-namespace Omamori.Loader
+namespace Omamori.Core
 {
     internal record UiRegistration(string ModId, Func<Drawable> Factory);
 
     internal class UiHooks : IUiHooks
     {
-        public static readonly List<UiRegistration> MAIN_MENU = new List<UiRegistration>();
-        public static readonly List<UiRegistration> GLOBAL_OVERLAY = new List<UiRegistration>();
+        public static readonly List<UiRegistration> MAIN_MENU = [];
+        public static readonly List<UiRegistration> GLOBAL_OVERLAY = [];
 
         private readonly string modId;
 

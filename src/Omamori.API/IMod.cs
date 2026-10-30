@@ -73,6 +73,6 @@ namespace Omamori.API
         /// <summary>The <see cref="ApiInfo.VERSION"/> the mod was built for</summary>
         public string ApiVersion { get; set; } = string.Empty;
 
-        public List<ModCapability> Capabilities { get; set; } = new List<ModCapability>();
+        public List<ModCapability> Capabilities { get; set; } = [];
     }
 }
