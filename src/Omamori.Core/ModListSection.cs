@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Omamori.API;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
@@ -29,7 +28,7 @@ namespace Omamori.Core
     }
 
     /// <summary>
-    ///     switches apply next launch, a mod's Load only runs once per session
+    ///     a summary and the way into <see cref="ModManagerOverlay"/>, lists every mod itself only when the manager isn't available
     /// </summary>
     internal sealed partial class ModListSubsection : SettingsSubsection
     {
@@ -37,40 +36,60 @@ namespace Omamori.Core
 
         protected override LocalisableString Header => "Mods";
 
+        [Resolved]
+        private SettingsPanel? settings { get; set; }
+
         // not named load, that would hide the publicized base one
         [BackgroundDependencyLoader]
         private void loadMods(GameHost host)
         {
             FeatureRegistry.Run(Feature.SettingsModList, () =>
             {
-                Add(new SettingsButtonV2
-                {
-                    Text = "Open mods folder",
-                    Keywords = ["omamori", "directory"],
-                    Action = () =>
-                    {
-                        Directory.CreateDirectory(CoreEntry.ModsDirectory);
-                        host.OpenFileExternally(CoreEntry.ModsDirectory);
-                    },
-                });
-
-                if (ModLoader.Settings is not { } settings)
+                if (!InstalledMods.Available)
                 {
                     Add(note("Mod loading is off this session, so no mods are listed.", SettingsNote.Type.Critical));
+                    Add(openFolderButton(host));
                     return;
                 }
 
-                var mods = ModLoader.LOADED.ToList().Select(m => new Entry(label(m.Manifest), m.Manifest, true, null))
-                                    .Concat(ModLoader.TURNED_OFF.Select(c => new Entry(c.Label, c.Manifest, false, null)))
-                                    .Concat(ModLoader.SKIPPED.Select(s => new Entry(s.Name, s.Manifest, s.Manifest != null, s.Reason)))
-                                    .OrderBy(m => m.Label, StringComparer.OrdinalIgnoreCase)
-                                    .ToList();
+                var summary = new Bindable<SettingsNote.Data?>();
+                Add(note(summary));
+                refreshes.Add(() => summary.Value = summarise(InstalledMods.All()));
 
-                if (mods.Count == 0)
-                    Add(note("No mods installed. Each mod goes in its own folder inside omamori/mods.", SettingsNote.Type.Informational));
+                if (ModManagerOverlay.Current is { } manager)
+                {
+                    Add(new SettingsButtonV2
+                    {
+                        Text = "Manage mods",
+                        Keywords = ["omamori", "mods"],
+                        Action = () => open(manager, ModFilter.All),
+                    });
 
-                foreach (var mod in mods)
-                    Add(row(settings, mod));
+                    var problems = new SettingsButtonV2
+                    {
+                        Keywords = ["omamori", "mods", "problems"],
+                        Action = () => open(manager, ModFilter.Problems),
+                    };
+                    Add(problems);
+
+                    refreshes.Add(() =>
+                    {
+                        int count = InstalledMods.All().Count(m => m.Status is ModStatus.Problem or ModStatus.Crashed);
+
+                        problems.Text = $"Review {count} problem(s)";
+                        problems.CanBeShown.Value = count > 0;
+                    });
+                }
+
+                Add(openFolderButton(host));
+
+                if (ModManagerOverlay.Current == null)
+                {
+                    foreach (var mod in InstalledMods.All())
+                        Add(row(mod));
+                }
+
+                refreshAll();
             });
         }
 
@@ -78,68 +97,84 @@ namespace Omamori.Core
         {
             base.LoadComplete();
             ModFaults.Faulted += onFaulted;
+            InstalledMods.Changed += refreshAll;
         }
 
         protected override void Dispose(bool isDisposing)
         {
             ModFaults.Faulted -= onFaulted;
+            InstalledMods.Changed -= refreshAll;
             base.Dispose(isDisposing);
         }
 
-        private void onFaulted(string _) => Schedule(() => refreshes.ForEach(r => r()));
+        private void onFaulted(string _) => Schedule(refreshAll);
 
-        private SettingsItemV2 row(ModSettings settings, Entry entry)
+        private void open(ModManagerOverlay manager, ModFilter filter)
         {
-            var (label, manifest, onAtLaunch, problem) = entry;
-            var enabled = new BindableBool(manifest != null && settings.IsEnabled(manifest.Id)) { Disabled = manifest == null };
+            settings?.Hide();
+            manager.Show(filter);
+        }
+
+        private void refreshAll() => refreshes.ForEach(r => r());
+
+        private SettingsItemV2 row(InstalledMod mod)
+        {
+            var enabled = new BindableBool(mod.Enabled) { Disabled = mod.Manifest == null };
 
             var item = new SettingsItemV2(new FormCheckBox
             {
-                Caption = manifest == null ? label : $"{label} {manifest.Version}",
-                HintText = manifest == null ? default : hint(manifest),
+                Caption = mod.Manifest == null ? mod.Label : $"{mod.Label} {mod.Manifest.Version}",
+                HintText = mod.Manifest == null ? default(LocalisableString) : ModManagerOverlay.Byline(mod.Manifest),
                 Current = enabled,
             })
             {
                 ShowRevertToDefaultButton = false,
-                Keywords = manifest == null ? [] : [manifest.Id, manifest.Author],
+                Keywords = mod.Manifest == null ? [] : [mod.Manifest.Id, mod.Manifest.Author],
             };
 
-            void refresh() => item.Note.Value = status(manifest, enabled.Value, onAtLaunch, problem);
+            enabled.BindValueChanged(e => InstalledMods.SetEnabled(mod, e.NewValue));
 
-            if (manifest != null)
+            refreshes.Add(() =>
             {
-                enabled.BindValueChanged(e =>
-                {
-                    settings.SetEnabled(manifest.Id, e.NewValue);
-                    refresh();
-                });
-            }
+                if (!enabled.Disabled)
+                    enabled.Value = mod.Enabled;
 
-            refresh();
-            refreshes.Add(refresh);
+                item.Note.Value = mod.StatusText is string text ? new SettingsNote.Data(text, noteType(mod)) : null;
+            });
+
             return item;
         }
 
-        private static SettingsNote.Data? status(ModManifest? manifest, bool enabled, bool onAtLaunch, string? problem)
+        private static SettingsNote.Type noteType(InstalledMod mod) =>
+            mod.Pending ? SettingsNote.Type.Informational
+            : mod.Status == ModStatus.Crashed ? SettingsNote.Type.Critical
+            : SettingsNote.Type.Warning;
+
+        private static SettingsNote.Data summarise(IReadOnlyList<InstalledMod> mods)
         {
-            if (enabled != onAtLaunch)
-                return new SettingsNote.Data(enabled ? "Loads next time osu! starts." : "Turns off next time osu! starts.", SettingsNote.Type.Informational);
+            if (mods.Count == 0)
+                return new SettingsNote.Data("No mods installed. Each mod goes in its own folder inside omamori/mods.", SettingsNote.Type.Informational);
 
-            if (manifest != null && ModFaults.IsFaulted(manifest.Id))
-                return new SettingsNote.Data("Crashed and was turned off for this session.", SettingsNote.Type.Critical);
+            int problems = mods.Count(m => m.Status is ModStatus.Problem or ModStatus.Crashed);
+            int pending = mods.Count(m => m.Pending);
 
-            return string.IsNullOrEmpty(problem) ? null : new SettingsNote.Data($"{char.ToUpperInvariant(problem[0])}{problem[1..]}.", SettingsNote.Type.Warning);
+            string text = $"{mods.Count(m => m.Status == ModStatus.On)} on, {mods.Count(m => m.Status == ModStatus.Off)} off, {problems} with problems.";
+            if (pending > 0)
+                text += $" {pending} change(s) apply next time osu! starts.";
+
+            return new SettingsNote.Data(text, problems > 0 ? SettingsNote.Type.Warning : SettingsNote.Type.Informational);
         }
 
-        // a mod without a readable manifest can't be switched
-        private sealed record Entry(string Label, ModManifest? Manifest, bool OnAtLaunch, string? Problem);
+        private static SettingsButtonV2 openFolderButton(GameHost host) => new SettingsButtonV2
+        {
+            Text = "Open mods folder",
+            Keywords = ["omamori", "directory"],
+            Action = () => ModManagerOverlay.OpenModsFolder(host),
+        };
 
-        private static string label(ModManifest manifest) => string.IsNullOrWhiteSpace(manifest.Name) ? manifest.Id : manifest.Name;
+        private static Container note(string text, SettingsNote.Type type) => note(new Bindable<SettingsNote.Data?>(new SettingsNote.Data(text, type)));
 
-        private static LocalisableString hint(ModManifest manifest) =>
-            string.Join("\n", new[] { string.IsNullOrEmpty(manifest.Author) ? null : $"by {manifest.Author}", manifest.Description }.Where(s => !string.IsNullOrEmpty(s)));
-
-        private static Container note(string text, SettingsNote.Type type) => new Container
+        private static Container note(Bindable<SettingsNote.Data?> data) => new Container
         {
             RelativeSizeAxes = Axes.X,
             AutoSizeAxes = Axes.Y,
@@ -147,7 +182,7 @@ namespace Omamori.Core
             Child = new SettingsNote
             {
                 RelativeSizeAxes = Axes.X,
-                Current = { Value = new SettingsNote.Data(text, type) },
+                Current = { BindTarget = data },
             },
         };
     }

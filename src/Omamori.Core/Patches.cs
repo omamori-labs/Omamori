@@ -69,6 +69,25 @@ namespace Omamori.Core
         }
 
         /// <summary>
+        ///     sheared overlays sit beside first-run setup, they need the screen footer
+        /// </summary>
+        [Feature(Feature.ModManager)]
+        [HarmonyPatch(typeof(OsuGame), nameof(OsuGame.LoadComplete))]
+        internal static class ModManagerHook
+        {
+            [HarmonyPostfix]
+            private static void postfix(OsuGame __instance)
+            {
+                FeatureRegistry.Run(Feature.ModManager, () =>
+                {
+                    var overlay = new ModManagerOverlay();
+                    __instance.footerBasedOverlayContent.Add(overlay);
+                    ModManagerOverlay.Current = overlay;
+                });
+            }
+        }
+
+        /// <summary>
         ///     sections only load when settings first opens, so inserting into the pending list is enough
         /// </summary>
         [Feature(Feature.SettingsModList)]

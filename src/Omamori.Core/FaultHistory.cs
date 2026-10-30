@@ -51,8 +51,25 @@ namespace Omamori.Core
                 }
 
                 return record.Strikes >= STRIKES_TO_SKIP
-                    ? $"crashed in {record.Strikes} sessions in a row ({record.LastError}), it stays off until it updates. Remove it from omamori/{FILENAME} to try again"
+                    ? $"crashed in {record.Strikes} sessions in a row ({record.LastError}), it stays off until it updates or you try it again"
                     : null;
+            }
+        }
+
+        // only meaningful after SkipReason ran for this launch, that drops records for older versions
+        public bool Skips(string id)
+        {
+            lock (state_lock)
+                return state.Mods.TryGetValue(id, out var record) && record.Strikes >= STRIKES_TO_SKIP;
+        }
+
+        /// <summary>the mod loads again next launch</summary>
+        public void Forget(string id)
+        {
+            lock (state_lock)
+            {
+                if (state.Mods.Remove(id))
+                    save();
             }
         }
 

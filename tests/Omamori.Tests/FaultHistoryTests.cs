@@ -83,6 +83,19 @@ namespace Omamori.Tests
         }
 
         [Test]
+        public void ForgettingLoadsItNextTime()
+        {
+            FaultHistory.Open(path).Record(mod, crash);
+            var session = FaultHistory.Open(path);
+            session.Record(mod, crash);
+
+            Assert.That(session.Skips(mod.Id), Is.True);
+            session.Forget(mod.Id);
+
+            Assert.That(FaultHistory.Open(path).SkipReason(mod), Is.Null);
+        }
+
+        [Test]
         public void OtherModsAreUnaffected()
         {
             FaultHistory.Open(path).Record(mod, crash);

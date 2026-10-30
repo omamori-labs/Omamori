@@ -18,6 +18,7 @@ namespace Omamori.Core
         CrashReportFilter,
         ModContainment,
         SettingsModList,
+        ModManager,
     }
 
     internal enum FeatureState
@@ -68,6 +69,7 @@ namespace Omamori.Core
             new FeatureInfo(Feature.CrashReportFilter, "crash-report-filter", "Crash report filter", "crashes caused by mods may be reported to ppy as osu! bugs"),
             new FeatureInfo(Feature.ModContainment, "mod-containment", "Mod crash protection", "a crashing mod can crash osu! instead of being turned off"),
             new FeatureInfo(Feature.SettingsModList, "settings-mod-list", "Mod list in settings", "mods can't be seen or turned off from settings"),
+            new FeatureInfo(Feature.ModManager, "mod-manager", "Mod manager", "if the mod manager doesn't open, settings lists every mod instead"),
         ];
 
         private static readonly Dictionary<Feature, FeatureStatus> statuses = ALL.ToDictionary(f => f.Feature, f => new FeatureStatus(f, FeatureState.Pending, null));
