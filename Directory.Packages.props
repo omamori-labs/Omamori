@@ -27,6 +27,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageVersion Include="Cake.Frosting" Version="6.3.0" />
+    <PackageVersion Include="System.Drawing.Common" Version="10.0.14" />
+    <PackageVersion Include="System.Security.Cryptography.Pkcs" Version="10.0.14" />
+  </ItemGroup>
+
+  <ItemGroup>
     <GlobalPackageReference Include="MinVer" Version="8.0.0" />
     <GlobalPackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="5.6.0" />
   </ItemGroup>
