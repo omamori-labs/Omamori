@@ -1,7 +1,7 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using HarmonyLib;
+using Omamori.API;
 using osu.Game;
 using osu.Game.Rulesets;
 using osu.Game.Screens.Menu;
@@ -21,22 +21,10 @@ namespace Omamori.Core
         [HarmonyPatch(typeof(RealmRulesetStore), nameof(RealmRulesetStore.AvailableRulesets), MethodType.Getter)]
         internal static class HideHostRuleset
         {
-            // ref param can't be captured by a lambda, so this guards itself
             [HarmonyPostfix]
             private static void postfix(ref IEnumerable<RulesetInfo> __result)
             {
-                if (!FeatureRegistry.IsActive(Feature.HideHostRuleset))
-                    return;
-
-                try
-                {
-                    FaultInjection.ThrowIfInjected(FaultInjection.RUNTIME, FeatureRegistry.Info(Feature.HideHostRuleset));
-                    __result = [.. __result.Where(r => r.ShortName != CoreEntry.HostRulesetShortName)];
-                }
-                catch (Exception e)
-                {
-                    FeatureRegistry.Fault(Feature.HideHostRuleset, e);
-                }
+                __result = FeatureRegistry.Run(Feature.HideHostRuleset, __result, rulesets => [.. rulesets.Where(r => r.ShortName != CoreEntry.HostRulesetShortName)]);
             }
         }
 
@@ -47,7 +35,7 @@ namespace Omamori.Core
             [HarmonyPostfix]
             private static void postfix(MainMenu __instance)
             {
-                FeatureRegistry.Run(Feature.MainMenuUi, () => UiHooks.Populate(UiHooks.MAIN_MENU, __instance.AddInternal));
+                FeatureRegistry.Run(Feature.MainMenuUi, () => UiHooks.Populate(Hook.MainMenu, __instance.AddInternal));
             }
         }
 
@@ -72,7 +60,7 @@ namespace Omamori.Core
             [HarmonyPostfix]
             private static void postfix(OsuGame __instance)
             {
-                FeatureRegistry.Run(Feature.GlobalOverlay, () => UiHooks.Populate(UiHooks.GLOBAL_OVERLAY, __instance.topMostOverlayContent.Add));
+                FeatureRegistry.Run(Feature.GlobalOverlay, () => UiHooks.Populate(Hook.GlobalOverlay, __instance.topMostOverlayContent.Add));
             }
         }
     }

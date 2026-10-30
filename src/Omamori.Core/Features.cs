@@ -32,10 +32,11 @@ namespace Omamori.Core
     }
 
     /// <param name="Feature">the feature this describes</param>
-    /// <param name="Id">stable kebab-case id for logs, fault injection and later the manager</param>
+    /// <param name="Id">stable kebab-case id for logs, fault injection and the manager</param>
     /// <param name="Name">shown to users</param>
     /// <param name="Impact">what stops working when it's off, shown to users</param>
-    internal sealed record FeatureInfo(Feature Feature, string Id, string Name, string Impact);
+    /// <param name="Hook">the public hook this feature backs</param>
+    internal sealed record FeatureInfo(Feature Feature, string Id, string Name, string Impact, Hook? Hook = null);
 
     internal sealed record FeatureStatus(FeatureInfo Info, FeatureState State, string? Reason);
 
@@ -54,8 +55,8 @@ namespace Omamori.Core
         [
             new FeatureInfo(Feature.HideHostRuleset, "hide-host-ruleset", "Hide loader ruleset", "an unplayable \"Omamori\" mode shows in the ruleset list"),
             new FeatureInfo(Feature.ModLoading, "mod-loading", "Mod loading", "no mods load"),
-            new FeatureInfo(Feature.MainMenuUi, "main-menu-ui", "Main menu UI", "mod UI on the main menu doesn't show"),
-            new FeatureInfo(Feature.GlobalOverlay, "global-overlay", "Global overlay", "mod overlays don't show"),
+            new FeatureInfo(Feature.MainMenuUi, "main-menu-ui", "Main menu UI", "mod UI on the main menu doesn't show", Hook.MainMenu),
+            new FeatureInfo(Feature.GlobalOverlay, "global-overlay", "Global overlay", "mod overlays don't show", Hook.GlobalOverlay),
         ];
 
         private static readonly Dictionary<Feature, FeatureStatus> statuses = ALL.ToDictionary(f => f.Feature, f => new FeatureStatus(f, FeatureState.Pending, null));
@@ -73,13 +74,9 @@ namespace Omamori.Core
 
         public static FeatureInfo Info(Feature feature) => ALL.First(f => f.Feature == feature);
 
-        /// <summary>the feature backing each public <see cref="Hook"/></summary>
-        public static Feature ForHook(Hook hook) => hook switch
-        {
-            Hook.MainMenu => Feature.MainMenuUi,
-            Hook.GlobalOverlay => Feature.GlobalOverlay,
-            _ => throw new ArgumentOutOfRangeException(nameof(hook), hook, null),
-        };
+        /// <summary>the feature backing each public <see cref="Hook"/>, from the table above</summary>
+        public static Feature ForHook(Hook hook) =>
+            ALL.FirstOrDefault(f => f.Hook == hook)?.Feature ?? throw new ArgumentOutOfRangeException(nameof(hook), hook, "no feature backs this hook");
 
         public static bool IsAvailable(Hook hook) => IsActive(ForHook(hook));
 
@@ -140,26 +137,34 @@ namespace Omamori.Core
         /// <summary>
         ///     runs patch code for a feature, if it throws the feature turns off
         /// </summary>
-        public static void Run(Feature feature, Action action)
+        public static void Run(Feature feature, Action action) => Run(feature, 0, _ =>
+        {
+            action();
+            return 0;
+        });
+
+        /// <summary>
+        ///     for patches that change a value, eg a postfix's ref __result
+        ///     returns <paramref name="value"/> unchanged when the feature is off or the transform throws
+        /// </summary>
+        public static T Run<T>(Feature feature, T value, Func<T, T> transform)
         {
             if (!IsActive(feature))
-                return;
+                return value;
 
             try
             {
                 FaultInjection.ThrowIfInjected(FaultInjection.RUNTIME, Info(feature));
-                action();
+                return transform(value);
             }
             catch (Exception e)
             {
-                Fault(feature, e);
+                fault(feature, e);
+                return value;
             }
         }
 
-        /// <summary>
-        ///     for patch code that can't go through <see cref="Run"/>
-        /// </summary>
-        public static void Fault(Feature feature, Exception exception)
+        private static void fault(Feature feature, Exception exception)
         {
             var info = Info(feature);
 

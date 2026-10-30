@@ -9,8 +9,7 @@ namespace Omamori.Core
 
     internal sealed class UiHooks : IUiHooks
     {
-        public static readonly List<UiRegistration> MAIN_MENU = [];
-        public static readonly List<UiRegistration> GLOBAL_OVERLAY = [];
+        private static readonly Dictionary<Hook, List<UiRegistration>> registrations = [];
 
         private readonly ModManifest manifest;
         private readonly IModLogger log;
@@ -22,12 +21,12 @@ namespace Omamori.Core
             this.log = log;
         }
 
-        public void AddToMainMenu(Func<Drawable> factory) => register(Hook.MainMenu, MAIN_MENU, factory);
+        public void AddToMainMenu(Func<Drawable> factory) => register(Hook.MainMenu, factory);
 
-        public void AddGlobalOverlay(Func<Drawable> factory) => register(Hook.GlobalOverlay, GLOBAL_OVERLAY, factory);
+        public void AddGlobalOverlay(Func<Drawable> factory) => register(Hook.GlobalOverlay, factory);
 
         // an unavailable hook is skipped
-        private void register(Hook hook, List<UiRegistration> target, Func<Drawable> factory)
+        private void register(Hook hook, Func<Drawable> factory)
         {
             if (!manifest.Hooks.ContainsKey(hook) && hinted.Add(hook))
                 log.Info($"uses the {hook} hook without declaring it in {ModLoader.MANIFEST_FILENAME}, treating it as optional.");
@@ -38,15 +37,21 @@ namespace Omamori.Core
                 return;
             }
 
-            target.Add(new UiRegistration(manifest.Id, factory));
+            if (!registrations.TryGetValue(hook, out var list))
+                registrations[hook] = list = [];
+
+            list.Add(new UiRegistration(manifest.Id, factory));
         }
 
         /// <summary>
-        ///     creates each registered drawable and passes it to <paramref name="add"/>
+        ///     creates each drawable registered for <paramref name="hook"/> and passes it to <paramref name="add"/>
         /// </summary>
-        public static void Populate(IEnumerable<UiRegistration> registrations, Action<Drawable> add)
+        public static void Populate(Hook hook, Action<Drawable> add)
         {
-            foreach (var registration in registrations)
+            if (!registrations.TryGetValue(hook, out var list))
+                return;
+
+            foreach (var registration in list)
             {
                 try
                 {

@@ -10,9 +10,7 @@
     <PackageVersion Include="JsonSchema.Net" Version="9.5.0" />
     <PackageVersion Include="McMaster.NETCore.Plugins" Version="2.0.0" />
     <PackageVersion Include="Krafs.Publicizer" Version="2.3.2" />
-    <PackageVersion Include="Microsoft.Extensions.Primitives" Version="10.0.0" />
     <PackageVersion Include="ppy.osu.Framework.SourceGeneration" Version="2025.1121.1" />
-    <PackageVersion Include="Humanizer.Core" Version="3.0.10" />
   </ItemGroup>
 
   <ItemGroup>

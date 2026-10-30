@@ -6,4 +6,7 @@
     <RootNamespace>Omamori.Bootstrap</RootNamespace>
     <OmamoriStageDir>rulesets</OmamoriStageDir>
   </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\Omamori.Shared\**\*.cs" LinkBase="Shared" />
+  </ItemGroup>
 </Project>

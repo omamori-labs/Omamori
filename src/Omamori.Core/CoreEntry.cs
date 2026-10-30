@@ -10,8 +10,6 @@ namespace Omamori.Core
     /// </summary>
     public static class CoreEntry
     {
-        public const int CONTRACT_VERSION = 1;
-
         public const string HARMONY_ID = "omamori.core";
 
         /// <summary>hidden by <see cref="Patches.HideHostRuleset"/></summary>
@@ -19,7 +17,7 @@ namespace Omamori.Core
 
         internal static string DataDirectory { get; private set; } = string.Empty;
 
-        internal static string ModsDirectory => Path.Combine(DataDirectory, "omamori", "mods");
+        internal static string ModsDirectory => Layout.ModsDirectory(DataDirectory);
 
         /// <summary>
         ///     the real version from the git tag via minver, eg 0.1.0 or 0.1.0-alpha.0.5+sha
@@ -33,8 +31,8 @@ namespace Omamori.Core
         /// </summary>
         public static void Start(int contractVersion, string dataDirectory, string hostRulesetShortName)
         {
-            if (contractVersion != CONTRACT_VERSION)
-                throw new InvalidOperationException($"bootstrap contract {contractVersion} doesn't match core contract {CONTRACT_VERSION}, update Omamori");
+            if (contractVersion != Layout.CONTRACT_VERSION)
+                throw new InvalidOperationException($"bootstrap contract {contractVersion} doesn't match core contract {Layout.CONTRACT_VERSION}, update Omamori");
 
             DataDirectory = dataDirectory;
             HostRulesetShortName = hostRulesetShortName;

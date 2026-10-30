@@ -14,10 +14,6 @@
     <PackageReference Include="QuikGraph" />
     <PackageReference Include="JsonSchema.Net" />
     <PackageReference Include="McMaster.NETCore.Plugins" />
-    <PackageReference Include="Microsoft.Extensions.Primitives" ExcludeAssets="all" />
-    <Reference Include="Microsoft.Extensions.Primitives" HintPath="$(LazerPath)\Microsoft.Extensions.Primitives.dll" Private="false" />
-    <PackageReference Include="Humanizer.Core" ExcludeAssets="all" />
-    <Reference Include="Humanizer" HintPath="$(LazerPath)\Humanizer.dll" Private="false" />
     <PackageReference Include="Krafs.Publicizer" PrivateAssets="all" />
   </ItemGroup>
 
@@ -34,5 +30,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Omamori.API\Omamori.API.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\Omamori.Shared\**\*.cs" LinkBase="Shared" />
   </ItemGroup>
 </Project>
