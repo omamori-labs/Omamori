@@ -55,14 +55,18 @@ namespace Omamori.Core
                 Add(note(summary));
                 refreshes.Add(() => summary.Value = summarise(InstalledMods.All()));
 
+                var unavailable = new Bindable<SettingsNote.Data?>();
+                Add(note(unavailable));
+
                 if (ModManagerOverlay.Current is { } manager)
                 {
-                    Add(new SettingsButtonV2
+                    var manage = new SettingsButtonV2
                     {
                         Text = "Manage mods",
                         Keywords = ["omamori", "mods"],
                         Action = () => open(manager, ModFilter.All),
-                    });
+                    };
+                    Add(manage);
 
                     var problems = new SettingsButtonV2
                     {
@@ -75,15 +79,16 @@ namespace Omamori.Core
                     {
                         int count = InstalledMods.All().Count(m => m.Status is ModStatus.Problem or ModStatus.Crashed);
 
+                        manage.CanBeShown.Value = ModManagerOverlay.Available;
                         problems.Text = $"Review {count} problem(s)";
-                        problems.CanBeShown.Value = count > 0;
+                        problems.CanBeShown.Value = ModManagerOverlay.Available && count > 0;
                     });
                 }
 
-                else
-                {
-                    Add(note("The mod manager isn't available on this osu! version.", SettingsNote.Type.Critical));
-                }
+                // also covers the manager breaking after settings was built
+                refreshes.Add(() => unavailable.Value = ModManagerOverlay.Available
+                    ? null
+                    : new SettingsNote.Data("The mod manager isn't available, so mods can only be managed in the mods folder.", SettingsNote.Type.Critical));
 
                 Add(openFolderButton(host));
 
@@ -95,20 +100,27 @@ namespace Omamori.Core
         {
             base.LoadComplete();
             ModFaults.Faulted += onFaulted;
+            FeatureRegistry.Faulted += onFeatureFaulted;
             InstalledMods.Changed += refreshAll;
         }
 
         protected override void Dispose(bool isDisposing)
         {
             ModFaults.Faulted -= onFaulted;
+            FeatureRegistry.Faulted -= onFeatureFaulted;
             InstalledMods.Changed -= refreshAll;
             base.Dispose(isDisposing);
         }
 
         private void onFaulted(string _) => Schedule(refreshAll);
 
+        private void onFeatureFaulted(Feature _) => Schedule(refreshAll);
+
         private void open(ModManagerOverlay manager, ModFilter filter)
         {
+            if (!ModManagerOverlay.Available)
+                return;
+
             settings?.Hide();
             manager.Show(filter);
         }

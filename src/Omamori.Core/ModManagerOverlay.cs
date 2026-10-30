@@ -38,6 +38,8 @@ namespace Omamori.Core
     {
         public static ModManagerOverlay? Current { get; set; }
 
+        public static bool Available => Current != null && FeatureRegistry.IsActive(Feature.ModManager);
+
         private readonly Bindable<string> search = new Bindable<string>(string.Empty);
         private readonly Bindable<ModFilter> filter = new Bindable<ModFilter>();
         private readonly Bindable<InstalledMod?> selected = new Bindable<InstalledMod?>();
@@ -148,12 +150,14 @@ namespace Omamori.Core
 
             InstalledMods.Changed += scheduleRefresh;
             ModFaults.Faulted += onFaulted;
+            FeatureRegistry.Faulted += onFeatureFaulted;
         }
 
         protected override void Dispose(bool isDisposing)
         {
             InstalledMods.Changed -= scheduleRefresh;
             ModFaults.Faulted -= onFaulted;
+            FeatureRegistry.Faulted -= onFeatureFaulted;
             base.Dispose(isDisposing);
         }
 
@@ -177,6 +181,12 @@ namespace Omamori.Core
         }
 
         private void onFaulted(string _) => scheduleRefresh();
+
+        private void onFeatureFaulted(Feature feature)
+        {
+            if (feature == Feature.ModManager)
+                Schedule(Hide);
+        }
 
         // never from inside a switch's own callback, refresh rebuilds the details pane
         private void scheduleRefresh() => Schedule(refresh);

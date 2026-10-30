@@ -29,6 +29,28 @@ namespace Omamori.Tests
         }
 
         [Test]
+        public void FaultIsAnnouncedOnce()
+        {
+            FeatureRegistry.Set(Feature.MainMenuUi, FeatureState.Active, null);
+
+            int announced = 0;
+            void count(Feature f) => announced += f == Feature.MainMenuUi ? 1 : 0;
+            FeatureRegistry.Faulted += count;
+
+            try
+            {
+                FeatureRegistry.Run(Feature.MainMenuUi, () => throw new InvalidOperationException("boom"));
+                FeatureRegistry.Run(Feature.MainMenuUi, () => throw new InvalidOperationException("again"));
+            }
+            finally
+            {
+                FeatureRegistry.Faulted -= count;
+            }
+
+            Assert.That(announced, Is.EqualTo(1));
+        }
+
+        [Test]
         public void AppliesEveryClass()
         {
             var result = FeatureRegistry.Apply(harmony, [typeof(PrefixA), typeof(PostfixB)]);

@@ -76,6 +76,9 @@ namespace Omamori.Core
 
         private static readonly object state_lock = new object();
 
+        /// <summary>a feature threw and turned off, raised once per feature on whichever thread it threw</summary>
+        public static event Action<Feature>? Faulted;
+
         public static IReadOnlyList<FeatureStatus> Statuses
         {
             get
@@ -185,6 +188,8 @@ namespace Omamori.Core
             LoaderLog.Info($"Feature {info.Id} threw and was turned off for this session.");
             LoaderLog.Info(exception.ToString());
             LoaderLog.Notify($"{info.Name} stopped working and was turned off: {info.Impact}.");
+
+            Faulted?.Invoke(feature);
         }
 
         private static Feature? feature(Type patchClass) =>
