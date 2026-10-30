@@ -1,6 +1,4 @@
 using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
-using System.Linq;
 using Omamori.API;
 using Semver;
 
@@ -8,14 +6,16 @@ namespace Omamori.Core
 {
     internal static class ApiVersions
     {
+        private const SemVersionStyles styles = SemVersionStyles.OptionalPatch;
+
+        private static readonly SemVersion loader = SemVersion.Parse(ApiInfo.VERSION, styles);
+
         /// <summary>
         ///     <see cref="ApiInfo.VERSION"/>
         /// </summary>
         public static bool IsCompatible(string? modApiVersion, [NotNullWhen(false)] out string? problem)
         {
-            var loader = parse(ApiInfo.VERSION)!.Value;
-
-            if (parse(modApiVersion) is not { } mod)
+            if (!SemVersion.TryParse(modApiVersion, styles, out var mod))
             {
                 problem = $"invalid apiVersion \"{modApiVersion}\", expected major.minor like \"{ApiInfo.VERSION}\"";
                 return false;
@@ -35,26 +35,6 @@ namespace Omamori.Core
 
             problem = null;
             return true;
-        }
-
-        private static (int Major, int Minor)? parse(string? version)
-        {
-            string[] parts = (version ?? string.Empty).Trim().Split('.');
-
-            if (parts.Length == 2 && parseNumber(parts[0], out int major) && parseNumber(parts[1], out int minor))
-                return (major, minor);
-
-            return null;
-        }
-
-        private static bool parseNumber(string text, out int number)
-        {
-            number = 0;
-
-            if (text.Length == 0 || !text.All(char.IsAsciiDigit) || (text.Length > 1 && text[0] == '0'))
-                return false;
-
-            return int.TryParse(text, NumberStyles.None, CultureInfo.InvariantCulture, out number);
         }
     }
 
