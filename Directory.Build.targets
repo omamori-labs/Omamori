@@ -30,6 +30,18 @@
 
     <Error Condition="'@(_OmamoriShipped)' == ''" Text="Nothing to stage for $(MSBuildProjectName) from $(OutDir)." />
 
+    <!-- every third-party dll that ships needs its license in THIRD-PARTY-NOTICES.md, so a new dependency can't ship without one -->
+    <PropertyGroup Condition="'$(OmamoriStageNotices)' == 'true'">
+      <_OmamoriNoticesFile>$(MSBuildThisFileDirectory)THIRD-PARTY-NOTICES.md</_OmamoriNoticesFile>
+      <_OmamoriNotices>$([System.IO.File]::ReadAllText('$(_OmamoriNoticesFile)'))</_OmamoriNotices>
+    </PropertyGroup>
+    <ItemGroup Condition="'$(OmamoriStageNotices)' == 'true'">
+      <_OmamoriThirdParty Include="@(_OmamoriShipped)" Condition="'%(Extension)' == '.dll' and !$([System.String]::Copy('%(Filename)').StartsWith('Omamori.')) and !$([System.String]::Copy('%(Filename)').StartsWith('osu.Game.Rulesets.Omamori'))" />
+      <_OmamoriShipped Include="$(MSBuildThisFileDirectory)LICENSE;$(_OmamoriNoticesFile)" />
+    </ItemGroup>
+    <Error Condition="'$(OmamoriStageNotices)' == 'true' and '%(_OmamoriThirdParty.Identity)' != '' and !$(_OmamoriNotices.Contains('%(_OmamoriThirdParty.Filename)'))"
+           Text="%(_OmamoriThirdParty.Filename)%(_OmamoriThirdParty.Extension) ships in $(OmamoriStageDir) but isn't in THIRD-PARTY-NOTICES.md, add its license there." />
+
     <RemoveDir Directories="$(_OmamoriStageTarget)" />
     <Copy SourceFiles="@(_OmamoriShipped)" DestinationFolder="$(_OmamoriStageTarget)" />
 

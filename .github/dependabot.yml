@@ -7,6 +7,13 @@ updates:
     groups:
       nuget-minor-patch:
         update-types: [minor, patch]
+    ignore:
+      - dependency-name: JsonSchema.Net
+        update-types: ["version-update:semver-major"]
+      - dependency-name: JsonPointer.Net
+        update-types: ["version-update:semver-major"]
+      - dependency-name: Json.More.Net
+        update-types: ["version-update:semver-major"]
     commit-message:
       prefix: build
       include: scope

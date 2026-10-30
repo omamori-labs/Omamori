@@ -7,7 +7,8 @@
     <PackageVersion Include="Lib.Harmony" Version="2.4.3" />
     <PackageVersion Include="Semver" Version="3.0.0" />
     <PackageVersion Include="QuikGraph" Version="2.5.0" />
-    <PackageVersion Include="JsonSchema.Net" Version="9.5.0" />
+    <!-- 9.x ship under an open source maintenance fee agreement -->
+    <PackageVersion Include="JsonSchema.Net" Version="8.0.5" />
     <PackageVersion Include="McMaster.NETCore.Plugins" Version="2.0.0" />
     <PackageVersion Include="Krafs.Publicizer" Version="2.3.2" />
     <PackageVersion Include="ppy.osu.Framework.SourceGeneration" Version="2025.1121.1" />

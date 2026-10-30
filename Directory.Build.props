@@ -7,6 +7,17 @@
     <LazerPath Condition="'$(LazerPath)' == ''">$(MSBuildThisFileDirectory)sandbox\lazer</LazerPath>
   </PropertyGroup>
 
+  <!-- shows in every assembly's file properties and in any package built from here, like the api for mod authors -->
+  <PropertyGroup>
+    <Product>Omamori</Product>
+    <Authors>catforgor</Authors>
+    <Copyright>Copyright (c) 2026 catforgor</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/catforgor/Omamori</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/catforgor/Omamori</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+  </PropertyGroup>
+
   <PropertyGroup>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
