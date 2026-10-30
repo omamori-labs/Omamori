@@ -4,10 +4,20 @@
     <RootNamespace>Omamori.Core</RootNamespace>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <Version>0.1.0</Version>
+    <!-- lazer runs on coreclr -->
+    <PublicizerRuntimeStrategies>IgnoresAccessChecksTo</PublicizerRuntimeStrategies>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Lib.Harmony" Version="2.4.3" />
+    <PackageReference Include="Krafs.Publicizer" Version="2.3.2" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Publicize Include="osu.Game;osu.Framework" IncludeVirtualMembers="false" IncludeCompilerGeneratedMembers="false" />
+    <Publicize Include="osu.Framework:osu.Framework.Graphics.Containers.CompositeDrawable.AddInternal" />
+    <Publicize Include="osu.Game:osu.Game.OsuGame.LoadComplete" />
+    <Publicize Include="osu.Game:osu.Game.Screens.Menu.MainMenu.LoadComplete" />
   </ItemGroup>
 
   <ItemGroup>

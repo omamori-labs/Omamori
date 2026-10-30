@@ -1,9 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using HarmonyLib;
-using osu.Framework.Graphics;
-using osu.Framework.Graphics.Containers;
 using osu.Game;
 using osu.Game.Rulesets;
 using osu.Game.Screens.Menu;
@@ -12,10 +9,6 @@ namespace Omamori.Core
 {
     internal static class Patches
     {
-        private static readonly MethodInfo add_internal = AccessTools.Method(typeof(CompositeDrawable), "AddInternal");
-
-        private static void addInternal(CompositeDrawable target, Drawable drawable) => add_internal.Invoke(target, [drawable]);
-
         /// <summary>
         ///     hides host ruleset from toolbar, settings, etc
         /// </summary>
@@ -28,20 +21,18 @@ namespace Omamori.Core
             }
         }
 
-        [HarmonyPatch(typeof(MainMenu), "LoadComplete")]
+        [HarmonyPatch(typeof(MainMenu), nameof(MainMenu.LoadComplete))]
         internal static class MainMenuInjection
         {
             private static void Postfix(MainMenu __instance)
             {
-                UiHooks.Populate(UiHooks.MAIN_MENU, d => addInternal(__instance, d));
+                UiHooks.Populate(UiHooks.MAIN_MENU, __instance.AddInternal);
             }
         }
 
-        [HarmonyPatch(typeof(OsuGame), "LoadComplete")]
+        [HarmonyPatch(typeof(OsuGame), nameof(OsuGame.LoadComplete))]
         internal static class GameLoadHooks
         {
-            private static readonly FieldInfo top_most_overlay_content = AccessTools.Field(typeof(OsuGame), "topMostOverlayContent");
-
             private static void Prefix()
             {
                 ModLoader.LoadAll(CoreEntry.ModsDirectory);
@@ -49,8 +40,7 @@ namespace Omamori.Core
 
             private static void Postfix(OsuGame __instance)
             {
-                var container = (Container)top_most_overlay_content.GetValue(__instance)!;
-                UiHooks.Populate(UiHooks.GLOBAL_OVERLAY, container.Add);
+                UiHooks.Populate(UiHooks.GLOBAL_OVERLAY, __instance.topMostOverlayContent.Add);
             }
         }
     }
