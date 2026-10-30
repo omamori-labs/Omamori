@@ -53,11 +53,32 @@ namespace Omamori.API
         /// <summary><see cref="IGameEvents.OnScreenChanged"/></summary>
         ScreenEvents,
 
-        /// <summary><see cref="IGameEvents.OnBeatmapChanged"/> and <see cref="IGameEvents.OnRulesetChanged"/></summary>
+        /// <summary><see cref="IGameEvents.OnBeatmapChanged"/>, <see cref="IGameEvents.OnRulesetChanged"/> and <see cref="IGameEvents.OnModsChanged"/></summary>
         BeatmapEvents,
 
-        /// <summary><see cref="IGameEvents.OnPlayStarted"/> and <see cref="IGameEvents.OnPlayEnded"/></summary>
+        /// <summary><see cref="IGameEvents.OnPlayStarted"/>, <see cref="IGameEvents.OnPlayEnded"/> and <see cref="IGameEvents.OnPlayPaused"/></summary>
         PlayEvents,
+
+        /// <summary><see cref="IGameEvents.OnGameExiting"/> and <see cref="IGameEvents.OnWindowChanged"/></summary>
+        LifecycleEvents,
+
+        /// <summary><see cref="IGameEvents.OnTrackChanged"/> and <see cref="IGameEvents.OnMusicPlayingChanged"/></summary>
+        MusicEvents,
+
+        /// <summary><see cref="IGameEvents.OnUserChanged"/> and <see cref="IGameEvents.OnStatisticsUpdated"/></summary>
+        UserEvents,
+
+        /// <summary><see cref="IGameEvents.OnSkinChanged"/></summary>
+        SkinEvents,
+
+        /// <summary><see cref="IGameEvents.OnScoreSaved"/>, <see cref="IGameEvents.OnBeatmapSetAdded"/> and <see cref="IGameEvents.OnBeatmapSetRemoved"/></summary>
+        LibraryEvents,
+
+        /// <summary><see cref="IGameEvents.OnOverlayChanged"/></summary>
+        OverlayEvents,
+
+        /// <summary><see cref="IGameEvents.OnRoomChanged"/></summary>
+        MultiplayerEvents,
     }
 
     public enum HookRequirement

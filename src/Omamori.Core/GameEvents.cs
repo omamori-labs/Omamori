@@ -2,14 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Omamori.API;
-using osu.Framework.Screens;
-using osu.Game;
-using osu.Game.Beatmaps;
-using osu.Game.Rulesets;
-using osu.Game.Rulesets.Mods;
-using osu.Game.Scoring;
-using osu.Game.Screens.Menu;
-using osu.Game.Screens.Play;
 
 namespace Omamori.Core
 {
@@ -18,8 +10,22 @@ namespace Omamori.Core
         ScreenChanged,
         BeatmapChanged,
         RulesetChanged,
+        ModsChanged,
         PlayStarted,
         PlayEnded,
+        PlayPaused,
+        GameExiting,
+        WindowChanged,
+        TrackChanged,
+        MusicPlayingChanged,
+        UserChanged,
+        StatisticsUpdated,
+        SkinChanged,
+        ScoreSaved,
+        BeatmapSetAdded,
+        BeatmapSetRemoved,
+        OverlayChanged,
+        RoomChanged,
     }
 
     internal sealed class GameEvents : IGameEvents
@@ -42,9 +48,38 @@ namespace Omamori.Core
 
         public void OnRulesetChanged(Action<RulesetDetails> handler) => register(Hook.BeatmapEvents, GameEvent.RulesetChanged, handler);
 
+        public void OnModsChanged(Action<IReadOnlyList<string>> handler) => register(Hook.BeatmapEvents, GameEvent.ModsChanged, handler);
+
         public void OnPlayStarted(Action<PlayDetails> handler) => register(Hook.PlayEvents, GameEvent.PlayStarted, handler);
 
         public void OnPlayEnded(Action<PlayResult> handler) => register(Hook.PlayEvents, GameEvent.PlayEnded, handler);
+
+        public void OnPlayPaused(Action<bool> handler) => register(Hook.PlayEvents, GameEvent.PlayPaused, handler);
+
+        // every handler takes one argument internally
+        public void OnGameExiting(Action handler) => register(Hook.LifecycleEvents, GameEvent.GameExiting, new Action<bool>(_ => handler()));
+
+        public void OnWindowChanged(Action<WindowDetails> handler) => register(Hook.LifecycleEvents, GameEvent.WindowChanged, handler);
+
+        public void OnTrackChanged(Action<BeatmapDetails> handler) => register(Hook.MusicEvents, GameEvent.TrackChanged, handler);
+
+        public void OnMusicPlayingChanged(Action<bool> handler) => register(Hook.MusicEvents, GameEvent.MusicPlayingChanged, handler);
+
+        public void OnUserChanged(Action<UserDetails> handler) => register(Hook.UserEvents, GameEvent.UserChanged, handler);
+
+        public void OnStatisticsUpdated(Action<StatisticsUpdate> handler) => register(Hook.UserEvents, GameEvent.StatisticsUpdated, handler);
+
+        public void OnSkinChanged(Action<SkinDetails> handler) => register(Hook.SkinEvents, GameEvent.SkinChanged, handler);
+
+        public void OnScoreSaved(Action<ScoreDetails> handler) => register(Hook.LibraryEvents, GameEvent.ScoreSaved, handler);
+
+        public void OnBeatmapSetAdded(Action<BeatmapSetDetails> handler) => register(Hook.LibraryEvents, GameEvent.BeatmapSetAdded, handler);
+
+        public void OnBeatmapSetRemoved(Action<BeatmapSetDetails> handler) => register(Hook.LibraryEvents, GameEvent.BeatmapSetRemoved, handler);
+
+        public void OnOverlayChanged(Action<OverlayChange> handler) => register(Hook.OverlayEvents, GameEvent.OverlayChanged, handler);
+
+        public void OnRoomChanged(Action<RoomChange> handler) => register(Hook.MultiplayerEvents, GameEvent.RoomChanged, handler);
 
         private void register(Hook hook, GameEvent gameEvent, Delegate handler)
         {
@@ -58,6 +93,12 @@ namespace Omamori.Core
 
                 list.Add((manifest.Id, handler));
             }
+        }
+
+        public static bool HasHandlers(GameEvent gameEvent)
+        {
+            lock (handlers)
+                return handlers.TryGetValue(gameEvent, out var list) && list.Count > 0;
         }
 
         /// <summary>
@@ -114,134 +155,5 @@ namespace Omamori.Core
             log.Info($"{hook} hook isn't available on this osu! version, skipping this {what}.");
             return false;
         }
-    }
-
-    /// <summary>
-    ///     turns lazer's objects into the copies mods get, only public lazer state is read
-    /// </summary>
-    internal static class GameEventSources
-    {
-        private static PlayDetails? activePlay;
-        private static BeatmapDetails? lastBeatmap;
-
-        public static void WatchScreens(OsuGame game)
-        {
-            game.ScreenStack.ScreenPushed += (last, next) => screenChanged(last, next);
-            game.ScreenStack.ScreenExited += (last, next) => screenChanged(last, next);
-        }
-
-        public static void WatchBeatmap(OsuGame game)
-        {
-            game.Beatmap.BindValueChanged(e => FeatureRegistry.Run(Feature.BeatmapEvents, () =>
-            {
-                if (e.NewValue is DummyWorkingBeatmap)
-                    return;
-
-                // song select swaps in a new working beatmap for the same map, records compare by value
-                var beatmap = Beatmap(e.NewValue.BeatmapInfo);
-                if (beatmap == lastBeatmap)
-                    return;
-
-                lastBeatmap = beatmap;
-                GameEvents.Raise(GameEvent.BeatmapChanged, beatmap);
-            }), true);
-
-            game.Ruleset.BindValueChanged(e => FeatureRegistry.Run(Feature.BeatmapEvents, () =>
-            {
-                // pattern matching, == on realm objects needs realm referenced
-                if (e.NewValue is { } ruleset)
-                    GameEvents.Raise(GameEvent.RulesetChanged, new RulesetDetails { ShortName = ruleset.ShortName, Name = ruleset.Name });
-            }), true);
-        }
-
-        public static void WatchPlays(OsuGame game)
-        {
-            game.ScreenStack.ScreenPushed += (last, next) => FeatureRegistry.Run(Feature.PlayEvents, () =>
-            {
-                if (last is Player && next is osu.Game.Screens.Ranking.ResultsScreen results)
-                    endPlay(results.Score);
-
-                if (next is Player player)
-                    startPlay(player);
-            });
-
-            // results exiting resumes the player, which isn't valid for resume and exits too, activePlay keeps that from ending twice
-            game.ScreenStack.ScreenExited += (last, _) => FeatureRegistry.Run(Feature.PlayEvents, () =>
-            {
-                if (last is Player)
-                    endPlay(null);
-            });
-        }
-
-        private static void screenChanged(IScreen? last, IScreen? next) => FeatureRegistry.Run(Feature.ScreenEvents, () =>
-            GameEvents.Raise(GameEvent.ScreenChanged, new ScreenChange
-            {
-                Screen = Kind(next),
-                Previous = Kind(last),
-                ScreenName = next?.GetType().Name ?? string.Empty,
-            }));
-
-        private static void startPlay(Player player)
-        {
-            if (activePlay != null)
-                endPlay(null);
-
-            activePlay = new PlayDetails
-            {
-                Beatmap = Beatmap(player.Beatmap.Value.BeatmapInfo),
-                Ruleset = player.Ruleset.Value is { } ruleset ? ruleset.ShortName : string.Empty,
-                Mods = acronyms(player.Mods.Value),
-                IsReplay = player is ReplayPlayer or SpectatorPlayer,
-            };
-
-            GameEvents.Raise(GameEvent.PlayStarted, activePlay);
-        }
-
-        private static void endPlay(ScoreInfo? score)
-        {
-            if (activePlay is not { } play)
-                return;
-
-            activePlay = null;
-            GameEvents.Raise(GameEvent.PlayEnded, new PlayResult { Play = play, Completed = score is not null, Score = score is null ? null : Score(score) });
-        }
-
-        internal static GameScreen Kind(IScreen? screen) => screen switch
-        {
-            MainMenu => GameScreen.MainMenu,
-            osu.Game.Screens.Select.SongSelect => GameScreen.SongSelect,
-            Player => GameScreen.Gameplay,
-            osu.Game.Screens.Ranking.ResultsScreen => GameScreen.Results,
-            osu.Game.Screens.Edit.Editor => GameScreen.Editor,
-            osu.Game.Screens.OnlinePlay.Multiplayer.Multiplayer => GameScreen.Multiplayer,
-            osu.Game.Screens.OnlinePlay.Playlists.Playlists => GameScreen.Playlists,
-            _ => GameScreen.Other,
-        };
-
-        internal static BeatmapDetails Beatmap(BeatmapInfo beatmap) => new BeatmapDetails
-        {
-            Title = beatmap.Metadata.Title,
-            Artist = beatmap.Metadata.Artist,
-            Creator = beatmap.Metadata.Author is { } author ? author.Username : string.Empty,
-            Difficulty = beatmap.DifficultyName,
-            StarRating = beatmap.StarRating,
-            Bpm = beatmap.BPM,
-            Length = TimeSpan.FromMilliseconds(beatmap.Length),
-            OnlineId = beatmap.OnlineID > 0 ? beatmap.OnlineID : null,
-            Ruleset = beatmap.Ruleset is { } ruleset ? ruleset.ShortName : string.Empty,
-        };
-
-        internal static ScoreDetails Score(ScoreInfo score) => new ScoreDetails
-        {
-            TotalScore = score.TotalScore,
-            Accuracy = score.Accuracy,
-            Rank = score.Rank.ToString(),
-            MaxCombo = score.MaxCombo,
-            Pp = score.PP,
-            Passed = score.Passed,
-            Date = score.Date,
-        };
-
-        private static IReadOnlyList<string> acronyms(IReadOnlyList<Mod>? mods) => [.. (mods ?? []).Select(m => m.Acronym)];
     }
 }

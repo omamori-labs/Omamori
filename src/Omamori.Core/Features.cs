@@ -22,6 +22,13 @@ namespace Omamori.Core
         ScreenEvents,
         BeatmapEvents,
         PlayEvents,
+        LifecycleEvents,
+        MusicEvents,
+        UserEvents,
+        SkinEvents,
+        LibraryEvents,
+        OverlayEvents,
+        MultiplayerEvents,
     }
 
     internal enum FeatureState
@@ -74,8 +81,15 @@ namespace Omamori.Core
             new FeatureInfo(Feature.SettingsModList, "settings-mod-list", "Mod list in settings", "mods can't be seen or turned off from settings"),
             new FeatureInfo(Feature.ModManager, "mod-manager", "Mod manager", "mods can't be managed in game, only by editing the mods folder"),
             new FeatureInfo(Feature.ScreenEvents, "screen-events", "Screen events", "mods aren't told when the screen changes", Hook.ScreenEvents),
-            new FeatureInfo(Feature.BeatmapEvents, "beatmap-events", "Beatmap events", "mods aren't told when the beatmap or ruleset changes", Hook.BeatmapEvents),
-            new FeatureInfo(Feature.PlayEvents, "play-events", "Play events", "mods aren't told when a play starts or ends", Hook.PlayEvents),
+            new FeatureInfo(Feature.BeatmapEvents, "beatmap-events", "Beatmap events", "mods aren't told when the beatmap, ruleset or selected mods change", Hook.BeatmapEvents),
+            new FeatureInfo(Feature.PlayEvents, "play-events", "Play events", "mods aren't told when a play starts, pauses or ends", Hook.PlayEvents),
+            new FeatureInfo(Feature.LifecycleEvents, "lifecycle-events", "Lifecycle events", "mods aren't told when osu! closes or the window changes", Hook.LifecycleEvents),
+            new FeatureInfo(Feature.MusicEvents, "music-events", "Music events", "mods aren't told when the music changes", Hook.MusicEvents),
+            new FeatureInfo(Feature.UserEvents, "user-events", "User events", "mods aren't told about logging in or new statistics", Hook.UserEvents),
+            new FeatureInfo(Feature.SkinEvents, "skin-events", "Skin events", "mods aren't told when the skin changes", Hook.SkinEvents),
+            new FeatureInfo(Feature.LibraryEvents, "library-events", "Library events", "mods aren't told about saved scores or added and removed beatmaps", Hook.LibraryEvents),
+            new FeatureInfo(Feature.OverlayEvents, "overlay-events", "Overlay events", "mods aren't told when overlays open or close", Hook.OverlayEvents),
+            new FeatureInfo(Feature.MultiplayerEvents, "multiplayer-events", "Multiplayer events", "mods aren't told about multiplayer rooms", Hook.MultiplayerEvents),
         ];
 
         private static readonly Dictionary<Feature, FeatureStatus> statuses = ALL.ToDictionary(f => f.Feature, f => new FeatureStatus(f, FeatureState.Pending, null));

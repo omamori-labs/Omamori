@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using NSubstitute;
 using NUnit.Framework;
 using Omamori.API;
@@ -94,6 +95,33 @@ namespace Omamori.Tests
             Assert.That(details.Rank, Is.EqualTo("S"));
             Assert.That(details.Pp, Is.Null);
         }
+
+        [Test]
+        public void StatisticsAccuracyIsZeroToOne()
+        {
+            var details = GameEventSources.Statistics(new osu.Game.Users.UserStatistics { Accuracy = 98.5, PP = 1234.5m, GlobalRank = 1000 });
+
+            Assert.That(details.Accuracy, Is.EqualTo(0.985).Within(1e-9));
+            Assert.That(details.Pp, Is.EqualTo(1234.5).Within(1e-9));
+            Assert.That(details.GlobalRank, Is.EqualTo(1000));
+        }
+
+        [Test]
+        public void HitsAreCopied()
+        {
+            var score = new ScoreInfo();
+            score.HitEvents.Add(new osu.Game.Rulesets.Scoring.HitEvent(-12, null, osu.Game.Rulesets.Scoring.HitResult.Great, new osu.Game.Rulesets.Objects.HitObject { StartTime = 1500 }, null, new osuTK.Vector2(3, 4)));
+
+            var hit = GameEventSources.Hits(score).Single();
+
+            Assert.That(hit.Time, Is.EqualTo(1500));
+            Assert.That(hit.Offset, Is.EqualTo(-12));
+            Assert.That(hit.Result, Is.EqualTo("Great"));
+            Assert.That(hit.X, Is.EqualTo(3));
+        }
+
+        [Test]
+        public void ScoreWithoutBeatmapHasNone() => Assert.That(GameEventSources.Score(new ScoreInfo { BeatmapInfo = null }).Beatmap, Is.Null);
 
         private static ModManifest manifest() => new ModManifest
         {

@@ -25,6 +25,7 @@
     <Publicize Include="osu.Framework:osu.Framework.Graphics.Containers.CompositeDrawable.AddInternal" />
     <Publicize Include="osu.Framework:osu.Framework.Graphics.Containers.CompositeDrawable.RemoveInternal" />
     <Publicize Include="osu.Game:osu.Game.OsuGame.LoadComplete" />
+    <Publicize Include="osu.Framework:osu.Framework.Platform.GameHost.PerformExit" />
     <Publicize Include="osu.Game:osu.Game.Screens.Menu.MainMenu.LoadComplete" />
   </ItemGroup>
 
@@ -34,6 +35,11 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="Omamori.Tests" />
+  </ItemGroup>
+
+  <!-- library events subscribe to lazer's database, realm ships with the game -->
+  <ItemGroup>
+    <Reference Include="Realm" HintPath="$(LazerPath)\Realm.dll" Private="false" />
   </ItemGroup>
 
   <ItemGroup>

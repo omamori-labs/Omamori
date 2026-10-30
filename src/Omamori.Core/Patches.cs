@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using HarmonyLib;
 using Omamori.API;
+using osu.Framework.Platform;
 using osu.Game;
 using osu.Game.Overlays;
 using osu.Game.Overlays.Settings.Sections;
@@ -101,6 +102,97 @@ namespace Omamori.Core
             private static void postfix(OsuGame __instance)
             {
                 FeatureRegistry.Run(Feature.PlayEvents, () => GameEventSources.WatchPlays(__instance));
+            }
+        }
+
+        [Feature(Feature.LifecycleEvents)]
+        [HarmonyPatch(typeof(OsuGame), nameof(OsuGame.LoadComplete))]
+        internal static class LifecycleEventsHook
+        {
+            [HarmonyPostfix]
+            private static void postfix(OsuGame __instance)
+            {
+                FeatureRegistry.Run(Feature.LifecycleEvents, () => GameEventSources.WatchWindow(__instance));
+            }
+        }
+
+        [Feature(Feature.MusicEvents)]
+        [HarmonyPatch(typeof(OsuGame), nameof(OsuGame.LoadComplete))]
+        internal static class MusicEventsHook
+        {
+            [HarmonyPostfix]
+            private static void postfix(OsuGame __instance)
+            {
+                FeatureRegistry.Run(Feature.MusicEvents, () => GameEventSources.WatchMusic(__instance));
+            }
+        }
+
+        [Feature(Feature.UserEvents)]
+        [HarmonyPatch(typeof(OsuGame), nameof(OsuGame.LoadComplete))]
+        internal static class UserEventsHook
+        {
+            [HarmonyPostfix]
+            private static void postfix(OsuGame __instance)
+            {
+                FeatureRegistry.Run(Feature.UserEvents, () => GameEventSources.WatchUser(__instance));
+            }
+        }
+
+        [Feature(Feature.SkinEvents)]
+        [HarmonyPatch(typeof(OsuGame), nameof(OsuGame.LoadComplete))]
+        internal static class SkinEventsHook
+        {
+            [HarmonyPostfix]
+            private static void postfix(OsuGame __instance)
+            {
+                FeatureRegistry.Run(Feature.SkinEvents, () => GameEventSources.WatchSkin(__instance));
+            }
+        }
+
+        [Feature(Feature.LibraryEvents)]
+        [HarmonyPatch(typeof(OsuGame), nameof(OsuGame.LoadComplete))]
+        internal static class LibraryEventsHook
+        {
+            [HarmonyPostfix]
+            private static void postfix(OsuGame __instance)
+            {
+                FeatureRegistry.Run(Feature.LibraryEvents, () => GameEventSources.WatchLibrary(__instance));
+            }
+        }
+
+        [Feature(Feature.OverlayEvents)]
+        [HarmonyPatch(typeof(OsuGame), nameof(OsuGame.LoadComplete))]
+        internal static class OverlayEventsHook
+        {
+            [HarmonyPostfix]
+            private static void postfix(OsuGame __instance)
+            {
+                FeatureRegistry.Run(Feature.OverlayEvents, () => GameEventSources.WatchOverlays(__instance));
+            }
+        }
+
+        [Feature(Feature.MultiplayerEvents)]
+        [HarmonyPatch(typeof(OsuGame), nameof(OsuGame.LoadComplete))]
+        internal static class MultiplayerEventsHook
+        {
+            [HarmonyPostfix]
+            private static void postfix(OsuGame __instance)
+            {
+                FeatureRegistry.Run(Feature.MultiplayerEvents, () => GameEventSources.WatchMultiplayer(__instance));
+            }
+        }
+
+        /// <summary>
+        ///     every real exit goes through here, osu!'s exit button skips OnExiting after its outro, threads are still running
+        /// </summary>
+        [Feature(Feature.LifecycleEvents)]
+        [HarmonyPatch(typeof(GameHost), nameof(GameHost.PerformExit))]
+        internal static class GameExitingHook
+        {
+            [HarmonyPrefix]
+            private static void prefix()
+            {
+                FeatureRegistry.Run(Feature.LifecycleEvents, GameEventSources.Exiting);
             }
         }
 

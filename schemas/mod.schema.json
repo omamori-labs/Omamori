@@ -71,7 +71,14 @@
           "GlobalOverlay",
           "ScreenEvents",
           "BeatmapEvents",
-          "PlayEvents"
+          "PlayEvents",
+          "LifecycleEvents",
+          "MusicEvents",
+          "UserEvents",
+          "SkinEvents",
+          "LibraryEvents",
+          "OverlayEvents",
+          "MultiplayerEvents"
         ]
       },
       "additionalProperties": {
