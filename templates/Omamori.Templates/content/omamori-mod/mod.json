@@ -1,0 +1,14 @@
+{
+  "$schema": "https://raw.githubusercontent.com/catforgor/Omamori/main/schemas/mod.schema.json",
+  "id": "yourname.mymod",
+  "name": "OmamoriMod",
+  "version": "1.0.0",
+  "author": "MOD_AUTHOR",
+  "description": "",
+  "entry": "OmamoriMod.dll",
+  "apiVersion": "__OMAMORI_API__",
+  "capabilities": ["Cosmetic"],
+  "hooks": {
+    "MainMenu": "optional"
+  }
+}

@@ -7,7 +7,6 @@
 
   <ItemGroup>
     <PackageReference Include="Cake.Frosting" />
-    <PackageReference Include="System.Drawing.Common" />
     <PackageReference Include="System.Security.Cryptography.Pkcs" />
   </ItemGroup>
 </Project>

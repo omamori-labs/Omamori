@@ -1,0 +1,51 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Omamori.ModBuildConfig</RootNamespace>
+    <IsPackable>true</IsPackable>
+    <Description>Build setup for Omamori mods: finds osu!lazer, references the game and Omamori.API, never bundles game assemblies, checks mod.json at build time, and can deploy and zip the mod.</Description>
+    <PackageTags>osu osu!lazer omamori mod modding</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <DevelopmentDependency>true</DevelopmentDependency>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);_OmamoriPackTask</TargetsForTfmSpecificContentInPackage>
+    <NoWarn>$(NoWarn);NU5100;NU5128</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Build.Utilities.Core" PrivateAssets="all" ExcludeAssets="runtime" />
+    <PackageReference Include="JsonSchema.Net" PrivateAssets="all" />
+    <PackageReference Include="Semver" PrivateAssets="all" />
+    <PackageReference Include="ppy.osu.Framework.SourceGeneration" PrivateAssets="none" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Omamori.Core\ManifestSchema.cs" Link="Shared\ManifestSchema.cs" />
+    <Compile Include="..\Omamori.Core\Versions.cs" Link="Shared\Versions.cs" />
+    <Compile Include="..\Omamori.API\ApiInfo.cs" Link="Shared\ApiInfo.cs" />
+    <EmbeddedResource Include="..\..\schemas\mod.schema.json" LogicalName="Omamori.Core.mod.schema.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Omamori.API\Omamori.API.csproj" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="build\**" Pack="true" PackagePath="build\" />
+    <None Include="README.md" Pack="true" PackagePath="\" />
+    <None Include="..\..\LICENSE" Pack="true" PackagePath="\" />
+    <None Include="..\..\THIRD-PARTY-NOTICES.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <Target Name="_OmamoriPackTask">
+    <PropertyGroup>
+      <_OmamoriApiOutput>$(MSBuildThisFileDirectory)..\Omamori.API\bin\$(Configuration)\$(TargetFramework)\</_OmamoriApiOutput>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <_OmamoriTaskFile Include="$(OutDir)*.dll" Exclude="$(OutDir)Microsoft.Build*.dll" />
+      <TfmSpecificPackageFile Include="$(_OmamoriApiOutput)Omamori.API.dll;$(_OmamoriApiOutput)Omamori.API.xml" PackagePath="api\" />
+      <TfmSpecificPackageFile Include="@(_OmamoriTaskFile)" PackagePath="tasks\$(TargetFramework)\" />
+    </ItemGroup>
+  </Target>
+</Project>

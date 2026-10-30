@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <!--
+    // set OmamoriGamePath if osu!lazer isn't found automatically
+    <OmamoriGamePath>C:\path\to\osu!lazer</OmamoriGamePath>
+
+    // set OmamoriDeploy to true to copy the mod into osu!'s data folder after each build
+    <OmamoriDeploy>true</OmamoriDeploy>
+    -->
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Omamori.ModBuildConfig" Version="__OMAMORI_VERSION__" />
+  </ItemGroup>
+</Project>

@@ -27,6 +27,8 @@ namespace Omamori.Build
 
         public string TestResults => Path.Combine(Root, "artifacts", "test-results");
 
+        public string Packages => Path.Combine(Root, "artifacts", "packages");
+
         public string Solution => Path.Combine(Root, "Omamori.sln");
 
         public DotNetMSBuildSettings MSBuild => new DotNetMSBuildSettings().WithProperty("LazerPath", Sandbox);
@@ -39,8 +41,6 @@ namespace Omamori.Build
 
         public string Faults { get; }
 
-        public string? Screenshot { get; }
-
         public BuildContext(ICakeContext context)
             : base(context)
         {
@@ -50,9 +50,7 @@ namespace Omamori.Build
             LazerVersion = File.ReadAllText(Path.Combine(Root, "lazer-version.txt")).Trim();
             ForceSetup = context.HasArgument("force-setup");
             ModSources = context.Arguments<string>("mods", [Path.Combine(Root, "examples")]);
-            Faults = context.Argument("faults", string.Empty);
-            Screenshot = context.HasArgument("screenshot") ? Path.GetFullPath(context.Argument<string>("screenshot")) : null;
-        }
+            Faults = context.Argument("faults", string.Empty);        }
 
         private static string findRoot()
         {

@@ -74,15 +74,6 @@ namespace Omamori.API
         void AddGlobalOverlay(Func<Drawable> factory);
     }
 
-    public static class ApiInfo
-    {
-        /// <summary>
-        ///     major.minor, minor bumps only add things
-        ///     a mod loads when its major matches and its minor is the same or lower
-        /// </summary>
-        public const string VERSION = "0.2";
-    }
-
     /// <summary>
     ///     what a mod can do, set in its manifest
     /// </summary>

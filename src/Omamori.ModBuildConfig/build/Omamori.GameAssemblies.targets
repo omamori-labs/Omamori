@@ -1,0 +1,18 @@
+﻿<Project>
+  <Target Name="OmamoriPreferGameAssemblies" AfterTargets="ResolvePackageAssets" Condition="'$(ReferenceLazer)' == 'true'">
+    <PropertyGroup>
+      <_OmamoriOwnCopy>;@(OmamoriOwnCopy);</_OmamoriOwnCopy>
+    </PropertyGroup>
+    <ItemGroup>
+      <_OmamoriGameCompile Include="@(ResolvedCompileFileDefinitions)" Condition="Exists('$(LazerPath)\%(Filename)%(Extension)') and !$(_OmamoriOwnCopy.Contains(';%(Filename);'))" />
+      <ResolvedCompileFileDefinitions Remove="@(_OmamoriGameCompile)" />
+      <_OmamoriGameAssembly Include="%(_OmamoriGameCompile.Filename)%(_OmamoriGameCompile.Extension)" />
+      <Reference Include="@(_OmamoriGameAssembly->'$(LazerPath)\%(Identity)')" Private="false" />
+
+      <_OmamoriGameRuntime Include="@(RuntimeCopyLocalItems)" Condition="Exists('$(LazerPath)\%(Filename)%(Extension)') and !$(_OmamoriOwnCopy.Contains(';%(Filename);'))" />
+      <RuntimeCopyLocalItems Remove="@(_OmamoriGameRuntime)" />
+    </ItemGroup>
+
+    <Message Importance="normal" Condition="'@(_OmamoriGameAssembly)' != ''" Text="$(MSBuildProjectName) using the game's @(_OmamoriGameAssembly, ', ') instead of nuget's" />
+  </Target>
+</Project>

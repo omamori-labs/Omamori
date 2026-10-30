@@ -1,0 +1,83 @@
+<Project>
+  <PropertyGroup>
+    <OmamoriGamePath Condition="'$(OmamoriGamePath)' == '' and $([MSBuild]::IsOSPlatform('Windows')) and Exists('$(LOCALAPPDATA)\osulazer\current\osu.Game.dll')">$(LOCALAPPDATA)\osulazer\current</OmamoriGamePath>
+    <OmamoriGamePath Condition="'$(OmamoriGamePath)' == '' and $([MSBuild]::IsOSPlatform('OSX')) and Exists('/Applications/osu!.app/Contents/MacOS/osu.Game.dll')">/Applications/osu!.app/Contents/MacOS</OmamoriGamePath>
+    <LazerPath>$(OmamoriGamePath)</LazerPath>
+    <ReferenceLazer>true</ReferenceLazer>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(OmamoriGamePath)' != ''">
+    <Reference Include="osu.Game" HintPath="$(OmamoriGamePath)\osu.Game.dll" Private="false" />
+    <Reference Include="osu.Framework" HintPath="$(OmamoriGamePath)\osu.Framework.dll" Private="false" />
+    <Reference Include="osuTK" HintPath="$(OmamoriGamePath)\osuTK.dll" Private="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Omamori.API" HintPath="$(MSBuildThisFileDirectory)..\api\Omamori.API.dll" Private="false" />
+  </ItemGroup>
+
+  <Import Project="$(MSBuildThisFileDirectory)Omamori.GameAssemblies.targets" />
+
+  <PropertyGroup>
+    <OmamoriDataPath Condition="'$(OmamoriDataPath)' == '' and $([MSBuild]::IsOSPlatform('Windows'))">$(APPDATA)\osu</OmamoriDataPath>
+    <OmamoriDataPath Condition="'$(OmamoriDataPath)' == '' and $([MSBuild]::IsOSPlatform('OSX'))">$(HOME)/Library/Application Support/osu</OmamoriDataPath>
+    <OmamoriDataPath Condition="'$(OmamoriDataPath)' == '' and '$(XDG_DATA_HOME)' != ''">$(XDG_DATA_HOME)/osu</OmamoriDataPath>
+    <OmamoriDataPath Condition="'$(OmamoriDataPath)' == ''">$(HOME)/.local/share/osu</OmamoriDataPath>
+    <_OmamoriStorageIni>$(OmamoriDataPath)\storage.ini</_OmamoriStorageIni>
+    <_OmamoriMovedData Condition="Exists('$(_OmamoriStorageIni)')">$([System.Text.RegularExpressions.Regex]::Match($([System.IO.File]::ReadAllText('$(_OmamoriStorageIni)')), 'FullPath\s*=\s*(.+)').Groups[1].Value.Trim())</_OmamoriMovedData>
+    <OmamoriDataPath Condition="'$(_OmamoriMovedData)' != ''">$(_OmamoriMovedData)</OmamoriDataPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="mod.json" />
+    <None Include="mod.json" CopyToOutputDirectory="PreserveNewest" Condition="Exists('$(MSBuildProjectDirectory)\mod.json')" />
+  </ItemGroup>
+
+  <UsingTask TaskName="Omamori.ModBuildConfig.ValidateManifest" AssemblyFile="$(MSBuildThisFileDirectory)..\tasks\net10.0\Omamori.ModBuildConfig.dll" Condition="'$(MSBuildRuntimeType)' == 'Core'" />
+
+  <Target Name="OmamoriCheckGame" BeforeTargets="ResolveAssemblyReferences">
+    <Error Condition="'$(OmamoriGamePath)' == ''" Code="OMA010"
+           Text="couldn't find osu!lazer, set OmamoriGamePath in your csproj to the folder that has osu.Game.dll (on linux, extract the AppImage with --appimage-extract and use squashfs-root/usr/bin)" />
+    <Error Condition="'$(OmamoriGamePath)' != '' and !Exists('$(OmamoriGamePath)\osu.Game.dll')" Code="OMA011"
+           Text="OmamoriGamePath is $(OmamoriGamePath) but there's no osu.Game.dll there" />
+  </Target>
+
+  <Target Name="OmamoriValidateManifest" BeforeTargets="CoreCompile" Condition="'$(MSBuildRuntimeType)' == 'Core'">
+    <ValidateManifest ManifestPath="$(MSBuildProjectDirectory)\mod.json" ExpectedEntry="$(TargetFileName)">
+      <Output TaskParameter="ModId" PropertyName="OmamoriModId" />
+      <Output TaskParameter="ModVersion" PropertyName="OmamoriModVersion" />
+    </ValidateManifest>
+  </Target>
+
+  <Target Name="OmamoriSkipValidation" BeforeTargets="CoreCompile" Condition="'$(MSBuildRuntimeType)' != 'Core'">
+    <Message Importance="high" Text="mod.json isn't checked under .NET Framework msbuild, build with the dotnet cli to check it, the loader still checks it in game" />
+  </Target>
+
+  <Target Name="_OmamoriModFiles">
+    <ItemGroup>
+      <_OmamoriModFile Include="$(OutDir)*.dll;$(OutDir)*.pdb;$(OutDir)*.deps.json;$(OutDir)mod.json" />
+    </ItemGroup>
+  </Target>
+
+  <Target Name="OmamoriDeploy" AfterTargets="Build" DependsOnTargets="_OmamoriModFiles" Condition="'$(OmamoriDeploy)' == 'true' and '$(OmamoriModId)' != ''">
+    <PropertyGroup>
+      <_OmamoriDeployDir>$(OmamoriDataPath)\omamori\mods\$(OmamoriModId)\</_OmamoriDeployDir>
+    </PropertyGroup>
+
+    <RemoveDir Directories="$(_OmamoriDeployDir)" />
+    <Copy SourceFiles="@(_OmamoriModFile)" DestinationFolder="$(_OmamoriDeployDir)" />
+    <Message Importance="high" Text="$(MSBuildProjectName) deployed to $(_OmamoriDeployDir)" />
+  </Target>
+
+  <Target Name="OmamoriPackMod" AfterTargets="Build" DependsOnTargets="_OmamoriModFiles" Condition="'$(OmamoriPackMod)' == 'true' and '$(OmamoriModId)' != ''">
+    <PropertyGroup>
+      <_OmamoriZipStage>$(IntermediateOutputPath)omamori-zip\$(OmamoriModId)\</_OmamoriZipStage>
+      <_OmamoriZip>$(OutDir)..\$(OmamoriModId)-$(OmamoriModVersion).zip</_OmamoriZip>
+    </PropertyGroup>
+
+    <RemoveDir Directories="$(IntermediateOutputPath)omamori-zip" />
+    <Copy SourceFiles="@(_OmamoriModFile)" DestinationFolder="$(_OmamoriZipStage)" />
+    <ZipDirectory SourceDirectory="$(IntermediateOutputPath)omamori-zip" DestinationFile="$(_OmamoriZip)" Overwrite="true" />
+    <Message Importance="high" Text="$(MSBuildProjectName) packed $([System.IO.Path]::GetFullPath('$(_OmamoriZip)'))" />
+  </Target>
+</Project>

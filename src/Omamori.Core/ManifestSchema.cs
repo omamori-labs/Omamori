@@ -60,7 +60,7 @@ namespace Omamori.Core
                                ?? throw new InvalidOperationException($"embedded {resource_name} is missing, core was built wrong");
             using var reader = new StreamReader(stream);
 
-            return JsonSchema.FromText(reader.ReadToEnd());
+            return JsonSchema.FromText(reader.ReadToEnd(), new BuildOptions { SchemaRegistry = new SchemaRegistry() });
         }
     }
 }

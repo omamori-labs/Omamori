@@ -1,0 +1,7 @@
+<Project>
+  <PropertyGroup>
+    <EnableDynamicLoading Condition="'$(EnableDynamicLoading)' == ''">true</EnableDynamicLoading>
+    <OmamoriDeploy Condition="'$(OmamoriDeploy)' == ''">false</OmamoriDeploy>
+    <OmamoriPackMod Condition="'$(OmamoriPackMod)' == '' and '$(Configuration)' == 'Release'">true</OmamoriPackMod>
+  </PropertyGroup>
+</Project>

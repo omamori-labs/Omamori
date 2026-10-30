@@ -27,8 +27,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageVersion Include="Microsoft.Build.Utilities.Core" Version="18.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageVersion Include="Cake.Frosting" Version="6.3.0" />
-    <PackageVersion Include="System.Drawing.Common" Version="10.0.14" />
     <PackageVersion Include="System.Security.Cryptography.Pkcs" Version="10.0.14" />
   </ItemGroup>
 

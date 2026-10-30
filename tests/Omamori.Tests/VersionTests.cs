@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using Omamori.API;
 using Omamori.Core;
 
 namespace Omamori.Tests
@@ -78,12 +79,12 @@ namespace Omamori.Tests
         [TestCase(null, false)]
         [TestCase("", false)]
         public void ApiCompatibility(string? apiVersion, bool compatible) =>
-            Assert.That(ApiVersions.IsCompatible(apiVersion, out _), Is.EqualTo(compatible));
+            Assert.That(ApiVersions.IsCompatible(apiVersion, ApiInfo.VERSION, out _), Is.EqualTo(compatible));
 
         [Test]
         public void ApiTooNewSaysWhatToDo()
         {
-            ApiVersions.IsCompatible("0.3", out string? problem);
+            ApiVersions.IsCompatible("0.3", ApiInfo.VERSION, out string? problem);
             Assert.That(problem, Does.Contain("needs a newer Omamori"));
         }
 

@@ -1,5 +1,4 @@
 using System.Diagnostics.CodeAnalysis;
-using Omamori.API;
 using Semver;
 
 namespace Omamori.Core
@@ -8,28 +7,28 @@ namespace Omamori.Core
     {
         private const SemVersionStyles styles = SemVersionStyles.OptionalPatch;
 
-        private static readonly SemVersion loader = SemVersion.Parse(ApiInfo.VERSION, styles);
-
         /// <summary>
-        ///     <see cref="ApiInfo.VERSION"/>
+        ///     whether a mod built for <paramref name="modApiVersion"/> runs on <paramref name="providedApiVersion"/>
         /// </summary>
-        public static bool IsCompatible(string? modApiVersion, [NotNullWhen(false)] out string? problem)
+        public static bool IsCompatible(string? modApiVersion, string providedApiVersion, [NotNullWhen(false)] out string? problem)
         {
+            var provided = SemVersion.Parse(providedApiVersion, styles);
+
             if (!SemVersion.TryParse(modApiVersion, styles, out var mod))
             {
-                problem = $"invalid apiVersion \"{modApiVersion}\", expected major.minor like \"{ApiInfo.VERSION}\"";
+                problem = $"invalid apiVersion \"{modApiVersion}\", expected major.minor like \"{providedApiVersion}\"";
                 return false;
             }
 
-            if (mod.Major != loader.Major)
+            if (mod.Major != provided.Major)
             {
-                problem = $"built for API {modApiVersion}, Omamori provides {ApiInfo.VERSION} which isn't compatible";
+                problem = $"built for API {modApiVersion}, Omamori provides {providedApiVersion} which isn't compatible";
                 return false;
             }
 
-            if (mod.Minor > loader.Minor)
+            if (mod.Minor > provided.Minor)
             {
-                problem = $"built for API {modApiVersion}, needs a newer Omamori (this one provides {ApiInfo.VERSION})";
+                problem = $"built for API {modApiVersion}, needs a newer Omamori (this one provides {providedApiVersion})";
                 return false;
             }
 

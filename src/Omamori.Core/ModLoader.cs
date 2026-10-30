@@ -139,7 +139,7 @@ namespace Omamori.Core
         {
             var manifest = candidate.Manifest;
 
-            if (!ApiVersions.IsCompatible(manifest.ApiVersion, out string? apiProblem))
+            if (!ApiVersions.IsCompatible(manifest.ApiVersion, ApiInfo.VERSION, out string? apiProblem))
                 return apiProblem;
 
             if (!File.Exists(Path.Combine(candidate.Directory, manifest.Entry)))

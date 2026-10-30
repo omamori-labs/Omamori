@@ -328,3 +328,84 @@ You may have additional consumer rights under your local laws which this license
 To the extent permitted under your local laws, the contributors exclude the implied warranties of merchantability,
 fitness for a particular purpose and non-infringement.
 ```
+
+# Omamori.ModBuildConfig package
+
+The `Omamori.ModBuildConfig` NuGet package ships Semver, JsonSchema.Net, JsonPointer.Net and Json.More (licenses above) in `tasks/`, along with the following.
+
+| Assembly | Package | License |
+|---|---|---|
+| Humanizer | [Humanizer.Core 3.0.1](https://github.com/Humanizr/Humanizer) | MIT |
+| Microsoft.Extensions.Primitives | [Microsoft.Extensions.Primitives 5.0.1](https://github.com/dotnet/runtime) | MIT |
+
+## Humanizer
+
+Humanizer.Core 3.0.1, https://github.com/Humanizr/Humanizer
+
+```
+The MIT License (MIT)
+
+Copyright (c) .NET Foundation and Contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+==============================================================================
+
+Inflector (https://github.com/srkirkland/Inflector)
+The MIT License (MIT)
+Copyright (c) 2013 Scott Kirkland
+
+==============================================================================
+
+ByteSize (https://github.com/omar/ByteSize)
+The MIT License (MIT)
+Copyright (c) 2013-2014 Omar Khudeira (http://omar.io)
+
+==============================================================================
+```
+
+## Microsoft.Extensions.Primitives
+
+Microsoft.Extensions.Primitives 5.0.1, https://github.com/dotnet/runtime
+
+```
+The MIT License (MIT)
+
+Copyright (c) .NET Foundation and Contributors
+
+All rights reserved.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```

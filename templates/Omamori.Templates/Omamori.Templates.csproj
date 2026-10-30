@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <PackageType>Template</PackageType>
+    <IsPackable>true</IsPackable>
+    <Description>dotnet new templates for Omamori mods for osu!lazer.</Description>
+    <PackageTags>osu osu!lazer omamori mod template</PackageTags>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <EnableDefaultItems>false</EnableDefaultItems>
+    <NoDefaultExcludes>true</NoDefaultExcludes>
+    <NoWarn>$(NoWarn);NU5128</NoWarn>
+    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);_OmamoriPackTemplates</TargetsForTfmSpecificContentInPackage>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\LICENSE" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <Target Name="_OmamoriPackTemplates" DependsOnTargets="MinVer">
+    <PropertyGroup>
+      <_OmamoriApiVersion>$([System.Text.RegularExpressions.Regex]::Match($([System.IO.File]::ReadAllText('$(MSBuildThisFileDirectory)..\..\src\Omamori.API\ApiInfo.cs')), 'VERSION = "([^"]+)"').Groups[1].Value)</_OmamoriApiVersion>
+      <_OmamoriTemplateOut>$(IntermediateOutputPath)templates\</_OmamoriTemplateOut>
+    </PropertyGroup>
+
+    <Error Condition="'$(_OmamoriApiVersion)' == ''" Text="couldn't read ApiInfo.VERSION from src/Omamori.API/ApiInfo.cs" />
+
+    <ItemGroup>
+      <_OmamoriTemplateFile Include="content\**\*" />
+    </ItemGroup>
+
+    <WriteLinesToFile File="$(_OmamoriTemplateOut)%(_OmamoriTemplateFile.RecursiveDir)%(_OmamoriTemplateFile.Filename)%(_OmamoriTemplateFile.Extension)"
+                      Lines="$([MSBuild]::Escape($([System.IO.File]::ReadAllText('%(_OmamoriTemplateFile.FullPath)').Replace('__OMAMORI_VERSION__', '$(PackageVersion)').Replace('__OMAMORI_API__', '$(_OmamoriApiVersion)'))))"
+                      Overwrite="true" WriteOnlyWhenDifferent="true" />
+
+    <ItemGroup>
+      <TfmSpecificPackageFile Include="$(_OmamoriTemplateOut)**\*" PackagePath="content\%(RecursiveDir)" />
+    </ItemGroup>
+  </Target>
+</Project>

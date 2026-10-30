@@ -1,0 +1,31 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "catforgor",
+  "classifications": ["osu!", "Omamori", "Mod"],
+  "identity": "Omamori.Mod.CSharp",
+  "name": "Omamori mod",
+  "description": "An osu!lazer mod for Omamori, with mod.json and a main menu example.",
+  "shortName": "omamori-mod",
+  "sourceName": "OmamoriMod",
+  "preferNameDirectory": true,
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "symbols": {
+    "modId": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "The mod's id: lowercase letters and digits in segments joined by . - or _, like yourname.coolmod.",
+      "defaultValue": "yourname.mymod",
+      "replaces": "yourname.mymod"
+    },
+    "modAuthor": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "Shown to users next to the mod's name.",
+      "defaultValue": "you",
+      "replaces": "MOD_AUTHOR"
+    }
+  }
+}
