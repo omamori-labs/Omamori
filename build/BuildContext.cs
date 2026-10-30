@@ -15,7 +15,7 @@ namespace Omamori.Build
 
         public string BuildConfiguration { get; }
 
-        /// <summary>the lazer release everything builds against, from lazer-version.txt</summary>
+        /// <summary>the lazer release everything builds against, from build/lazer-version.txt</summary>
         public string LazerVersion { get; }
 
         /// <summary>--sandbox overrides where the game goes, builds then compile against it too</summary>
@@ -29,7 +29,7 @@ namespace Omamori.Build
 
         public string Packages => Path.Combine(Root, "artifacts", "packages");
 
-        public string Solution => Path.Combine(Root, "Omamori.sln");
+        public string Solution => Path.Combine(Root, "Omamori.slnx");
 
         public DotNetMSBuildSettings MSBuild => new DotNetMSBuildSettings().WithProperty("LazerPath", Sandbox);
 
@@ -47,7 +47,7 @@ namespace Omamori.Build
             Root = findRoot();
             BuildConfiguration = context.Argument("configuration", "Release");
             Sandbox = Path.GetFullPath(context.Argument("sandbox", Path.Combine(Root, "sandbox", "lazer")));
-            LazerVersion = File.ReadAllText(Path.Combine(Root, "lazer-version.txt")).Trim();
+            LazerVersion = File.ReadAllText(Path.Combine(Root, "build", "lazer-version.txt")).Trim();
             ForceSetup = context.HasArgument("force-setup");
             ModSources = context.Arguments<string>("mods", [Path.Combine(Root, "examples")]);
             Faults = context.Argument("faults", string.Empty);        }
@@ -56,11 +56,11 @@ namespace Omamori.Build
         {
             for (var dir = new DirectoryInfo(Directory.GetCurrentDirectory()); dir != null; dir = dir.Parent)
             {
-                if (File.Exists(Path.Combine(dir.FullName, "Omamori.sln")))
+                if (File.Exists(Path.Combine(dir.FullName, "Omamori.slnx")))
                     return dir.FullName;
             }
 
-            throw new InvalidOperationException("run the build from inside the repo, Omamori.sln wasn't found above the working directory");
+            throw new InvalidOperationException("run the build from inside the repo, Omamori.slnx wasn't found above the working directory");
         }
     }
 }

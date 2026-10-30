@@ -1,0 +1,18 @@
+<Solution>
+  <Folder Name="/build/">
+    <!-- shown in the ide but never built with the solution, ./build.ps1 runs from it and builds the solution -->
+    <Project Path="build/Build.csproj">
+      <Build Project="false" />
+    </Project>
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/Omamori.API/Omamori.API.csproj" />
+    <Project Path="src/Omamori.Bootstrap/Omamori.Bootstrap.csproj" />
+    <Project Path="src/Omamori.Core/Omamori.Core.csproj" />
+    <Project Path="src/Omamori.ModBuildConfig/Omamori.ModBuildConfig.csproj" />
+    <Project Path="src/Omamori.Templates/Omamori.Templates.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Omamori.Tests/Omamori.Tests.csproj" />
+  </Folder>
+</Solution>

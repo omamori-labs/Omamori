@@ -20,8 +20,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\Omamori.Core\ManifestSchema.cs" Link="Shared\ManifestSchema.cs" />
-    <Compile Include="..\Omamori.Core\Versions.cs" Link="Shared\Versions.cs" />
+    <Compile Include="..\Omamori.Core\Loading\ManifestSchema.cs" Link="Shared\ManifestSchema.cs" />
+    <Compile Include="..\Omamori.Core\Loading\ApiVersions.cs" Link="Shared\ApiVersions.cs" />
+    <Compile Include="..\Omamori.Core\Loading\ModVersions.cs" Link="Shared\ModVersions.cs" />
     <Compile Include="..\Omamori.API\ApiInfo.cs" Link="Shared\ApiInfo.cs" />
     <EmbeddedResource Include="..\..\schemas\mod.schema.json" LogicalName="Omamori.Core.mod.schema.json" />
   </ItemGroup>

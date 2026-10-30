@@ -35,7 +35,7 @@ jobs:
       - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: sandbox/lazer
-          key: lazer-${{ runner.os }}-${{ hashFiles('lazer-version.txt') }}
+          key: lazer-${{ runner.os }}-${{ hashFiles('build/lazer-version.txt') }}
 
       - name: setup, build, test and pack
         run: dotnet run --project build/Build.csproj -- --target=CI

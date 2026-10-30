@@ -21,10 +21,10 @@ namespace Omamori.Core
 
         internal static string FaultsFile => Path.Combine(Layout.Root(DataDirectory), FaultHistory.FILENAME);
 
-        /// <summary>each mod's own settings, see <see cref="ModSettingsStore"/></summary>
+        /// <summary>each mod's own settings, see <see cref="ModConfig"/></summary>
         internal static string ConfigDirectory => Path.Combine(Layout.Root(DataDirectory), "config");
 
-        internal static string SettingsFile => Path.Combine(Layout.Root(DataDirectory), ModSettings.FILENAME);
+        internal static string SwitchesFile => Path.Combine(Layout.Root(DataDirectory), ModSwitches.FILENAME);
 
         /// <summary>
         ///     the real version from the git tag via minver, eg 0.1.0 or 0.1.0-alpha.0.5+sha

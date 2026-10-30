@@ -222,6 +222,8 @@ trim_trailing_whitespace = true
 dotnet_style_prefer_collection_expression = when_types_loosely_match:warning
 # naming rules above only reach the build through ide1006, osu! relies on rider for this instead
 dotnet_diagnostic.IDE1006.severity = warning
+# unused usings, every file only says what it uses
+dotnet_diagnostic.IDE0005.severity = warning
 
 # analyzers, AnalysisLevel is latest-recommended (Directory.Build.props)
 # every warning is already an error (Directory.Build.props), these are set explicitly so they stay errors if that ever changes
