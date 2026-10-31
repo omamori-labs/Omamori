@@ -8,6 +8,7 @@ namespace Omamori.API
         /// <summary>a copy, changing it does nothing</summary>
         ModManifest Manifest { get; }
 
+        /// <summary>the mod's install folder, replaced when it updates or redeploys</summary>
         string ModDirectory { get; }
 
         IModLogger Log { get; }

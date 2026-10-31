@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using Microsoft.Build.Framework;
 using Omamori.API;
@@ -32,11 +33,23 @@ namespace Omamori.ModBuildConfig
                 return false;
             }
 
+            string json;
+
+            try
+            {
+                json = File.ReadAllText(ManifestPath);
+            }
+            catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+            {
+                error("OMA006", $"couldn't read mod.json: {e.Message}");
+                return false;
+            }
+
             JsonDocument document;
 
             try
             {
-                document = JsonDocument.Parse(File.ReadAllText(ManifestPath));
+                document = JsonDocument.Parse(json);
             }
             catch (JsonException e)
             {
@@ -63,6 +76,10 @@ namespace Omamori.ModBuildConfig
 
                 if (!ApiVersions.IsCompatible(root.GetProperty("apiVersion").GetString(), ApiInfo.VERSION, out string? apiProblem))
                     error("OMA005", $"apiVersion: {apiProblem}");
+
+                if (root.TryGetProperty("dependencies", out var dependencies)
+                    && dependencies.EnumerateArray().Any(d => string.Equals(d.GetProperty("id").GetString(), ModId, StringComparison.Ordinal)))
+                    error("OMA007", "dependencies lists this mod's own id, a mod can't depend on itself");
             }
 
             return !Log.HasLoggedErrors;

@@ -57,12 +57,12 @@
   </Target>
 
   <Target Name="OmamoriSkipValidation" BeforeTargets="CoreCompile" Condition="'$(MSBuildRuntimeType)' != 'Core'">
-    <Message Importance="high" Text="mod.json isn't checked under .NET Framework msbuild, build with the dotnet cli to check it, the loader still checks it in game" />
+    <Message Importance="high" Text="mod.json isn't checked and the mod isn't deployed or zipped under .NET Framework msbuild (Visual Studio), build with the dotnet cli for those, the loader still checks mod.json in game" />
   </Target>
 
   <Target Name="_OmamoriModFiles">
     <ItemGroup>
-      <_OmamoriModFile Include="$(OutDir)*.dll;$(OutDir)*.pdb;$(OutDir)*.deps.json;$(OutDir)mod.json" />
+      <_OmamoriModFile Include="$(OutDir)**\*" />
     </ItemGroup>
   </Target>
 
@@ -72,7 +72,7 @@
     </PropertyGroup>
 
     <RemoveDir Directories="$(_OmamoriDeployDir)" />
-    <Copy SourceFiles="@(_OmamoriModFile)" DestinationFolder="$(_OmamoriDeployDir)" />
+    <Copy SourceFiles="@(_OmamoriModFile)" DestinationFiles="@(_OmamoriModFile->'$(_OmamoriDeployDir)%(RecursiveDir)%(Filename)%(Extension)')" />
     <Message Importance="high" Text="$(MSBuildProjectName) deployed to $(_OmamoriDeployDir)" />
   </Target>
 
@@ -83,7 +83,7 @@
     </PropertyGroup>
 
     <RemoveDir Directories="$(IntermediateOutputPath)omamori-zip" />
-    <Copy SourceFiles="@(_OmamoriModFile)" DestinationFolder="$(_OmamoriZipStage)" />
+    <Copy SourceFiles="@(_OmamoriModFile)" DestinationFiles="@(_OmamoriModFile->'$(_OmamoriZipStage)%(RecursiveDir)%(Filename)%(Extension)')" />
     <ZipDirectory SourceDirectory="$(IntermediateOutputPath)omamori-zip" DestinationFile="$(_OmamoriZip)" Overwrite="true" />
     <Message Importance="high" Text="$(MSBuildProjectName) packed $([System.IO.Path]::GetFullPath('$(_OmamoriZip)'))" />
   </Target>

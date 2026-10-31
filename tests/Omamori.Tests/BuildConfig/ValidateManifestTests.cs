@@ -68,6 +68,22 @@ namespace Omamori.Tests
             Assert.That(run(valid.Replace("\"0.2\"", "\"0.9\"", StringComparison.Ordinal)).Errors.Single().Code, Is.EqualTo("OMA005"));
 
         [Test]
+        public void DependingOnItselfFails() =>
+            Assert.That(run(valid.Replace("}", ",\"dependencies\":[{\"id\":\"a.b\"}]}", StringComparison.Ordinal)).Errors.Single().Code, Is.EqualTo("OMA007"));
+
+        [Test]
+        [Platform("Win")]
+        public void LockedManifestIsAnErrorNotACrash()
+        {
+            string path = Path.Combine(directory, "mod.json");
+            File.WriteAllText(path, valid);
+
+            using var locked = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.None);
+
+            Assert.That(run(null).Errors.Single().Code, Is.EqualTo("OMA006"));
+        }
+
+        [Test]
         public void ErrorsPointAtTheManifest() =>
             Assert.That(run(valid, expectedEntry: "Other.dll").Errors.Single().File, Is.EqualTo(Path.Combine(directory, "mod.json")));
 
