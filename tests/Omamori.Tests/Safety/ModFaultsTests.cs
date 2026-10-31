@@ -22,7 +22,12 @@ namespace Omamori.Tests
         private static readonly Assembly tests = typeof(ModFaultsTests).Assembly;
 
         [TearDown]
-        public void TearDown() => FeatureRegistry.Set(Feature.GlobalOverlay, FeatureState.Pending, null);
+        public void TearDown()
+        {
+            FeatureRegistry.Set(Feature.GlobalOverlay, FeatureState.Pending, null);
+            UiHooks.Clear();
+            ModFaults.Clear();
+        }
 
         [Test]
         public void ThrowSiteIsBlamedOverItsCaller()

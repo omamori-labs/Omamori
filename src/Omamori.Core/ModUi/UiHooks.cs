@@ -70,6 +70,14 @@ namespace Omamori.Core.ModUi
             }
         }
 
+        internal static void Clear()
+        {
+            registrations.Clear();
+
+            lock (added)
+                added.Clear();
+        }
+
         // update thread only
         public static int Remove(string modId)
         {

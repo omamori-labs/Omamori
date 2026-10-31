@@ -30,6 +30,12 @@ namespace Omamori.Core.Safety
                 return faulted.ContainsKey(id);
         }
 
+        internal static void Clear()
+        {
+            lock (fault_lock)
+                faulted.Clear();
+        }
+
         /// <summary>
         ///     for a mod that threw before it finished loading, no strike or notification since it's already reported as skipped
         /// </summary>

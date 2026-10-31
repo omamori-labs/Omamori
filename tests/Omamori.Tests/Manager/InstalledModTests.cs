@@ -22,6 +22,7 @@ namespace Omamori.Tests
         {
             ModLoader.Switches = null;
             ModFaults.History = null;
+            ModFaults.Clear();
 
             if (Directory.Exists(directory))
                 Directory.Delete(directory, recursive: true);

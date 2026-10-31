@@ -15,7 +15,12 @@ namespace Omamori.Tests
     public class ModLoaderTests
     {
         [TearDown]
-        public void TearDown() => FeatureRegistry.Set(Feature.GlobalOverlay, FeatureState.Pending, null);
+        public void TearDown()
+        {
+            FeatureRegistry.Set(Feature.GlobalOverlay, FeatureState.Pending, null);
+            UiHooks.Clear();
+            ModFaults.Clear();
+        }
 
         [Test]
         public void LoadThatThrowsLeavesNothingRunning()
