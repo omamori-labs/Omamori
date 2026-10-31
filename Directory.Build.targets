@@ -12,7 +12,7 @@
       <Output TaskParameter="Result" PropertyName="_OmamoriLazerBuild" />
     </XmlPeek>
 
-    <Warning Condition="'$(_OmamoriLazerBuild)' == ''" Text="$(LazerPath)\sq.version is missing, $(MSBuildProjectName) won't know which lazer it was built for" />
+    <Message Importance="high" Condition="'$(_OmamoriLazerBuild)' == ''" Text="$(LazerPath)\sq.version is missing, $(MSBuildProjectName) won't know which lazer it was built for" />
 
     <ItemGroup>
       <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
@@ -44,7 +44,9 @@
       <_OmamoriThirdParty Include="@(_OmamoriShipped)" Condition="'%(Extension)' == '.dll' and !$([System.String]::Copy('%(Filename)').StartsWith('Omamori.')) and !$([System.String]::Copy('%(Filename)').StartsWith('osu.Game.Rulesets.Omamori'))" />
       <_OmamoriShipped Include="$(MSBuildThisFileDirectory)LICENSE;$(_OmamoriNoticesFile)" />
     </ItemGroup>
-    <Error Condition="'$(OmamoriStageNotices)' == 'true' and '%(_OmamoriThirdParty.Identity)' != '' and !$(_OmamoriNotices.Contains('%(_OmamoriThirdParty.Filename)'))"
+    <Error Condition="'$(OmamoriStageNotices)' == 'true' and '%(_OmamoriThirdParty.Identity)' != ''
+                      and !$(_OmamoriNotices.Contains('| %(_OmamoriThirdParty.Filename) |')) and !$(_OmamoriNotices.Contains('| %(_OmamoriThirdParty.Filename),'))
+                      and !$(_OmamoriNotices.Contains(', %(_OmamoriThirdParty.Filename) |')) and !$(_OmamoriNotices.Contains(', %(_OmamoriThirdParty.Filename),'))"
            Text="%(_OmamoriThirdParty.Filename)%(_OmamoriThirdParty.Extension) ships in $(OmamoriStageDir) but isn't in THIRD-PARTY-NOTICES.md, add its license there." />
 
     <RemoveDir Directories="$(_OmamoriStageTarget)" />
