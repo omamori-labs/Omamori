@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using HarmonyLib;
 using McMaster.NETCore.Plugins;
@@ -31,6 +33,11 @@ namespace Omamori.Core.Loading
                 isUnloadable: false,
                 sharedTypes: SHARED_TYPES,
                 configure: config => config.PreferSharedTypes = false);
+
+        public static void ShareDependencies(PluginLoader loader, Func<IEnumerable<LoadedMod>> dependencies) =>
+            loader.LoadContext.Resolving += (_, name) =>
+                dependencies().SelectMany(d => d.Loader.LoadContext.Assemblies)
+                              .FirstOrDefault(a => AssemblyName.ReferenceMatchesDefinition(name, a.GetName()));
 
         /// <summary>for logs, which context an assembly ended up in</summary>
         public static string Describe(Assembly assembly) =>

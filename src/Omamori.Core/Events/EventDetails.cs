@@ -6,6 +6,7 @@ using osu.Framework.Screens;
 using osu.Game.Beatmaps;
 using osu.Game.Rulesets.Mods;
 using osu.Game.Rulesets.Replays.Types;
+using osu.Game.Rulesets.Scoring;
 using osu.Game.Scoring;
 using osu.Game.Screens.Menu;
 using osu.Game.Screens.Play;
@@ -68,17 +69,27 @@ namespace Omamori.Core.Events
             Beatmap = score.BeatmapInfo is { } beatmap ? Beatmap(beatmap) : null,
         };
 
-        public static IReadOnlyList<HitDetails> Hits(ScoreInfo score) =>
-        [
-            .. score.HitEvents.Select(h => new HitDetails
-            {
-                Time = h.HitObject.StartTime,
-                Offset = h.TimeOffset,
-                Result = h.Result.ToString(),
-                X = h.Position?.X,
-                Y = h.Position?.Y,
-            }),
-        ];
+        public static IReadOnlyList<HitDetails> Hits(ScoreInfo score) => [.. score.HitEvents.Select(Hit)];
+
+        public static HitDetails Hit(HitEvent hit) => new HitDetails
+        {
+            Time = hit.HitObject.StartTime,
+            Offset = hit.TimeOffset,
+            Result = hit.Result.ToString(),
+            X = hit.Position?.X,
+            Y = hit.Position?.Y,
+        };
+
+        public static LivePlayState PlayState(ScoreProcessor score, HealthProcessor health) => new LivePlayState
+        {
+            TotalScore = score.TotalScore.Value,
+            Accuracy = score.Accuracy.Value,
+            Combo = score.Combo.Value,
+            HighestCombo = score.HighestCombo.Value,
+            Health = health.Health.Value,
+            Rank = score.Rank.Value.ToString(),
+            Judged = score.JudgedHits,
+        };
 
         /// <summary>
         ///     the frames a .osr holds, a custom ruleset's frames can fail to convert, the rest of the result is still useful then

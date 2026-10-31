@@ -21,3 +21,13 @@ Put a `mod.json` next to the project.
 | `OmamoriDataPath` | osu!'s data folder | where `omamori/mods/` is |
 | `OmamoriDeploy` | `false` | `true` copies the mod into `$(OmamoriDataPath)/omamori/mods/<id>/` after each build |
 | `OmamoriPackMod` | `true` for Release | zips the mod as `<id>-<version>.zip` to extract into `omamori/mods/` |
+
+## Using another mod's services
+
+Declare the other mod in `mod.json`'s `dependencies`, then reference its dll without bundling it, so both mods share one copy of its types:
+
+```xml
+<ItemGroup>
+  <OmamoriModReference Include="$(OmamoriDataPath)\omamori\mods\yourname.othermod\OtherMod.dll" />
+</ItemGroup>
+```

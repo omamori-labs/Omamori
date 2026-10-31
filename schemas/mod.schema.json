@@ -78,7 +78,13 @@
           "SkinEvents",
           "LibraryEvents",
           "OverlayEvents",
-          "MultiplayerEvents"
+          "MultiplayerEvents",
+          "SongSelect",
+          "Results",
+          "GameplayHud",
+          "LivePlayEvents",
+          "Notifications",
+          "KeyBindings"
         ]
       },
       "additionalProperties": {

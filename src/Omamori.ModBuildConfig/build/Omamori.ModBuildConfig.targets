@@ -16,6 +16,13 @@
     <Reference Include="Omamori.API" HintPath="$(MSBuildThisFileDirectory)..\api\Omamori.API.dll" Private="false" />
   </ItemGroup>
 
+  <Target Name="OmamoriModReferences" BeforeTargets="ResolveAssemblyReferences" Condition="'@(OmamoriModReference)' != ''">
+    <Error Condition="!Exists('%(OmamoriModReference.FullPath)')" Code="OMA012" Text="OmamoriModReference %(OmamoriModReference.Identity) doesn't exist" />
+    <ItemGroup>
+      <Reference Include="%(OmamoriModReference.Filename)" HintPath="%(OmamoriModReference.FullPath)" Private="false" />
+    </ItemGroup>
+  </Target>
+
   <Import Project="$(MSBuildThisFileDirectory)Omamori.GameAssemblies.targets" />
 
   <PropertyGroup>

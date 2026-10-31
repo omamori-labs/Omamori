@@ -29,6 +29,12 @@ namespace Omamori.Core.ModUi
 
         public void AddGlobalOverlay(Func<Drawable> factory) => register(Hook.GlobalOverlay, factory);
 
+        public void AddToSongSelect(Func<Drawable> factory) => register(Hook.SongSelect, factory);
+
+        public void AddToResults(Func<Drawable> factory) => register(Hook.Results, factory);
+
+        public void AddToGameplayHud(Func<Drawable> factory) => register(Hook.GameplayHud, factory);
+
         private void register(Hook hook, Func<Drawable> factory)
         {
             if (!HookCheck.CanRegister(manifest, log, hinted, hook, "UI"))

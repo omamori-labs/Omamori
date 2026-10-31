@@ -43,6 +43,17 @@ namespace Omamori.Core.Patching
             }
         }
 
+        [Feature(Feature.LivePlayEvents)]
+        [HarmonyPatch(typeof(OsuGame), nameof(OsuGame.LoadComplete))]
+        internal static class LivePlayEventsHook
+        {
+            [HarmonyPostfix]
+            private static void postfix(OsuGame __instance)
+            {
+                FeatureRegistry.Run(Feature.LivePlayEvents, () => LivePlayEventSource.Watch(__instance));
+            }
+        }
+
         [Feature(Feature.LifecycleEvents)]
         [HarmonyPatch(typeof(OsuGame), nameof(OsuGame.LoadComplete))]
         internal static class LifecycleEventsHook

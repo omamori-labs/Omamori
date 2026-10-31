@@ -200,6 +200,14 @@ namespace Omamori.Core.Loading
         {
             var manifest = candidate.Manifest;
             var loader = ModIsolation.CreateLoader(Path.Combine(candidate.Directory, manifest.Entry));
+            ModIsolation.ShareDependencies(loader, () => manifest.Dependencies.Select(d => Get(d.Id)).OfType<LoadedMod>());
+
+            foreach (var dependency in manifest.Dependencies.Select(d => Get(d.Id)).OfType<LoadedMod>())
+            {
+                if (File.Exists(Path.Combine(candidate.Directory, Path.GetFileName(dependency.Manifest.Entry))))
+                    LoaderLog.Info($"[{manifest.Id}] bundles its own copy of {dependency.Manifest.Entry}, services from {dependency.Manifest.Id} won't match. Reference it with OmamoriModReference instead.");
+            }
+
             var assembly = loader.LoadDefaultAssembly();
 
             var entryTypes = assembly.GetTypes().Where(t => typeof(IMod).IsAssignableFrom(t) && t is { IsAbstract: false, IsInterface: false }).ToList();

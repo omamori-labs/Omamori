@@ -40,5 +40,23 @@ namespace Omamori.API
 
         /// <summary><see cref="IGameEvents.OnRoomChanged"/></summary>
         MultiplayerEvents,
+
+        /// <summary><see cref="IUiHooks.AddToSongSelect"/></summary>
+        SongSelect,
+
+        /// <summary><see cref="IUiHooks.AddToResults"/></summary>
+        Results,
+
+        /// <summary><see cref="IUiHooks.AddToGameplayHud"/></summary>
+        GameplayHud,
+
+        /// <summary><see cref="IGameEvents.OnHit"/> and <see cref="IGameEvents.OnPlayStateChanged"/></summary>
+        LivePlayEvents,
+
+        /// <summary><see cref="IModContext.Notifications"/></summary>
+        Notifications,
+
+        /// <summary><see cref="IModInput.OnPressed"/> and <see cref="IModInput.OnReleased"/></summary>
+        KeyBindings,
     }
 }

@@ -21,7 +21,7 @@ namespace Omamori.API
         /// <summary><see cref="Hook.PlayEvents"/>, includes replays, check <see cref="PlayDetails.IsReplay"/></summary>
         void OnPlayStarted(Action<PlayDetails> handler);
 
-        /// <summary><see cref="Hook.PlayEvents"/>, the final result only, never live gameplay state</summary>
+        /// <summary><see cref="Hook.PlayEvents"/>, the final result, live state is <see cref="OnPlayStateChanged"/></summary>
         void OnPlayEnded(Action<PlayResult> handler);
 
         /// <summary><see cref="Hook.PlayEvents"/>, true when the player pauses, false when they resume</summary>
@@ -65,5 +65,11 @@ namespace Omamori.API
 
         /// <summary><see cref="Hook.MultiplayerEvents"/>, joining, leaving or the room's settings changing</summary>
         void OnRoomChanged(Action<RoomChange> handler);
+
+        /// <summary><see cref="Hook.LivePlayEvents"/>, every judgement as it happens during a play, the same ones <see cref="PlayResult.Hits"/> ends up with</summary>
+        void OnHit(Action<HitDetails> handler);
+
+        /// <summary><see cref="Hook.LivePlayEvents"/>, score, combo, health and so on, raised when a play loads and after every judgement</summary>
+        void OnPlayStateChanged(Action<LivePlayState> handler);
     }
 }

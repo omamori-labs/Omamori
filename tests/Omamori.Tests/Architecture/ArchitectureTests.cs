@@ -1,3 +1,4 @@
+using System.Linq;
 using ArchUnitNET.Domain;
 using ArchUnitNET.Fluent.Syntax.Elements.Types;
 using ArchUnitNET.Loader;
@@ -95,23 +96,13 @@ namespace Omamori.Tests
                 .Should().NotDependOnAny(inArea("Manager"))
                 .Check(architecture);
 
-        // events, config and mod ui are separate services for mods, none of them reaches into another
-        [Test]
-        public void EventsDependOnNoOtherModService() =>
-            inArea("Events")
-                .Should().NotDependOnAny(inArea("Config").Or().ResideInNamespaceMatching(area("ModUi")))
-                .Check(architecture);
+        private static readonly string[] mod_services = ["Events", "Config", "ModUi", "Notifications", "Input", "Services"];
 
-        [Test]
-        public void ConfigDependsOnNoOtherModService() =>
-            inArea("Config")
-                .Should().NotDependOnAny(inArea("Events").Or().ResideInNamespaceMatching(area("ModUi")))
-                .Check(architecture);
-
-        [Test]
-        public void ModUiDependsOnNoOtherModService() =>
-            inArea("ModUi")
-                .Should().NotDependOnAny(inArea("Events").Or().ResideInNamespaceMatching(area("Config")))
+        // each is a separate service
+        [TestCaseSource(nameof(mod_services))]
+        public void ModServiceDependsOnNoOther(string service) =>
+            inArea(service)
+                .Should().NotDependOnAny(Types().That().ResideInNamespaceMatching($@"^Omamori\.Core\.({string.Join('|', mod_services.Where(s => s != service))})(\..+)?$"))
                 .Check(architecture);
 
         private static string area(string name) => $@"^Omamori\.Core\.{name}(\..+)?$";

@@ -9,6 +9,8 @@ namespace Omamori.Core.Events
         PlayStarted,
         PlayEnded,
         PlayPaused,
+        Hit,
+        PlayStateChanged,
         GameExiting,
         WindowChanged,
         TrackChanged,

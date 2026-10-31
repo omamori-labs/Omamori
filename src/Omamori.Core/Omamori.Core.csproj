@@ -27,6 +27,9 @@
     <Publicize Include="osu.Game:osu.Game.OsuGame.LoadComplete" />
     <Publicize Include="osu.Framework:osu.Framework.Platform.GameHost.PerformExit" />
     <Publicize Include="osu.Game:osu.Game.Screens.Menu.MainMenu.LoadComplete" />
+    <Publicize Include="osu.Game:osu.Game.Screens.Select.SongSelect.LoadComplete" />
+    <Publicize Include="osu.Game:osu.Game.Screens.Ranking.ResultsScreen.LoadComplete" />
+    <Publicize Include="osu.Game:osu.Game.Screens.Play.HUDOverlay.LoadComplete" />
   </ItemGroup>
 
   <ItemGroup>

@@ -7,6 +7,7 @@ using System.Threading;
 using Omamori.API;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
+using osu.Framework.Input.Bindings;
 using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Overlays.Settings;
 
@@ -56,6 +57,19 @@ namespace Omamori.Core.Config
         {
             lock (stores)
                 return stores.Values.Sum(s => s.declared.Count(d => d.Pending));
+        }
+
+        /// <summary>every mod's key bindings as the player has set them</summary>
+        public static List<KeyUse> KeyUses()
+        {
+            lock (stores)
+            {
+                return
+                [
+                    .. stores.Values.SelectMany(s => s.declared.OfType<ConfigSetting<ModKeys>>()
+                                                       .Select(k => new KeyUse($"{s.manifest.Name}: {k.Label}", k.Stored.Value, (s.manifest.Id, k.Key)))),
+                ];
+            }
         }
 
         public static void FlushAll()
@@ -140,6 +154,11 @@ namespace Omamori.Core.Config
             add(key, label, options, string.Empty, v => new Bindable<string>(v), readString,
                 (setting, current) => fileSelector(setting, current, [.. extensions ?? []]));
 
+        public IBindable<ModKeys> KeyBinding(string key, string label, ModKeys defaultKeys, SettingOptions? options = null) =>
+            add(key, label, options, defaultKeys, v => new Bindable<ModKeys>(v), readKeys,
+                (setting, current) => new KeyBindingControl(manifest.Id, setting.Key, setting.Label, current) { TooltipText = setting.Hint },
+                v => v.ToString());
+
         public void Button(string label, string buttonText, Action onClick) =>
             declared.Add(new ConfigButton(manifest.Id, label, buttonText, onClick));
 
@@ -148,6 +167,25 @@ namespace Omamori.Core.Config
         public void Note(string text) => declared.Add(new ConfigNote(text));
 
         private static object? readString(JsonElement e) => e.ValueKind == JsonValueKind.String ? e.GetString() : null;
+
+        private static object? readKeys(JsonElement e)
+        {
+            if (readString(e) is not string s)
+                return null;
+
+            string[] parts = s.Split(',', StringSplitOptions.RemoveEmptyEntries);
+            var keys = new InputKey[parts.Length];
+
+            for (int i = 0; i < parts.Length; i++)
+            {
+                if (!int.TryParse(parts[i], out int k) || !Enum.IsDefined((InputKey)k))
+                    return null;
+
+                keys[i] = (InputKey)k;
+            }
+
+            return new ModKeys(keys);
+        }
 
         // the selector works in FileInfo, mods get a plain path
         private static FormFileSelector fileSelector(ConfigSetting setting, Bindable<string> path, string[] extensions)

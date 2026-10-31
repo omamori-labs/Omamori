@@ -36,6 +36,10 @@ namespace Omamori.Core.Events
 
         public void OnPlayPaused(Action<bool> handler) => register(Hook.PlayEvents, GameEvent.PlayPaused, handler);
 
+        public void OnHit(Action<HitDetails> handler) => register(Hook.LivePlayEvents, GameEvent.Hit, handler);
+
+        public void OnPlayStateChanged(Action<LivePlayState> handler) => register(Hook.LivePlayEvents, GameEvent.PlayStateChanged, handler);
+
         // every handler takes one argument internally
         public void OnGameExiting(Action handler) => register(Hook.LifecycleEvents, GameEvent.GameExiting, new Action<bool>(_ => handler()));
 

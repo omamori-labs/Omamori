@@ -35,6 +35,9 @@ namespace Omamori.API
         /// <summary>shown as dots, still saved as plain text in omamori/config, fine for an api token, not for a real password</summary>
         IBindable<string> Secret(string key, string label, SettingOptions? options = null);
 
+        /// <summary>keys the player can rebind, listen for them with <see cref="IModContext.Input"/>, <see cref="ModKeys.NONE"/> is unbound</summary>
+        IBindable<ModKeys> KeyBinding(string key, string label, ModKeys defaultKeys, SettingOptions? options = null);
+
         /// <summary>runs <paramref name="onClick"/> on the update thread, a throw turns the mod off like any other</summary>
         void Button(string label, string buttonText, Action onClick);
 

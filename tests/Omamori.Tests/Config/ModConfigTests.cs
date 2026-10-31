@@ -4,6 +4,7 @@ using NUnit.Framework;
 using Omamori.API;
 using Omamori.Core.Config;
 using osu.Framework.Graphics;
+using osu.Framework.Input.Bindings;
 
 namespace Omamori.Tests
 {
@@ -160,6 +161,26 @@ namespace Omamori.Tests
 
             Assert.DoesNotThrow(() => store.Toggle("glow", "Glow", true));
             Assert.That(store.Declared, Has.Count.EqualTo(4));
+        }
+
+        [Test]
+        public void KeyBindingsSurviveALaunch()
+        {
+            var store = launch();
+            store.KeyBinding("toggle", "Toggle", new ModKeys(InputKey.F6));
+
+            stored<ModKeys>(store, 0).Value = new ModKeys(InputKey.Control, InputKey.K);
+
+            Assert.That(next().KeyBinding("toggle", "Toggle", new ModKeys(InputKey.F6)).Value, Is.EqualTo(new ModKeys(InputKey.Control, InputKey.K)));
+        }
+
+        [Test]
+        public void UnknownStoredKeysFallBackToTheDefault()
+        {
+            Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+            File.WriteAllText(path, """{"toggle":"1,99999"}""");
+
+            Assert.That(launch().KeyBinding("toggle", "Toggle", new ModKeys(InputKey.F6)).Value, Is.EqualTo(new ModKeys(InputKey.F6)));
         }
 
         private ModConfig launch() => new ModConfig(mod, path);
