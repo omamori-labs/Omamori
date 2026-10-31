@@ -25,9 +25,15 @@ namespace Omamori.Bootstrap
                 started = true;
             }
 
+            Start(Path.GetDirectoryName(Path.GetDirectoryName(bootstrapAssembly.Location)));
+        }
+
+        internal static void Start(string? dataDirectory)
+        {
             try
             {
-                string dataDirectory = Path.GetDirectoryName(Path.GetDirectoryName(bootstrapAssembly.Location))!;
+                ArgumentNullException.ThrowIfNull(dataDirectory);
+
                 string corePath = Layout.CoreAssembly(dataDirectory);
 
                 if (!File.Exists(corePath))
