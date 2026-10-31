@@ -28,6 +28,9 @@ namespace Omamori.Core.Manager
         private readonly FillFlowContainer content;
         private InstalledMod? mod;
 
+        [Cached]
+        private readonly LazerKeyUses lazerKeys = new LazerKeyUses();
+
         [Resolved]
         private OverlayColourProvider colourProvider { get; set; } = null!;
 
@@ -60,6 +63,7 @@ namespace Omamori.Core.Manager
         private void rebuild() => FeatureRegistry.Run(Feature.ModManager, () =>
         {
             content.Clear();
+            lazerKeys.Forget();
 
             if (mod == null)
             {

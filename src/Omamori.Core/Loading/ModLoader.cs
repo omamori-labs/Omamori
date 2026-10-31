@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using McMaster.NETCore.Plugins;
 using Omamori.API;
 using Omamori.Core.Features;
 using Omamori.Core.Safety;
@@ -225,13 +226,35 @@ namespace Omamori.Core.Loading
                     LoaderLog.Info($"[{manifest.Id}] optional dependency {tooOld}, loading without it.");
             }
 
-            var instance = (IMod)Activator.CreateInstance(entryTypes[0])!;
-            instance.Load(new ModContext(manifest, candidate.Directory));
+            IMod instance = null!;
+
+            RunLoad(manifest.Id, loader, () =>
+            {
+                instance = (IMod)Activator.CreateInstance(entryTypes[0])!;
+                instance.Load(new ModContext(manifest, candidate.Directory));
+            });
 
             LOADED.Add(new LoadedMod(manifest, instance, loader));
             string author = manifest.Author.Length > 0 ? $" by {manifest.Author}" : string.Empty;
             LoaderLog.Info($"Loaded {manifest.Name} {manifest.Version}{author} [{string.Join(", ", manifest.Capabilities)}].");
             return null;
+        }
+
+        /// <summary>
+        ///     a throw turns the mod off and removes its patches, so nothing it registered before throwing runs, then rethrows
+        /// </summary>
+        internal static void RunLoad(string id, PluginLoader loader, Action load)
+        {
+            try
+            {
+                load();
+            }
+            catch
+            {
+                ModFaults.TurnOff(id);
+                PatchRemoval.RemoveFrom(loader.LoadContext);
+                throw;
+            }
         }
 
         private static void report(List<SkippedMod> skipped)

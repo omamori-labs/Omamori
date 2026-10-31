@@ -12,8 +12,8 @@ namespace Omamori.Core.Manager
         public bool Enabled => Manifest != null && ModLoader.Switches?.IsEnabled(Manifest.Id) != false;
 
         public ModStatus Status =>
-            Id != null && ModFaults.IsFaulted(Id) ? ModStatus.Crashed
-            : Problem != null ? ModStatus.Problem
+            Problem != null ? ModStatus.Problem
+            : Id != null && ModFaults.IsFaulted(Id) ? ModStatus.Crashed
             : !OnAtLaunch ? ModStatus.Off
             : ModStatus.On;
 

@@ -1,10 +1,13 @@
 using System;
+using System.Collections.Concurrent;
 using System.IO;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using Omamori.API;
 using Omamori.Core.Config;
 using osu.Framework.Graphics;
 using osu.Framework.Input.Bindings;
+using osu.Framework.Logging;
 
 namespace Omamori.Tests
 {
@@ -181,6 +184,35 @@ namespace Omamori.Tests
             File.WriteAllText(path, """{"toggle":"1,99999"}""");
 
             Assert.That(launch().KeyBinding("toggle", "Toggle", new ModKeys(InputKey.F6)).Value, Is.EqualTo(new ModKeys(InputKey.F6)));
+        }
+
+        [Test]
+        public void OverlappingFlushesDontFail()
+        {
+            var store = launch();
+            store.Toggle("glow", "Glow", true);
+            stored<bool>(store, 0).Value = false;
+
+            var errors = new ConcurrentBag<string>();
+            void collect(LogEntry entry)
+            {
+                if (entry.Level == LogLevel.Error)
+                    errors.Add(entry.Message);
+            }
+
+            Logger.NewEntry += collect;
+
+            try
+            {
+                Parallel.For(0, 50, _ => store.Flush());
+            }
+            finally
+            {
+                Logger.NewEntry -= collect;
+            }
+
+            Assert.That(errors, Is.Empty);
+            Assert.That(next().Toggle("glow", "Glow", true).Value, Is.False);
         }
 
         private ModConfig launch() => new ModConfig(mod, path);

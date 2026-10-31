@@ -31,6 +31,15 @@ namespace Omamori.Core.Safety
         }
 
         /// <summary>
+        ///     for a mod that threw before it finished loading, no strike or notification since it's already reported as skipped
+        /// </summary>
+        public static void TurnOff(string id)
+        {
+            lock (fault_lock)
+                faulted.TryAdd(id, DateTime.UtcNow);
+        }
+
+        /// <summary>
         ///     runs a mod's own code from omamori's, a throw turns that mod off instead of whatever called it, update thread only
         /// </summary>
         public static void RunForMod(string modId, string what, Action action)

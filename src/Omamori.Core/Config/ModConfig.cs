@@ -31,6 +31,7 @@ namespace Omamori.Core.Config
         private readonly Dictionary<string, JsonElement> values;
         private readonly List<ConfigElement> declared = [];
         private readonly Timer saveTimer;
+        private readonly object flush_lock = new object();
 
         /// <summary>settings and layout, in the order the mod declared them</summary>
         public IReadOnlyList<ConfigElement> Declared => declared;
@@ -240,12 +241,15 @@ namespace Omamori.Core.Config
 
         public void Flush()
         {
-            Dictionary<string, JsonElement> snapshot;
+            lock (flush_lock)
+            {
+                Dictionary<string, JsonElement> snapshot;
 
-            lock (values)
-                snapshot = new Dictionary<string, JsonElement>(values);
+                lock (values)
+                    snapshot = values.ToDictionary();
 
-            JsonFile.Write(path, snapshot);
+                JsonFile.Write(path, snapshot);
+            }
         }
 
         public void Dispose() => saveTimer.Dispose();
