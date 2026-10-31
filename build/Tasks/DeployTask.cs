@@ -1,4 +1,3 @@
-using System;
 using System.IO;
 using System.Linq;
 using Cake.Common.Diagnostics;
@@ -39,20 +38,23 @@ namespace Omamori.Build
             string output = Path.Combine(Path.GetDirectoryName(project)!, "bin", context.BuildConfiguration, "net10.0");
             string target = Path.Combine(context.Sandbox, "omamori", "mods", name.ToLowerInvariant());
 
-            mirror(output, target, f => Path.GetFileName(f) == "mod.json" || f.EndsWith(".dll", StringComparison.Ordinal)
-                                        || f.EndsWith(".pdb", StringComparison.Ordinal) || f.EndsWith(".deps.json", StringComparison.Ordinal));
+            mirror(output, target);
 
             context.Information($"  mod {name}");
         }
 
-        private static void mirror(string source, string target, Func<string, bool>? include = null)
+        private static void mirror(string source, string target)
         {
             if (Directory.Exists(target))
                 Directory.Delete(target, recursive: true);
             Directory.CreateDirectory(target);
 
-            foreach (string file in Directory.EnumerateFiles(source).Where(f => include?.Invoke(f) ?? true))
-                File.Copy(file, Path.Combine(target, Path.GetFileName(file)));
+            foreach (string file in Directory.EnumerateFiles(source, "*", SearchOption.AllDirectories))
+            {
+                string destination = Path.Combine(target, Path.GetRelativePath(source, file));
+                Directory.CreateDirectory(Path.GetDirectoryName(destination)!);
+                File.Copy(file, destination);
+            }
         }
     }
 }

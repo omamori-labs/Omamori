@@ -45,7 +45,7 @@ namespace Omamori.Build
                 {
                     Configuration = "Release",
                     NoLogo = true,
-                    MSBuildSettings = new DotNetMSBuildSettings().WithProperty("OmamoriGamePath", context.Sandbox),
+                    MSBuildSettings = new DotNetMSBuildSettings().WithProperty("OmamoriGamePath", context.Sandbox).WithProperty("OmamoriDataPath", Path.Combine(root, "data")),
                 });
 
                 checkManifest(Path.Combine(project, "mod.json"));

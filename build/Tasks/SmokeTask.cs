@@ -21,6 +21,9 @@ namespace Omamori.Build
             if (runningLazer() is string path)
                 throw new InvalidOperationException($"lazer is already running ({path}), close it first");
 
+            if (!File.Exists(LazerRelease.PortableMarker(context.Sandbox)))
+                throw new InvalidOperationException($"no framework.ini in {context.Sandbox}, the game would use the real osu! data folder, run SetupSandbox first");
+
             var start = DateTime.Now;
             var info = new ProcessStartInfo(context.GameExecutable) { WorkingDirectory = context.Sandbox, UseShellExecute = false };
             info.Environment["OSU_DISABLE_ERROR_REPORTING"] = "1";
@@ -35,10 +38,12 @@ namespace Omamori.Build
 
                 await Task.Delay(TimeSpan.FromSeconds(6));
 
-                foreach (string line in File.ReadLines(log).Where(l => l.Contains("[Omamori]", StringComparison.Ordinal)))
-                    context.Information(line);
+                string[] lines = readShared(log);
 
-                int unhandled = File.ReadLines(log).Count(l => l.Contains("An unhandled error", StringComparison.Ordinal));
+                foreach (string line in lines.Where(l => l.Contains("[Omamori]", StringComparison.Ordinal)))
+                    context.Information(line.TrimEnd('\r'));
+
+                int unhandled = lines.Count(l => l.Contains("An unhandled error", StringComparison.Ordinal));
                 if (unhandled > 0)
                     context.Warning($"{unhandled} unhandled error(s) in {log}");
             }
@@ -108,7 +113,7 @@ namespace Omamori.Build
             return reader.ReadToEnd().Split('\n');
         }
 
-        [GeneratedRegex(@"Loaded \d+ mod|running without mods|Created mods directory|Features: \d+/\d+")]
+        [GeneratedRegex(@"Loaded \d+ mod|[Rr]unning without mods|Created mods directory|Features: \d+/\d+")]
         private static partial Regex done();
     }
 }

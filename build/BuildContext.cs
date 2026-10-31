@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
 using Cake.Common;
 using Cake.Common.Tools.DotNet.MSBuild;
 using Cake.Core;
@@ -47,10 +49,49 @@ namespace Omamori.Build
             Root = findRoot();
             BuildConfiguration = context.Argument("configuration", "Release");
             Sandbox = Path.GetFullPath(context.Argument("sandbox", Path.Combine(Root, "sandbox", "lazer")));
+
+            if (realOsuFolders().FirstOrDefault(f => isInside(Sandbox, f)) is { } real)
+                throw new InvalidOperationException($"--sandbox {Sandbox} is inside the real osu! folder {real}, point it somewhere of its own");
+
             LazerVersion = File.ReadAllText(Path.Combine(Root, "build", "lazer-version.txt")).Trim();
             ForceSetup = context.HasArgument("force-setup");
             ModSources = context.Arguments<string>("mods", []);
             Faults = context.Argument("faults", string.Empty);
+        }
+
+        private static IEnumerable<string> realOsuFolders()
+        {
+            string home = System.Environment.GetFolderPath(System.Environment.SpecialFolder.UserProfile);
+
+            string[] data =
+            [
+                Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData), "osu"),
+                Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.LocalApplicationData), "osu"),
+                Path.Combine(home, "Library", "Application Support", "osu"),
+            ];
+
+            foreach (string folder in data)
+            {
+                yield return folder;
+
+                string storageIni = Path.Combine(folder, "storage.ini");
+
+                if (File.Exists(storageIni)
+                    && Regex.Match(File.ReadAllText(storageIni), @"FullPath\s*=\s*(.+)") is { Success: true } moved
+                    && moved.Groups[1].Value.Trim() is { Length: > 0 } path)
+                    yield return path;
+            }
+
+            yield return Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.LocalApplicationData), "osulazer");
+            yield return Path.Combine("/Applications", "osu!.app");
+        }
+
+        private static bool isInside(string path, string folder)
+        {
+            var comparison = OperatingSystem.IsLinux() ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
+            string full = Path.TrimEndingDirectorySeparator(Path.GetFullPath(folder));
+
+            return path.Equals(full, comparison) || path.StartsWith(full + Path.DirectorySeparatorChar, comparison);
         }
 
         private static string findRoot()

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -20,6 +21,8 @@ namespace Omamori.Build
     {
         private const string repository = "ppy/osu";
 
+        private const string game_files = "omamori-sandbox-files.txt";
+
         private static readonly HttpClient http = createClient();
 
         public static async Task SetupAsync(BuildContext context)
@@ -28,6 +31,7 @@ namespace Omamori.Build
 
             if (current == context.LazerVersion && !context.ForceSetup)
             {
+                EnsurePortable(context.Sandbox);
                 context.Information($"sandbox is already on {current}, nothing to do (--force-setup re-extracts it)");
                 return;
             }
@@ -38,21 +42,56 @@ namespace Omamori.Build
             string package = await downloadAsync(context, asset);
 
             Directory.CreateDirectory(context.Sandbox);
+            removePreviousGameFiles(context);
 
-            if (OperatingSystem.IsWindows())
-                extractNupkg(package, context.Sandbox);
-            else
-                extractAppImage(context, package, context.Sandbox);
+            string[] extracted = OperatingSystem.IsWindows()
+                ? extractNupkg(package, context.Sandbox)
+                : extractAppImage(context, package, context.Sandbox);
 
-            string frameworkIni = Path.Combine(context.Sandbox, "framework.ini");
-            if (!File.Exists(frameworkIni))
-                await File.WriteAllTextAsync(frameworkIni, string.Empty);
+            await File.WriteAllLinesAsync(Path.Combine(context.Sandbox, game_files), extracted);
+            EnsurePortable(context.Sandbox);
 
             string? installed = InstalledVersion(context.Sandbox);
             if (installed != context.LazerVersion)
                 throw new InvalidOperationException($"sandbox reports {installed ?? "no version"} after setup, expected {context.LazerVersion}");
 
             context.Information($"sandbox ready at {context.Sandbox}");
+        }
+
+        /// <summary>
+        ///     osu-framework only keeps data beside the exe when framework.ini is there, without it the sandbox would use the real data folder
+        /// </summary>
+        public static void EnsurePortable(string sandbox)
+        {
+            string frameworkIni = PortableMarker(sandbox);
+            if (!File.Exists(frameworkIni))
+                File.WriteAllText(frameworkIni, string.Empty);
+        }
+
+        public static string PortableMarker(string sandbox) => Path.Combine(sandbox, "framework.ini");
+
+        // the sandbox is also the data folder so it can't be wiped, only what the last setup extracted goes
+        private static void removePreviousGameFiles(BuildContext context)
+        {
+            string list = Path.Combine(context.Sandbox, game_files);
+
+            if (!File.Exists(list))
+            {
+                if (InstalledVersion(context.Sandbox) != null)
+                    context.Warning($"no {game_files} from the last setup, files the old lazer had and this one doesn't will stay");
+
+                return;
+            }
+
+            string root = Path.GetFullPath(context.Sandbox) + Path.DirectorySeparatorChar;
+
+            foreach (string relative in File.ReadAllLines(list).Where(l => l.Length > 0))
+            {
+                string path = Path.GetFullPath(Path.Combine(root, relative));
+
+                if (path.StartsWith(root, StringComparison.Ordinal) && File.Exists(path))
+                    File.Delete(path);
+            }
         }
 
         public static string? InstalledVersion(string sandbox)
@@ -124,10 +163,11 @@ namespace Omamori.Build
             return path;
         }
 
-        private static void extractNupkg(string package, string target)
+        private static string[] extractNupkg(string package, string target)
         {
             const string prefix = "lib/app/";
             string root = Path.GetFullPath(target) + Path.DirectorySeparatorChar;
+            var extracted = new List<string>();
 
             using var zip = ZipFile.OpenRead(package);
 
@@ -141,11 +181,14 @@ namespace Omamori.Build
 
                 Directory.CreateDirectory(Path.GetDirectoryName(destination)!);
                 entry.ExtractToFile(destination, overwrite: true);
+                extracted.Add(Path.GetRelativePath(root, destination));
             }
+
+            return [.. extracted];
         }
 
         [UnsupportedOSPlatform("windows")]
-        private static void extractAppImage(BuildContext context, string package, string target)
+        private static string[] extractAppImage(BuildContext context, string package, string target)
         {
             string work = Path.Combine(context.Downloads, "appimage");
             if (Directory.Exists(work))
@@ -171,18 +214,27 @@ namespace Omamori.Build
             if (!File.Exists(Path.Combine(game, "osu.Game.dll")))
                 throw new InvalidOperationException("the AppImage doesn't have the game in usr/bin/ anymore, the layout changed");
 
-            copyDirectory(game, target);
+            string[] copied = copyDirectory(game, target);
             Directory.Delete(work, recursive: true);
+            return copied;
         }
 
-        private static void copyDirectory(string source, string target)
+        private static string[] copyDirectory(string source, string target)
         {
             foreach (string directory in Directory.EnumerateDirectories(source, "*", SearchOption.AllDirectories))
                 Directory.CreateDirectory(Path.Combine(target, Path.GetRelativePath(source, directory)));
 
+            var copied = new List<string>();
+
             // File.Copy keeps the unix mode, so osu! stays executable
             foreach (string file in Directory.EnumerateFiles(source, "*", SearchOption.AllDirectories))
-                File.Copy(file, Path.Combine(target, Path.GetRelativePath(source, file)), overwrite: true);
+            {
+                string relative = Path.GetRelativePath(source, file);
+                File.Copy(file, Path.Combine(target, relative), overwrite: true);
+                copied.Add(relative);
+            }
+
+            return [.. copied];
         }
 
         private static async Task<string> sha256Async(string path)
