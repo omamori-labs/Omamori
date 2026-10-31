@@ -48,7 +48,7 @@ namespace Omamori.Tests
         }
 
         [Test]
-        public void MatchesExactly()
+        public void ModifiersMatchExactly()
         {
             listen(new Bindable<ModKeys>(new ModKeys(InputKey.Control, InputKey.K)));
 
@@ -58,6 +58,16 @@ namespace Omamori.Tests
             Assert.That(calls, Is.Empty);
 
             press(InputKey.RControl, InputKey.K);
+
+            Assert.That(calls, Is.EqualTo(new List<string> { "down" }));
+        }
+
+        [Test]
+        public void FiresWhileTappingHeld()
+        {
+            listen(new Bindable<ModKeys>(new ModKeys(InputKey.Control, InputKey.K)));
+
+            press(InputKey.MouseLeft, InputKey.Z, InputKey.LControl, InputKey.K);
 
             Assert.That(calls, Is.EqualTo(new List<string> { "down" }));
         }

@@ -37,7 +37,7 @@ namespace Omamori.Core.Input
         }
 
         /// <summary>
-        ///     update thread only, exact matches so ctrl+k doesn't also fire k
+        ///     update thread only, modifiers match exactly so ctrl+k doesn't also fire k, other held keys and buttons don't matter
         /// </summary>
         public static void KeysChanged(KeyCombination pressed, InputState state)
         {
@@ -49,7 +49,7 @@ namespace Omamori.Core.Input
             foreach (var registration in all)
             {
                 var binding = registration.Keys.Value;
-                bool held = binding is { IsNone: false } && binding.ToCombination().IsPressed(pressed, state, KeyCombinationMatchingMode.Exact);
+                bool held = binding is { IsNone: false } && binding.ToCombination().IsPressed(pressed, state, KeyCombinationMatchingMode.Modifiers);
 
                 if (held == registration.Held)
                     continue;

@@ -5,7 +5,6 @@ using Omamori.Core.Input;
 using Omamori.Core.ModUi;
 using Omamori.Core.Notifications;
 using osu.Framework.Graphics;
-using osu.Framework.Graphics.Containers;
 using osu.Game;
 using osu.Game.Screens.Menu;
 using osu.Game.Screens.Play;
@@ -93,7 +92,7 @@ namespace Omamori.Core.Patching
             {
                 FeatureRegistry.Run(Feature.GameplayHudUi, () =>
                 {
-                    var layer = new Container
+                    var layer = new InputlessContainer
                     {
                         RelativeSizeAxes = Axes.Both,
                         Alpha = __instance.ShowHud.Value ? 1 : 0,
