@@ -32,7 +32,7 @@ namespace Omamori.Core.Loading
         public static readonly List<SkippedMod> SKIPPED = [];
 
         /// <summary>null until mods load</summary>
-        public static ModSwitches? Switches { get; private set; }
+        public static ModSwitches? Switches { get; internal set; }
 
         public static bool IsLoaded(string id) => LOADED.Any(m => m.Manifest.Id == id);
 

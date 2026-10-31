@@ -43,8 +43,8 @@ namespace Omamori.Core.Config
         [Resolved]
         private RulesetStore rulesets { get; set; } = null!;
 
-        [Resolved]
-        private LazerKeyUses lazerKeys { get; set; } = null!;
+        [Resolved(canBeNull: true)]
+        private LazerKeyUses? lazerKeys { get; set; }
 
         [Resolved]
         private OsuColour colours { get; set; } = null!;
@@ -110,7 +110,7 @@ namespace Omamori.Core.Config
         {
             base.LoadComplete();
 
-            lazerUses = lazerKeys.Get(realm, rulesets);
+            lazerUses = (lazerKeys ?? new LazerKeyUses()).Get(realm, rulesets);
 
             current.BindValueChanged(_ =>
             {

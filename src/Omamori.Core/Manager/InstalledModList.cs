@@ -26,8 +26,6 @@ namespace Omamori.Core.Manager
                         .OrderBy(m => m.Label, StringComparer.OrdinalIgnoreCase)
         ];
 
-        public static int PendingChanges => All().Count(m => m.Pending);
-
         public static bool IsRetried(string id)
         {
             lock (retried)
