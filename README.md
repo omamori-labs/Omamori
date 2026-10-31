@@ -21,7 +21,7 @@ Steps:
    ```
 3. Build:
    ```powershell
-   dotnet build Omamori.sln -c Release
+   dotnet build Omamori.slnx -c Release
    ```
 
 When osu updates delete `sandbox/lazer`, repeat and rebuld
