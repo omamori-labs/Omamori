@@ -1,0 +1,66 @@
+﻿{
+  GameOverlay: {
+    BeatmapInfo: 5,
+    BeatmapListing: 4,
+    Changelog: 8,
+    Chat: 3,
+    Dashboard: 6,
+    News: 7,
+    Notifications: 2,
+    Other: 0,
+    Settings: 1,
+    UserProfile: 10,
+    Wiki: 9
+  },
+  GameScreen: {
+    Editor: 5,
+    Gameplay: 3,
+    MainMenu: 1,
+    Multiplayer: 6,
+    Other: 0,
+    Playlists: 7,
+    Results: 4,
+    SongSelect: 2
+  },
+  Hook: {
+    BeatmapEvents: 3,
+    GameplayHud: 14,
+    GlobalOverlay: 1,
+    KeyBindings: 17,
+    LibraryEvents: 9,
+    LifecycleEvents: 5,
+    LivePlayEvents: 15,
+    MainMenu: 0,
+    MultiplayerEvents: 11,
+    MusicEvents: 6,
+    Notifications: 16,
+    OverlayEvents: 10,
+    PlayEvents: 4,
+    Results: 13,
+    ScreenEvents: 2,
+    SkinEvents: 8,
+    SongSelect: 12,
+    UserEvents: 7
+  },
+  HookRequirement: {
+    Optional: 1,
+    Required: 0
+  },
+  ModCapability: {
+    Cosmetic: 0,
+    Informational: 1
+  },
+  ReplayButtons: {
+    Left1: 1,
+    Left2: 4,
+    None: 0,
+    Right1: 2,
+    Right2: 8,
+    Smoke: 16
+  },
+  RoomChangeKind: {
+    Joined: 0,
+    Left: 1,
+    Updated: 2
+  }
+}
