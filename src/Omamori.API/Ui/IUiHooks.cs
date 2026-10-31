@@ -23,7 +23,7 @@ namespace Omamori.API
         void AddToResults(Func<Drawable> factory);
 
         /// <summary>
-        ///     in the gameplay HUD, fades out with it when the player hides the HUD
+        ///     in the gameplay HUD, fades out with it when the player hides the HUD, gets no mouse or keyboard input
         /// </summary>
         void AddToGameplayHud(Func<Drawable> factory);
     }
