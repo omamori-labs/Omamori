@@ -25,11 +25,15 @@
 
     <ItemGroup>
       <_OmamoriTemplateFile Include="content\**\*" />
+      <_OmamoriTemplateText Include="@(_OmamoriTemplateFile)" Condition="'%(Extension)' == '.cs' or '%(Extension)' == '.json' or '%(Extension)' == '.csproj'" />
+      <_OmamoriTemplateOther Include="@(_OmamoriTemplateFile)" Exclude="@(_OmamoriTemplateText)" />
     </ItemGroup>
 
-    <WriteLinesToFile File="$(_OmamoriTemplateOut)%(_OmamoriTemplateFile.RecursiveDir)%(_OmamoriTemplateFile.Filename)%(_OmamoriTemplateFile.Extension)"
-                      Lines="$([MSBuild]::Escape($([System.IO.File]::ReadAllText('%(_OmamoriTemplateFile.FullPath)').Replace('__OMAMORI_VERSION__', '$(PackageVersion)').Replace('__OMAMORI_API__', '$(_OmamoriApiVersion)'))))"
+    <WriteLinesToFile File="$(_OmamoriTemplateOut)%(_OmamoriTemplateText.RecursiveDir)%(_OmamoriTemplateText.Filename)%(_OmamoriTemplateText.Extension)"
+                      Lines="$([MSBuild]::Escape($([System.IO.File]::ReadAllText('%(_OmamoriTemplateText.FullPath)').Replace('__OMAMORI_VERSION__', '$(PackageVersion)').Replace('__OMAMORI_API__', '$(_OmamoriApiVersion)'))))"
                       Overwrite="true" WriteOnlyWhenDifferent="true" />
+
+    <Copy SourceFiles="@(_OmamoriTemplateOther)" DestinationFiles="@(_OmamoriTemplateOther->'$(_OmamoriTemplateOut)%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
 
     <ItemGroup>
       <TfmSpecificPackageFile Include="$(_OmamoriTemplateOut)**\*" PackagePath="content\%(RecursiveDir)" />

@@ -16,8 +16,34 @@
     "modId": {
       "type": "parameter",
       "datatype": "string",
-      "description": "The mod's id: lowercase letters and digits in segments joined by . - or _, like yourname.coolmod.",
-      "defaultValue": "yourname.mymod",
+      "description": "The mod's id: lowercase letters and digits in segments joined by . - or _, like yourname.coolmod. Defaults to yourname. and the project name in lowercase."
+    },
+    "nameLower": {
+      "type": "generated",
+      "generator": "casing",
+      "parameters": {
+        "source": "name",
+        "toLower": true
+      }
+    },
+    "defaultModId": {
+      "type": "generated",
+      "generator": "join",
+      "parameters": {
+        "symbols": [
+          { "type": "const", "value": "yourname" },
+          { "type": "ref", "value": "nameLower" }
+        ],
+        "separator": "."
+      }
+    },
+    "finalModId": {
+      "type": "generated",
+      "generator": "coalesce",
+      "parameters": {
+        "sourceVariableName": "modId",
+        "fallbackVariableName": "defaultModId"
+      },
       "replaces": "yourname.mymod"
     },
     "modAuthor": {
