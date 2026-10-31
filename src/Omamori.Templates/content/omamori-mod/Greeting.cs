@@ -14,13 +14,15 @@ namespace OmamoriMod
     public partial class Greeting : CompositeDrawable
     {
         private readonly IBindable<string> text;
+        private readonly IBindable<bool> shown;
 
         [Resolved]
         private OsuColour colours { get; set; } = null!;
 
-        public Greeting(IBindable<string> text)
+        public Greeting(IBindable<string> text, IBindable<bool> shown)
         {
             this.text = text.GetBoundCopy();
+            this.shown = shown.GetBoundCopy();
         }
 
         [BackgroundDependencyLoader]
@@ -37,6 +39,12 @@ namespace OmamoriMod
 
             InternalChild = label;
             text.BindValueChanged(e => label.Text = e.NewValue, true);
+        }
+
+        protected override void LoadComplete()
+        {
+            base.LoadComplete();
+            shown.BindValueChanged(e => this.FadeTo(e.NewValue ? 1 : 0, 200, Easing.OutQuint), true);
         }
     }
 }

@@ -10,6 +10,8 @@
   "capabilities": ["Cosmetic"],
   "hooks": {
     "MainMenu": "optional",
-    "PlayEvents": "optional"
+    "PlayEvents": "optional",
+    "KeyBindings": "optional",
+    "Notifications": "optional"
   }
 }
