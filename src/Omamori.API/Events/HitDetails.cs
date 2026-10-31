@@ -11,9 +11,10 @@ namespace Omamori.API
         /// <summary>Great, Ok, Meh, Miss and so on</summary>
         public string Result { get; init; } = string.Empty;
 
-        /// <summary>where it was hit relative to the object, for rulesets with positions</summary>
+        /// <summary>where the cursor was on the playfield, osu! circles and slider heads only, null otherwise</summary>
         public float? X { get; init; }
 
+        /// <summary>see <see cref="X"/></summary>
         public float? Y { get; init; }
     }
 }

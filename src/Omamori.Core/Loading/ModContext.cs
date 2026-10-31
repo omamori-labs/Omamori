@@ -13,6 +13,8 @@ namespace Omamori.Core.Loading
 {
     internal sealed class ModContext : IModContext
     {
+        private readonly ModManifest manifest;
+
         public ModManifest Manifest { get; }
         public string ModDirectory { get; }
         public IModLogger Log { get; }
@@ -25,7 +27,8 @@ namespace Omamori.Core.Loading
 
         public ModContext(ModManifest manifest, string modDirectory)
         {
-            Manifest = manifest;
+            this.manifest = manifest;
+            Manifest = ManifestCopy.Of(manifest);
             ModDirectory = modDirectory;
             Log = new ModLogger(manifest.Id);
             Ui = new UiHooks(manifest, Log);
@@ -44,7 +47,7 @@ namespace Omamori.Core.Loading
             if (target == null || ModFaults.IsFaulted(id))
                 return false;
 
-            var dependency = Manifest.Dependencies.FirstOrDefault(d => d.Id == id);
+            var dependency = manifest.Dependencies.FirstOrDefault(d => d.Id == id);
             return dependency == null || DependencyResolver.VersionProblem(dependency, target.Manifest) == null;
         }
     }

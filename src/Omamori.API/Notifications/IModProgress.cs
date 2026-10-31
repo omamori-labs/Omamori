@@ -2,6 +2,9 @@ using System.Threading;
 
 namespace Omamori.API
 {
+    /// <summary>
+    ///     safe from any thread, so a background download can report straight to it
+    /// </summary>
     public interface IModProgress
     {
         /// <param name="progress">0 to 1</param>

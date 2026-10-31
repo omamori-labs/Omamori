@@ -4,12 +4,18 @@ using osu.Framework.Graphics;
 namespace Omamori.API
 {
     /// <summary>
-    ///     mod ui inj, called when target is created
+    ///     the factory runs every time its screen is created, so return a new drawable each call
     /// </summary>
     public interface IUiHooks
     {
+        /// <summary>
+        ///     on top of the main menu
+        /// </summary>
         void AddToMainMenu(Func<Drawable> factory);
 
+        /// <summary>
+        ///     above everything for the whole session, including during plays, created once
+        /// </summary>
         void AddGlobalOverlay(Func<Drawable> factory);
 
         /// <summary>

@@ -2,6 +2,9 @@ using System;
 
 namespace Omamori.API
 {
+    /// <summary>
+    ///     safe from any thread, the text is prefixed with the mod's name, posts from Load show once the game is up
+    /// </summary>
     public interface IModNotifications
     {
         /// <summary>onClick runs on the update thread when the player clicks it</summary>

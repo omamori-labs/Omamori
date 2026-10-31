@@ -1,10 +1,11 @@
 namespace Omamori.API
 {
     /// <summary>
-    ///     Everything a mod is allowed to touch
-    /// </summary >
+    ///     everything a mod is allowed to touch
+    /// </summary>
     public interface IModContext
     {
+        /// <summary>a copy, changing it does nothing</summary>
         ModManifest Manifest { get; }
 
         string ModDirectory { get; }
@@ -24,8 +25,8 @@ namespace Omamori.API
         IModServices Services { get; }
 
         /// <summary>
-        ///     false when this osu! version doesn't support the hook, or it broke this session.
-        ///     registering for an unavailable hook is safe, it's just skipped.
+        ///     false when this osu! version doesn't support the hook, or it broke this session
+        ///     registering for an unavailable hook is safe, it's just skipped
         /// </summary>
         bool IsHookAvailable(Hook hook);
 
