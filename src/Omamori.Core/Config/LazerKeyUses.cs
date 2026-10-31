@@ -24,7 +24,7 @@ namespace Omamori.Core.Config
             }
             catch (Exception e)
             {
-                LoaderLog.Error("couldn't read osu!'s key bindings for conflict checks.", e);
+                LoaderLog.Error("Couldn't read osu!'s key bindings for conflict checks.", e);
                 uses = [];
             }
 

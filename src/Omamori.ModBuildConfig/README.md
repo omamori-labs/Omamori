@@ -13,7 +13,7 @@ Build setup for [Omamori](https://github.com/omamori-labs/Omamori) mods for osu!
 </Project>
 ```
 
-Put a `mod.json` next to the project. Build with the dotnet cli , Visual Studio's msbuild skips checking `mod.json`, deploying and zipping.
+Put a `mod.json` next to the project. Build with the dotnet cli, Visual Studio's msbuild skips checking `mod.json`, deploying and zipping.
 
 | Property | Default | |
 |---|---|---|

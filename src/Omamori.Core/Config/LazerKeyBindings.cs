@@ -64,7 +64,7 @@ namespace Omamori.Core.Config
             }
             catch (Exception e)
             {
-                LoaderLog.Info($"couldn't read {shortName}'s key bindings for conflict checks: {e.Message}");
+                LoaderLog.Info($"Couldn't read {shortName}'s key bindings for conflict checks: {e.Message}");
                 return (shortName, null);
             }
         }

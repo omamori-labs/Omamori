@@ -2,6 +2,9 @@ using System.IO;
 
 namespace Omamori
 {
+    /// <summary>
+    ///     the contract between the bootstrap and core, both compile this file, so changing the entry means bumping <see cref="CONTRACT_VERSION"/>
+    /// </summary>
     internal static class Layout
     {
         /// <summary>bump when <see cref="CORE_ENTRY_METHOD"/>'s signature changes</summary>
