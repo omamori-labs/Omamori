@@ -317,6 +317,18 @@ namespace Omamori.Tests
             Assert.That(contextOf("test.dependent").IsModLoaded("test.base"), Is.False);
         }
 
+        [Test]
+        public void DependencyThatCrashedIsntLoadedAnymore()
+        {
+            installTestMod("base", "test.base");
+            installTestMod("dependent", "test.dependent", m => m["dependencies"] = requires("test.base"));
+
+            loadAll();
+            ModFaults.TurnOff("test.base");
+
+            Assert.That(contextOf("test.dependent").IsModLoaded("test.base"), Is.False);
+        }
+
         private string installTestMod(string folder, string id, Action<JsonObject>? change = null)
         {
             string directory = writeMod(folder, id, m =>
