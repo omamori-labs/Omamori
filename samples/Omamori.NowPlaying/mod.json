@@ -11,6 +11,8 @@
   "hooks": {
     "ScreenEvents": "required",
     "BeatmapEvents": "optional",
-    "PlayEvents": "optional"
+    "PlayEvents": "optional",
+    "LifecycleEvents": "optional",
+    "Notifications": "optional"
   }
 }
