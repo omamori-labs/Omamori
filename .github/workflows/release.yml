@@ -46,8 +46,11 @@ jobs:
       - name: check the version
         id: version
         shell: pwsh
+        # the tag goes through env, pasted into the script a $( ) in its name would run
+        env:
+          TAG: ${{ github.ref_name }}
         run: |
-          $version = "${{ github.ref_name }}".Substring(1)
+          $version = $env:TAG.Substring(1)
           foreach ($package in "Omamori.ModBuildConfig", "Omamori.Templates") {
             if (-not (Test-Path "artifacts/packages/$package.$version.nupkg")) {
               Get-ChildItem artifacts/packages
@@ -79,8 +82,9 @@ jobs:
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
         run: |
           $version = "${{ steps.version.outputs.version }}"
           $flags = @("--generate-notes", "--verify-tag")
           if ($version.Contains("-")) { $flags += "--prerelease" }
-          gh release create "${{ github.ref_name }}" @flags --title "Omamori $version" "artifacts/omamori-$version.zip" (Get-ChildItem artifacts/packages/*.nupkg).FullName
+          gh release create "$env:TAG" @flags --title "Omamori $version" "artifacts/omamori-$version.zip" (Get-ChildItem artifacts/packages/*.nupkg).FullName
