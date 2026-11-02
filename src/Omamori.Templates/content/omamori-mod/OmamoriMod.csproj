@@ -9,6 +9,9 @@
     set OmamoriDeploy to true to copy the mod into osu!'s data folder after each build
     <OmamoriDeploy>true</OmamoriDeploy>
     -->
+<!--#if (harmony) -->
+    <OmamoriHarmony>true</OmamoriHarmony>
+<!--#endif -->
   </PropertyGroup>
 
   <ItemGroup>

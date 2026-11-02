@@ -17,6 +17,7 @@
     <PackageReference Include="JsonSchema.Net" PrivateAssets="all" />
     <PackageReference Include="Semver" PrivateAssets="all" />
     <PackageReference Include="ppy.osu.Framework.SourceGeneration" PrivateAssets="none" />
+    <PackageReference Include="Lib.Harmony" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>
@@ -44,8 +45,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <_OmamoriTaskFile Include="$(OutDir)*.dll" Exclude="$(OutDir)Microsoft.Build*.dll" />
+      <_OmamoriTaskFile Include="$(OutDir)*.dll" Exclude="$(OutDir)Microsoft.Build*.dll;$(OutDir)0Harmony.dll" />
       <TfmSpecificPackageFile Include="$(_OmamoriApiOutput)Omamori.API.dll;$(_OmamoriApiOutput)Omamori.API.xml" PackagePath="api\" />
+      <TfmSpecificPackageFile Include="$(OutDir)0Harmony.dll" PackagePath="harmony\" />
       <TfmSpecificPackageFile Include="@(_OmamoriTaskFile)" PackagePath="tasks\$(TargetFramework)\" />
     </ItemGroup>
   </Target>

@@ -4,7 +4,7 @@
   "classifications": ["osu!", "Omamori", "Mod"],
   "identity": "Omamori.Mod.CSharp",
   "name": "Omamori mod",
-  "description": "An osu!lazer mod for Omamori, with mod.json and a main menu example.",
+  "description": "An osu!lazer mod for Omamori, with mod.json and a main menu example. --harmony adds an example patch.",
   "shortName": "omamori-mod",
   "sourceName": "OmamoriMod",
   "preferNameDirectory": true,
@@ -12,7 +12,23 @@
     "language": "C#",
     "type": "project"
   },
+  "sources": [
+    {
+      "modifiers": [
+        {
+          "condition": "(!harmony)",
+          "exclude": ["MainMenuPatch.cs"]
+        }
+      ]
+    }
+  ],
   "symbols": {
+    "harmony": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "false",
+      "description": "Set up Harmony for patching osu!"
+    },
     "modId": {
       "type": "parameter",
       "datatype": "string",

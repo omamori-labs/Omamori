@@ -1,3 +1,6 @@
+#if (harmony)
+using HarmonyLib;
+#endif
 using Omamori.API;
 using osu.Framework.Bindables;
 using osu.Framework.Input.Bindings;
@@ -27,6 +30,10 @@ namespace OmamoriMod
                 if (result.Score is { } score && !result.Play.IsReplay)
                     context.Notifications.Post($"finished with {score.Rank}, {score.Accuracy:P2}");
             });
+#if (harmony)
+            MainMenuPatch.Log = context.Log;
+            new Harmony(context.Manifest.Id).CreateClassProcessor(typeof(MainMenuPatch)).Patch();
+#endif
         }
     }
 }

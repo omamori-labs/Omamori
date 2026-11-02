@@ -37,7 +37,11 @@ namespace Omamori.Build
                 Directory.CreateDirectory(root);
 
                 dotnet(context, root, $"new install \"{templates.FullName}\" --debug:custom-hive \"{hive}\"");
-                dotnet(context, root, $"new omamori-mod -n {mod_name} -o \"{project}\" --debug:custom-hive \"{hive}\"");
+                dotnet(context, root, $"new omamori-mod -n {mod_name} -o \"{project}\" --harmony --debug:custom-hive \"{hive}\"");
+
+                string plain = Path.Combine(root, "Plain");
+                dotnet(context, root, $"new omamori-mod -n Plain -o \"{plain}\" --debug:custom-hive \"{hive}\"");
+                checkNoHarmony(plain);
 
                 addCheckFiles(context, root, project);
 
@@ -103,6 +107,16 @@ namespace Omamori.Build
             File.WriteAllText(Path.Combine(project, "assets", "note.txt"), "a content file in a subfolder");
         }
 
+        private static void checkNoHarmony(string project)
+        {
+            bool leaked = File.Exists(Path.Combine(project, "MainMenuPatch.cs"))
+                          || File.ReadAllText(Path.Combine(project, "Mod.cs")).Contains("Harmony", StringComparison.Ordinal)
+                          || File.ReadAllText(Path.Combine(project, "Plain.csproj")).Contains("OmamoriHarmony", StringComparison.Ordinal);
+
+            if (leaked)
+                throw new InvalidOperationException("the template without --harmony still has harmony in it");
+        }
+
         private static void checkManifest(string path)
         {
             using var manifest = JsonDocument.Parse(File.ReadAllText(path));
@@ -121,13 +135,15 @@ namespace Omamori.Build
             var entries = zip.Entries.Select(e => e.FullName.Replace('\\', '/')).ToHashSet();
 
             string[] expected = [$"{mod_id}/{mod_name}.dll", $"{mod_id}/mod.json", $"{mod_id}/{mod_name}.deps.json", $"{mod_id}/assets/note.txt"];
-            string[] bundled = [.. entries.Where(e => e.EndsWith("/osu.Game.dll", StringComparison.Ordinal) || e.EndsWith("/Omamori.API.dll", StringComparison.Ordinal))];
+            string[] bundled = [.. entries.Where(e => e.EndsWith("/osu.Game.dll", StringComparison.Ordinal)
+                                                     || e.EndsWith("/Omamori.API.dll", StringComparison.Ordinal)
+                                                     || e.EndsWith("/0Harmony.dll", StringComparison.Ordinal))];
 
             var missing = expected.Where(e => !entries.Contains(e)).ToList();
 
             if (missing.Count > 0 || bundled.Length > 0)
             {
-                throw new InvalidOperationException($"mod zip is wrong, missing: [{string.Join(", ", missing)}], bundled game or api: [{string.Join(", ", bundled)}], "
+                throw new InvalidOperationException($"mod zip is wrong, missing: [{string.Join(", ", missing)}], bundled game, api or harmony: [{string.Join(", ", bundled)}], "
                                                     + $"has: [{string.Join(", ", entries.Order(StringComparer.Ordinal))}]");
             }
         }

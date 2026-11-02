@@ -16,6 +16,14 @@
     <Reference Include="Omamori.API" HintPath="$(MSBuildThisFileDirectory)..\api\Omamori.API.dll" Private="false" />
   </ItemGroup>
 
+  <ItemGroup Condition="'$(OmamoriHarmony)' == 'true'">
+    <Reference Include="0Harmony" HintPath="$(MSBuildThisFileDirectory)..\harmony\0Harmony.dll" Private="false" />
+  </ItemGroup>
+
+  <Target Name="OmamoriCheckHarmony" BeforeTargets="ResolveAssemblyReferences" Condition="'@(PackageReference->WithMetadataValue('Identity', 'Lib.Harmony'))' != ''">
+    <Warning Code="OMA013" Text="remove the Lib.Harmony package and set OmamoriHarmony to true instead, omamori provides harmony at runtime and a different version can break your patches" />
+  </Target>
+
   <Target Name="OmamoriModReferences" BeforeTargets="ResolveAssemblyReferences" Condition="'@(OmamoriModReference)' != ''">
     <Error Condition="!Exists('%(OmamoriModReference.FullPath)')" Code="OMA012" Text="OmamoriModReference %(OmamoriModReference.Identity) doesn't exist" />
     <ItemGroup>
