@@ -1,8 +1,8 @@
 M:HarmonyLib.Harmony.PatchAll();Bypasses the feature registry, mark patch classes with [Feature] and let FeatureRegistry.ApplyAll patch them.
 M:HarmonyLib.Harmony.PatchAll(System.Reflection.Assembly);Bypasses the feature registry, mark patch classes with [Feature] and let FeatureRegistry.ApplyAll patch them.
-M:HarmonyLib.Harmony.PatchCategory(System.String)Bypasses the feature registry, mark patch classes with [Feature] and let FeatureRegistry.ApplyAll patch them.
+M:HarmonyLib.Harmony.PatchCategory(System.String);Bypasses the feature registry, mark patch classes with [Feature] and let FeatureRegistry.ApplyAll patch them.
 M:HarmonyLib.Harmony.PatchCategory(System.Reflection.Assembly,System.String);Bypasses the feature registry, mark patch classes with [Feature] and let FeatureRegistry.ApplyAll patch them.
-M:HarmonyLib.Harmony.PatchAllUncategorized();BBypasses the feature registry, mark patch classes with [Feature] and let FeatureRegistry.ApplyAll patch them.
+M:HarmonyLib.Harmony.PatchAllUncategorized();Bypasses the feature registry, mark patch classes with [Feature] and let FeatureRegistry.ApplyAll patch them.
 M:HarmonyLib.Harmony.PatchAllUncategorized(System.Reflection.Assembly);Bypasses the feature registry, mark patch classes with [Feature] and let FeatureRegistry.ApplyAll patch them.
 T:HarmonyLib.AccessTools;String reflection breaks when lazer renames something, use the publicized member directly so it breaks build.
 T:HarmonyLib.Traverse;String reflection breaks when lazer renames something, use the publicized member directly so it breaks build.
