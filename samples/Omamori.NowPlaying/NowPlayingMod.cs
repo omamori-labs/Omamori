@@ -27,9 +27,10 @@ namespace Omamori.NowPlaying
 
             context.Settings.Header("Text file");
             defaultPath = Path.Combine(context.DataDirectory, "nowplaying.txt");
-            context.Settings.Note($"For an OBS text source, select 'Read from file' and pick {defaultPath}, or the file you set below.");
+            context.Settings.Note("For an OBS text source, select 'Read from file' and pick the status file.");
             write = context.Settings.Toggle("write", "Write the status to a file", true);
-            path = context.Settings.Text("path", "File to write to", options: new SettingOptions { Description = "A full path like C:\\obs\\nowplaying.txt, leave it empty for the one above." });
+            path = context.Settings.Text("path", "File to write to", options: new SettingOptions { Description = "A full path like C:\\obs\\nowplaying.txt, leave it empty to use the mod's own folder." });
+            context.Settings.Button("Status file", "Show in folder", showFile);
             write.BindValueChanged(e => file.Write(target(), e.NewValue ? last : string.Empty));
             path.BindValueChanged(_ => file.Write(target(), last));
 
@@ -44,6 +45,14 @@ namespace Omamori.NowPlaying
                 if (write.Value)
                     file.WriteNow(target(), string.Empty);
             });
+        }
+
+        private void showFile()
+        {
+            string chosen = target();
+
+            if (!context.ShowInFileBrowser(chosen) && !context.ShowInFileBrowser(Path.GetDirectoryName(chosen) ?? string.Empty))
+                context.Notifications.PostError($"{chosen} doesn't exist yet, turn on writing the status to a file first.");
         }
 
         private string target() => string.IsNullOrWhiteSpace(path.Value) ? defaultPath : path.Value;

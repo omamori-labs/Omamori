@@ -24,6 +24,7 @@
   },
   Hook: {
     BeatmapEvents: 3,
+    DiscordPresence: 18,
     GameplayHud: 14,
     GlobalOverlay: 1,
     KeyBindings: 17,

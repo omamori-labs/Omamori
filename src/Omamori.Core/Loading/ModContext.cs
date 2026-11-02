@@ -7,6 +7,7 @@ using Omamori.Core.Features;
 using Omamori.Core.Input;
 using Omamori.Core.ModUi;
 using Omamori.Core.Notifications;
+using Omamori.Core.Presence;
 using Omamori.Core.Safety;
 using Omamori.Core.Services;
 using osu.Framework.Platform;
@@ -38,6 +39,7 @@ namespace Omamori.Core.Loading
         public IModNotifications Notifications { get; }
         public IModInput Input { get; }
         public IModServices Services { get; }
+        public IModPresence Presence { get; }
 
         public ModContext(ModManifest manifest, string modDirectory, string dataDirectory, GameHost? host = null)
         {
@@ -53,6 +55,7 @@ namespace Omamori.Core.Loading
             Notifications = new ModNotifications(manifest, Log);
             Input = new ModInput(manifest, Log);
             Services = new ModServices(manifest, Log);
+            Presence = new ModPresence(manifest, Log);
         }
 
         public bool IsHookAvailable(Hook hook) => FeatureRegistry.IsAvailable(hook);

@@ -28,6 +28,8 @@ namespace Omamori.API
 
         IModServices Services { get; }
 
+        IModPresence Presence { get; }
+
         /// <summary>
         ///     false when this osu! version doesn't support the hook, or it broke this session
         ///     registering for an unavailable hook is safe, it's just skipped

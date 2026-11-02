@@ -58,5 +58,8 @@ namespace Omamori.API
 
         /// <summary><see cref="IModInput.OnPressed"/> and <see cref="IModInput.OnReleased"/></summary>
         KeyBindings,
+
+        /// <summary><see cref="IModContext.Presence"/></summary>
+        DiscordPresence,
     }
 }

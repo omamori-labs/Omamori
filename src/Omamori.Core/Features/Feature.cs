@@ -29,5 +29,6 @@ namespace Omamori.Core.Features
         LibraryEvents,
         OverlayEvents,
         MultiplayerEvents,
+        DiscordPresence,
     }
 }

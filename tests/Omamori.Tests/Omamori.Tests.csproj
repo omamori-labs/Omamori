@@ -11,6 +11,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="DiscordRPC" HintPath="$(LazerPath)\DiscordRPC.dll" Private="false" />
+  </ItemGroup>
+
+  <ItemGroup>
     <OmamoriOwnCopy Include="nunit.framework" />
     <OmamoriOwnCopy Include="nunit.framework.legacy" />
   </ItemGroup>

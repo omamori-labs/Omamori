@@ -30,6 +30,12 @@
     <Publicize Include="osu.Game:osu.Game.Screens.Select.SongSelect.LoadComplete" />
     <Publicize Include="osu.Game:osu.Game.Screens.Ranking.ResultsScreen.LoadComplete" />
     <Publicize Include="osu.Game:osu.Game.Screens.Play.HUDOverlay.LoadComplete" />
+    <Publicize Include="osu!:osu.Desktop.DiscordRichPresence" />
+    <Publicize Include="osu!:osu.Desktop.DiscordRichPresence.LoadComplete" />
+    <Publicize Include="osu!:osu.Desktop.DiscordRichPresence.presence" />
+    <Publicize Include="osu!:osu.Desktop.DiscordRichPresence.schedulePresenceUpdate" />
+    <Publicize Include="osu!:osu.Desktop.DiscordRichPresence.updatePresence" />
+    <Publicize Include="osu!:osu.Desktop.DiscordRichPresence.clampLength" />
   </ItemGroup>
 
   <ItemGroup>
@@ -43,6 +49,11 @@
   <!-- library events subscribe to lazer's database, realm ships with the game -->
   <ItemGroup>
     <Reference Include="Realm" HintPath="$(LazerPath)\Realm.dll" Private="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="osu!" HintPath="$(LazerPath)\osu!.dll" Private="false" />
+    <Reference Include="DiscordRPC" HintPath="$(LazerPath)\DiscordRPC.dll" Private="false" />
   </ItemGroup>
 
   <ItemGroup>

@@ -35,6 +35,7 @@ namespace Omamori.Core.Features
             new FeatureInfo(Feature.LibraryEvents, "library-events", "Library events", "mods aren't told about saved scores or added and removed beatmaps", Hook.LibraryEvents),
             new FeatureInfo(Feature.OverlayEvents, "overlay-events", "Overlay events", "mods aren't told when overlays open or close", Hook.OverlayEvents),
             new FeatureInfo(Feature.MultiplayerEvents, "multiplayer-events", "Multiplayer events", "mods aren't told about multiplayer rooms", Hook.MultiplayerEvents),
+            new FeatureInfo(Feature.DiscordPresence, "discord-presence", "Discord presence", "mods can't change your Discord status", Hook.DiscordPresence),
         ];
 
         private static readonly Dictionary<Feature, FeatureStatus> statuses = ALL.ToDictionary(f => f.Feature, f => new FeatureStatus(f, FeatureState.Pending, null));
