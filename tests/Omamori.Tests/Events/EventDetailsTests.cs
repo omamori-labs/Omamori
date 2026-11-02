@@ -36,6 +36,15 @@ namespace Omamori.Tests
             Assert.That(details.Difficulty, Is.EqualTo("Insane"));
             Assert.That(details.Length, Is.EqualTo(TimeSpan.FromSeconds(90)));
             Assert.That(details.OnlineId, Is.Null, "local beatmaps have no online id");
+            Assert.That(details.SetOnlineId, Is.Null);
+        }
+
+        [Test]
+        public void BeatmapKeepsItsSetsOnlineId()
+        {
+            var beatmap = new BeatmapInfo { OnlineID = 2, BeatmapSet = new BeatmapSetInfo { OnlineID = 1 } };
+
+            Assert.That(EventDetails.Beatmap(beatmap).SetOnlineId, Is.EqualTo(1));
         }
 
         [Test]

@@ -42,6 +42,7 @@ namespace Omamori.Core.Events
             Bpm = beatmap.BPM,
             Length = TimeSpan.FromMilliseconds(beatmap.Length),
             OnlineId = beatmap.OnlineID > 0 ? beatmap.OnlineID : null,
+            SetOnlineId = beatmap.BeatmapSet is { OnlineID: > 0 } set ? set.OnlineID : null,
             Ruleset = beatmap.Ruleset is { } ruleset ? ruleset.ShortName : string.Empty,
         };
 

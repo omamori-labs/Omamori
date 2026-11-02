@@ -1,5 +1,5 @@
 using System;
-using System.IO;
+using System.Text;
 using Omamori.API;
 using osu.Framework.Bindables;
 
@@ -7,69 +7,107 @@ namespace Omamori.NowPlaying
 {
     public sealed class NowPlayingMod : IMod
     {
+        private const int max_image_bytes = 256;
+
         private readonly Status status = new Status();
-        private string last = string.Empty;
+        private PresenceStatus? last;
         private IModContext context = null!;
-        private StatusFile file = null!;
-        private IBindable<bool> write = null!;
-        private IBindable<string> path = null!;
-        private string defaultPath = string.Empty;
+
+        private IBindable<bool> enabled = null!;
+        private IBindable<string> details = null!;
+        private IBindable<string> state = null!;
+        private IBindable<LargeImage> largeImage = null!;
+        private IBindable<string> largeImageUrl = null!;
+        private IBindable<string> largeImageText = null!;
+        private IBindable<SmallImage> smallImage = null!;
+        private IBindable<string> smallImageUrl = null!;
+        private IBindable<string> smallImageText = null!;
 
         public void Load(IModContext context)
         {
             this.context = context;
-            file = new StatusFile(context);
+            var keepOsus = new SettingOptions { Description = $"Use any of {Status.PLACEHOLDERS}, leave it empty to keep osu!'s." };
+            var url = new SettingOptions { Description = "An https link to an image." };
 
-            context.Settings.Header("Status");
-            var format = context.Settings.Text("format", "Beatmap format", Status.DEFAULT_FORMAT, new SettingOptions { Description = $"Use any of {Status.PLACEHOLDERS}." });
-            status.Format = format.Value;
-            format.BindValueChanged(e => update(() => status.Format = e.NewValue));
+            context.Settings.Note("Shows on Discord while playing, on results and in the editor, when osu!'s Discord Rich Presence setting is Full.");
+            enabled = context.Settings.Toggle("enabled", "Change my Discord status", true);
 
-            context.Settings.Header("Text file");
-            defaultPath = Path.Combine(context.DataDirectory, "nowplaying.txt");
-            context.Settings.Note("For an OBS text source, select 'Read from file' and pick the status file.");
-            write = context.Settings.Toggle("write", "Write the status to a file", true);
-            path = context.Settings.Text("path", "File to write to", options: new SettingOptions { Description = "A full path like C:\\obs\\nowplaying.txt, leave it empty to use the mod's own folder." });
-            context.Settings.Button("Status file", "Show in folder", showFile);
-            write.BindValueChanged(e => file.Write(target(), e.NewValue ? last : string.Empty));
-            path.BindValueChanged(_ => file.Write(target(), last));
+            context.Settings.Header("Text");
+            details = context.Settings.Text("format", "Top line", "{artist} - {title} [{diff}] {mods}", keepOsus);
+            state = context.Settings.Text("state", "Bottom line", options: keepOsus);
+
+            context.Settings.Header("Large image");
+            largeImage = context.Settings.Choice("large-image", "Image", LargeImage.Cover);
+            largeImageUrl = context.Settings.Text("large-image-url", "Custom image link", options: url);
+            largeImageText = context.Settings.Text("large-image-text", "Hover text", options: keepOsus);
+
+            context.Settings.Header("Small image");
+            smallImage = context.Settings.Choice("small-image", "Image", SmallImage.Osu);
+            smallImageUrl = context.Settings.Text("small-image-url", "Custom image link", options: url);
+            smallImageText = context.Settings.Text("small-image-text", "Hover text", "{stars}★ · {bpm} BPM", keepOsus);
+
+            void watch<T>(IBindable<T> setting) => setting.BindValueChanged(_ => update(() => { }));
+
+            watch(enabled);
+            watch(details);
+            watch(state);
+            watch(largeImage);
+            watch(largeImageUrl);
+            watch(largeImageText);
+            watch(smallImage);
+            watch(smallImageUrl);
+            watch(smallImageText);
 
             context.Events.OnScreenChanged(change => update(() => status.Screen = change.Screen));
             context.Events.OnBeatmapChanged(beatmap => update(() => status.Beatmap = beatmap));
             context.Events.OnModsChanged(mods => update(() => status.Mods = mods));
             context.Events.OnPlayStarted(play => update(() => status.Play = play));
             context.Events.OnPlayEnded(_ => update(() => status.Play = null));
-
-            context.Events.OnGameExiting(() =>
-            {
-                if (write.Value)
-                    file.WriteNow(target(), string.Empty);
-            });
         }
-
-        private void showFile()
-        {
-            string chosen = target();
-
-            if (!context.ShowInFileBrowser(chosen) && !context.ShowInFileBrowser(Path.GetDirectoryName(chosen) ?? string.Empty))
-                context.Notifications.PostError($"{chosen} doesn't exist yet, turn on writing the status to a file first.");
-        }
-
-        private string target() => string.IsNullOrWhiteSpace(path.Value) ? defaultPath : path.Value;
 
         private void update(Action change)
         {
             change();
 
-            string text = status.Describe();
-            if (text == last)
+            var next = build();
+            if (next == last)
                 return;
 
-            last = text;
-            context.Log.Info(text);
+            last = next;
 
-            if (write.Value)
-                file.Write(target(), text);
+            if (next == null)
+                context.Presence.Clear();
+            else
+                context.Presence.Set(next);
         }
+
+        private PresenceStatus? build()
+        {
+            if (!enabled.Value || status.Shown() is not var (beatmap, mods))
+                return null;
+
+            string? fill(string format) => string.IsNullOrWhiteSpace(format) ? null : Status.Fill(format, beatmap, mods);
+
+            return new PresenceStatus
+            {
+                Details = fill(details.Value),
+                State = fill(state.Value),
+                LargeImage = largeImage.Value switch
+                {
+                    LargeImage.Cover when beatmap.SetOnlineId is { } set => $"https://assets.ppy.sh/beatmaps/{set}/covers/list@2x.jpg",
+                    LargeImage.Custom => link(largeImageUrl.Value),
+                    _ => null,
+                },
+                LargeImageText = fill(largeImageText.Value),
+                SmallImage = smallImage.Value == SmallImage.Custom ? link(smallImageUrl.Value) : null,
+                SmallImageText = fill(smallImageText.Value),
+            };
+        }
+
+        // discord refuses anything else, and an overlong one would make Set throw and turn the mod off
+        private static string? link(string value) =>
+            Uri.TryCreate(value.Trim(), UriKind.Absolute, out var uri) && uri.Scheme == Uri.UriSchemeHttps && Encoding.UTF8.GetByteCount(uri.AbsoluteUri) <= max_image_bytes
+                ? uri.AbsoluteUri
+                : null;
     }
 }

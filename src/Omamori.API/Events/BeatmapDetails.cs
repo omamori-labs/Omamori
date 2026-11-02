@@ -21,6 +21,9 @@ namespace Omamori.API
         /// <summary>null for beatmaps that aren't on the website</summary>
         public int? OnlineId { get; init; }
 
+        /// <summary>the set this difficulty is in, what cover and beatmap page urls use, null like <see cref="OnlineId"/></summary>
+        public int? SetOnlineId { get; init; }
+
         public string Ruleset { get; init; } = string.Empty;
     }
 }

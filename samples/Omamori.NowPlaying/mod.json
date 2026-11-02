@@ -4,15 +4,14 @@
   "name": "Now Playing",
   "version": "0.1.0",
   "author": "catforgor",
-  "description": "Shows what you're doing in osu! as a status line.",
+  "description": "Shows the beatmap on your Discord status in your own format.",
   "entry": "Omamori.NowPlaying.dll",
   "apiVersion": "0.5",
   "capabilities": ["Informational"],
   "hooks": {
+    "DiscordPresence": "required",
     "ScreenEvents": "required",
     "BeatmapEvents": "optional",
-    "PlayEvents": "optional",
-    "LifecycleEvents": "optional",
-    "Notifications": "optional"
+    "PlayEvents": "optional"
   }
 }
