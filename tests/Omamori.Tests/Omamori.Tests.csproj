@@ -19,6 +19,10 @@
     <Copy SourceFiles="@(_OmamoriGameRuntime->'$(LazerPath)\%(Filename)%(Extension)')" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
   </Target>
 
+  <Target Name="_OmamoriCopyTestMod" AfterTargets="Build">
+    <Copy SourceFiles="@(_OmamoriTestMod)" DestinationFolder="$(OutDir)testmod\" SkipUnchangedFiles="true" />
+  </Target>
+
   <ItemGroup>
     <PackageReference Include="NUnit" />
     <PackageReference Include="NUnit3TestAdapter" />
@@ -36,5 +40,6 @@
     <ProjectReference Include="..\..\src\Omamori.Core\Omamori.Core.csproj" />
     <ProjectReference Include="..\..\src\Omamori.Bootstrap\Omamori.Bootstrap.csproj" />
     <ProjectReference Include="..\..\src\Omamori.ModBuildConfig\Omamori.ModBuildConfig.csproj" Aliases="buildconfig" />
+    <ProjectReference Include="..\Omamori.TestMod\Omamori.TestMod.csproj" ReferenceOutputAssembly="false" OutputItemType="_OmamoriTestMod" />
   </ItemGroup>
 </Project>

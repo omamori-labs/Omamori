@@ -13,6 +13,7 @@
     <Project Path="src/Omamori.Templates/Omamori.Templates.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/Omamori.TestMod/Omamori.TestMod.csproj" />
     <Project Path="tests/Omamori.Tests/Omamori.Tests.csproj" />
   </Folder>
 </Solution>

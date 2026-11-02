@@ -266,6 +266,77 @@ namespace Omamori.Tests
             Assert.That(skipReason("library"), Is.EqualTo($"expected exactly one {nameof(IMod)} implementation, found 0"));
         }
 
+        [Test]
+        public void WorkingModLoadsWithItsOwnContext()
+        {
+            string directory = installTestMod("working", "test.working");
+
+            loadAll();
+
+            Assert.That(ModLoader.SKIPPED, Is.Empty);
+            var context = contextOf("test.working");
+            Assert.That(context.Manifest.Id, Is.EqualTo("test.working"));
+            Assert.That(context.ModDirectory, Is.EqualTo(directory));
+        }
+
+        [Test]
+        public void RequiredDependencyIsLoadedFirstAndVisibleToTheMod()
+        {
+            installTestMod("base", "test.base");
+            installTestMod("dependent", "test.dependent", m => m["dependencies"] = requires("test.base"));
+
+            loadAll();
+
+            string[] expected = ["test.base", "test.dependent"];
+            Assert.That(ModLoader.LOADED.Select(m => m.Manifest.Id), Is.EqualTo(expected));
+            Assert.That(contextOf("test.dependent").IsModLoaded("test.base"), Is.True);
+        }
+
+        [Test]
+        public void MissingOptionalDependencyStillLoadsTheMod()
+        {
+            installTestMod("dependent", "test.dependent", m => m["dependencies"] = new JsonArray(new JsonObject { ["id"] = "not.installed", ["optional"] = true }));
+
+            loadAll();
+
+            Assert.That(ModLoader.IsLoaded("test.dependent"), Is.True);
+            Assert.That(contextOf("test.dependent").IsModLoaded("not.installed"), Is.False);
+        }
+
+        [Test]
+        public void TooOldOptionalDependencyStillLoadsTheModWithoutIt()
+        {
+            installTestMod("base", "test.base");
+            installTestMod("dependent", "test.dependent",
+                m => m["dependencies"] = new JsonArray(new JsonObject { ["id"] = "test.base", ["minVersion"] = "2.0", ["optional"] = true }));
+
+            loadAll();
+
+            Assert.That(ModLoader.IsLoaded("test.base"), Is.True);
+            Assert.That(ModLoader.IsLoaded("test.dependent"), Is.True);
+            Assert.That(contextOf("test.dependent").IsModLoaded("test.base"), Is.False);
+        }
+
+        private string installTestMod(string folder, string id, Action<JsonObject>? change = null)
+        {
+            string directory = writeMod(folder, id, m =>
+            {
+                m["entry"] = test_mod_assembly;
+                change?.Invoke(m);
+            });
+
+            File.Copy(Path.Combine(AppContext.BaseDirectory, "testmod", test_mod_assembly), Path.Combine(directory, test_mod_assembly));
+            return directory;
+        }
+
+        private static IModContext contextOf(string id)
+        {
+            var instance = ModLoader.Get(id)!.Instance;
+            return (IModContext)instance.GetType().GetProperty("Context")!.GetValue(instance)!;
+        }
+
+        private const string test_mod_assembly = "Omamori.TestMod.dll";
+
         private string writeMod(string folder, string id, Action<JsonObject>? change = null)
         {
             string directory = Path.Combine(mods, folder);
