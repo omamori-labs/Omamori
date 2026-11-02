@@ -7,6 +7,7 @@
   </Folder>
   <Folder Name="/samples/">
     <Project Path="samples/Omamori.NowPlaying/Omamori.NowPlaying.csproj" />
+    <Project Path="samples/Omamori.SkipIntro/Omamori.SkipIntro.csproj" />
   </Folder>
   <Folder Name="/src/">
     <Project Path="src/Omamori.API/Omamori.API.csproj" />

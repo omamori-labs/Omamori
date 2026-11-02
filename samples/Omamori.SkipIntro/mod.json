@@ -1,0 +1,11 @@
+{
+  "$schema": "../../schemas/mod.schema.json",
+  "id": "omamori.skipintro",
+  "name": "Skip Intro",
+  "version": "0.2.0",
+  "author": "catforgor",
+  "description": "Goes straight to the main menu when osu! starts",
+  "entry": "Omamori.SkipIntro.dll",
+  "apiVersion": "0.5",
+  "capabilities": ["Cosmetic"]
+}

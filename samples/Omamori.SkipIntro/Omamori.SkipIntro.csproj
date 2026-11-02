@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Omamori.SkipIntro</RootNamespace>
+    <ReferenceLazer>true</ReferenceLazer>
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+    <IsPackable>false</IsPackable>
+    <PublicizerRuntimeStrategies>IgnoresAccessChecksTo</PublicizerRuntimeStrategies>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Omamori.API\Omamori.API.csproj" Private="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Lib.Harmony" ExcludeAssets="runtime" />
+    <PackageReference Include="Krafs.Publicizer" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Publicize Include="osu.Game:osu.Game.Screens.Menu.IntroScreen.PrepareMenuLoad" />
+    <Publicize Include="osu.Game:osu.Game.Screens.Menu.IntroScreen.LoadMenu" />
+    <Publicize Include="osu.Game:osu.Game.Screens.Menu.IntroScreen.StartTrack" />
+    <Publicize Include="osu.Framework:osu.Framework.Graphics.Drawable.Schedule" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="mod.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>
