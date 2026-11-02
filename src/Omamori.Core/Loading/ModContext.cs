@@ -1,3 +1,4 @@
+using System.IO;
 using System.Linq;
 using Omamori.API;
 using Omamori.Core.Config;
@@ -14,9 +15,20 @@ namespace Omamori.Core.Loading
     internal sealed class ModContext : IModContext
     {
         private readonly ModManifest manifest;
+        private readonly string dataDirectory;
 
         public ModManifest Manifest { get; }
         public string ModDirectory { get; }
+
+        public string DataDirectory
+        {
+            get
+            {
+                Directory.CreateDirectory(dataDirectory);
+                return dataDirectory;
+            }
+        }
+
         public IModLogger Log { get; }
         public IUiHooks Ui { get; }
         public IGameEvents Events { get; }
@@ -25,9 +37,10 @@ namespace Omamori.Core.Loading
         public IModInput Input { get; }
         public IModServices Services { get; }
 
-        public ModContext(ModManifest manifest, string modDirectory)
+        public ModContext(ModManifest manifest, string modDirectory, string dataDirectory)
         {
             this.manifest = manifest;
+            this.dataDirectory = dataDirectory;
             Manifest = ManifestCopy.Of(manifest);
             ModDirectory = modDirectory;
             Log = new ModLogger(manifest.Id);

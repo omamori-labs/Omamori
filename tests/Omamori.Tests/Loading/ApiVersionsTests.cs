@@ -7,13 +7,14 @@ namespace Omamori.Tests
     [TestFixture]
     public class ApiVersionsTests
     {
-        // loader provides 0.4
+        // loader provides 0.5
+        [TestCase("0.5", true)]
         [TestCase("0.4", true)]
         [TestCase("0.3", true)]
         [TestCase("0.2", true)]
         [TestCase("0.1", true)]
         [TestCase("0.0", true)]
-        [TestCase("0.5", false)]
+        [TestCase("0.6", false)]
         [TestCase("1.0", false)]
         [TestCase("1.2", false)]
         [TestCase("00.2", false)]
@@ -26,7 +27,7 @@ namespace Omamori.Tests
         [Test]
         public void ApiTooNewSaysWhatToDo()
         {
-            ApiVersions.IsCompatible("0.5", ApiInfo.VERSION, out string? problem);
+            ApiVersions.IsCompatible("0.6", ApiInfo.VERSION, out string? problem);
             Assert.That(problem, Does.Contain("needs a newer Omamori"));
         }
     }

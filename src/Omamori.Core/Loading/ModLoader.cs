@@ -231,7 +231,7 @@ namespace Omamori.Core.Loading
             RunLoad(manifest.Id, loader, () =>
             {
                 instance = (IMod)Activator.CreateInstance(entryTypes[0])!;
-                instance.Load(new ModContext(manifest, candidate.Directory));
+                instance.Load(new ModContext(manifest, candidate.Directory, CoreEntry.ModDataDirectory(manifest.Id)));
             });
 
             LOADED.Add(new LoadedMod(manifest, instance, loader));

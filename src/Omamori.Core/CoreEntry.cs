@@ -28,6 +28,9 @@ namespace Omamori.Core
         /// <summary>each mod's own settings, see <see cref="ModConfig"/></summary>
         internal static string ConfigDirectory => Path.Combine(Layout.Root(DataDirectory), "config");
 
+        /// <summary>outside the mods folder</summary>
+        internal static string ModDataDirectory(string id) => Path.Combine(Layout.Root(DataDirectory), "data", id);
+
         internal static string SwitchesFile => Path.Combine(Layout.Root(DataDirectory), ModSwitches.FILENAME);
 
         /// <summary>

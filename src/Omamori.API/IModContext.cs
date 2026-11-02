@@ -11,6 +11,9 @@ namespace Omamori.API
         /// <summary>the mod's install folder, replaced when it updates or redeploys</summary>
         string ModDirectory { get; }
 
+        /// <summary>the mod's own folder for files it writes</summary>
+        string DataDirectory { get; }
+
         IModLogger Log { get; }
 
         IUiHooks Ui { get; }
