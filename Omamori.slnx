@@ -5,6 +5,9 @@
       <Build Project="false" />
     </Project>
   </Folder>
+  <Folder Name="/samples/">
+    <Project Path="samples/Omamori.NowPlaying/Omamori.NowPlaying.csproj" />
+  </Folder>
   <Folder Name="/src/">
     <Project Path="src/Omamori.API/Omamori.API.csproj" />
     <Project Path="src/Omamori.Bootstrap/Omamori.Bootstrap.csproj" />

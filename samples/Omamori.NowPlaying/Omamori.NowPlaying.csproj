@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Omamori.NowPlaying</RootNamespace>
+    <ReferenceLazer>true</ReferenceLazer>
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Omamori.API\Omamori.API.csproj" Private="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="mod.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>
