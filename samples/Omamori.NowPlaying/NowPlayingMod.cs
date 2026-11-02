@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using Omamori.API;
 using osu.Framework.Bindables;
 
@@ -10,7 +11,9 @@ namespace Omamori.NowPlaying
         private string last = string.Empty;
         private IModContext context = null!;
         private StatusFile file = null!;
+        private IBindable<bool> write = null!;
         private IBindable<string> path = null!;
+        private string defaultPath = string.Empty;
 
         public void Load(IModContext context)
         {
@@ -23,9 +26,12 @@ namespace Omamori.NowPlaying
             format.BindValueChanged(e => update(() => status.Format = e.NewValue));
 
             context.Settings.Header("Text file");
-            context.Settings.Note("For an OBS text source, select 'Read from file' and pick the same file.");
-            path = context.Settings.Text("path", "File to write to", options: new SettingOptions { Description = "A full path like C:\\obs\\nowplaying.txt, leave it empty to turn this off." });
-            path.BindValueChanged(e => file.Write(e.NewValue, last));
+            defaultPath = Path.Combine(context.DataDirectory, "nowplaying.txt");
+            context.Settings.Note($"For an OBS text source, select 'Read from file' and pick {defaultPath}, or the file you set below.");
+            write = context.Settings.Toggle("write", "Write the status to a file", true);
+            path = context.Settings.Text("path", "File to write to", options: new SettingOptions { Description = "A full path like C:\\obs\\nowplaying.txt, leave it empty for the one above." });
+            write.BindValueChanged(e => file.Write(target(), e.NewValue ? last : string.Empty));
+            path.BindValueChanged(_ => file.Write(target(), last));
 
             context.Events.OnScreenChanged(change => update(() => status.Screen = change.Screen));
             context.Events.OnBeatmapChanged(beatmap => update(() => status.Beatmap = beatmap));
@@ -33,8 +39,14 @@ namespace Omamori.NowPlaying
             context.Events.OnPlayStarted(play => update(() => status.Play = play));
             context.Events.OnPlayEnded(_ => update(() => status.Play = null));
 
-            context.Events.OnGameExiting(() => file.WriteNow(path.Value, string.Empty));
+            context.Events.OnGameExiting(() =>
+            {
+                if (write.Value)
+                    file.WriteNow(target(), string.Empty);
+            });
         }
+
+        private string target() => string.IsNullOrWhiteSpace(path.Value) ? defaultPath : path.Value;
 
         private void update(Action change)
         {
@@ -46,7 +58,9 @@ namespace Omamori.NowPlaying
 
             last = text;
             context.Log.Info(text);
-            file.Write(path.Value, text);
+
+            if (write.Value)
+                file.Write(target(), text);
         }
     }
 }

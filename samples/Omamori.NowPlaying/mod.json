@@ -6,7 +6,7 @@
   "author": "catforgor",
   "description": "Shows what you're doing in osu! as a status line.",
   "entry": "Omamori.NowPlaying.dll",
-  "apiVersion": "0.4",
+  "apiVersion": "0.5",
   "capabilities": ["Informational"],
   "hooks": {
     "ScreenEvents": "required",
