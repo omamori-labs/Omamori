@@ -9,6 +9,7 @@ using McMaster.NETCore.Plugins;
 using Omamori.API;
 using Omamori.Core.Features;
 using Omamori.Core.Safety;
+using osu.Framework.Platform;
 
 namespace Omamori.Core.Loading
 {
@@ -38,7 +39,7 @@ namespace Omamori.Core.Loading
 
         public static LoadedMod? Get(string id) => LOADED.FirstOrDefault(m => m.Manifest.Id == id);
 
-        public static void LoadAll(string modsDirectory, FaultHistory history, ModSwitches switches)
+        public static void LoadAll(string modsDirectory, FaultHistory history, ModSwitches switches, GameHost? host = null)
         {
             ModFaults.History = history;
             Switches = switches;
@@ -64,7 +65,7 @@ namespace Omamori.Core.Loading
             {
                 try
                 {
-                    string? problem = checkDependenciesLoaded(candidate) ?? load(candidate);
+                    string? problem = checkDependenciesLoaded(candidate) ?? load(candidate, host);
 
                     if (problem != null)
                         SKIPPED.Add(new SkippedMod(candidate.Label, problem, candidate.Manifest));
@@ -197,7 +198,7 @@ namespace Omamori.Core.Loading
             return failed.Count == 0 ? null : $"needs {string.Join(", ", failed)}, which failed to load";
         }
 
-        private static string? load(ModCandidate candidate)
+        private static string? load(ModCandidate candidate, GameHost? host)
         {
             var manifest = candidate.Manifest;
             var loader = ModIsolation.CreateLoader(Path.Combine(candidate.Directory, manifest.Entry));
@@ -231,7 +232,7 @@ namespace Omamori.Core.Loading
             RunLoad(manifest.Id, loader, () =>
             {
                 instance = (IMod)Activator.CreateInstance(entryTypes[0])!;
-                instance.Load(new ModContext(manifest, candidate.Directory, CoreEntry.ModDataDirectory(manifest.Id)));
+                instance.Load(new ModContext(manifest, candidate.Directory, CoreEntry.ModDataDirectory(manifest.Id), host));
             });
 
             LOADED.Add(new LoadedMod(manifest, instance, loader));

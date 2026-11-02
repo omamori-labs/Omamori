@@ -33,9 +33,9 @@ namespace Omamori.Core.Patching
         internal static class ModLoadingHook
         {
             [HarmonyPrefix]
-            private static void prefix()
+            private static void prefix(OsuGame __instance)
             {
-                FeatureRegistry.Run(Feature.ModLoading, () => ModLoader.LoadAll(CoreEntry.ModsDirectory, FaultHistory.Open(CoreEntry.FaultsFile), ModSwitches.Open(CoreEntry.SwitchesFile)));
+                FeatureRegistry.Run(Feature.ModLoading, () => ModLoader.LoadAll(CoreEntry.ModsDirectory, FaultHistory.Open(CoreEntry.FaultsFile), ModSwitches.Open(CoreEntry.SwitchesFile), __instance.Host));
             }
         }
     }

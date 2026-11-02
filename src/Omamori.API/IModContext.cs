@@ -38,5 +38,11 @@ namespace Omamori.API
         ///     whether another mod loaded, dependencies always load first so this is accurate inside <see cref="IMod.Load"/>
         /// </summary>
         bool IsModLoaded(string id);
+
+        /// <summary>
+        ///     opens a folder in the systems file browser or show a file
+        ///     false when the path doesn't exist
+        /// </summary>
+        bool ShowInFileBrowser(string path);
     }
 }

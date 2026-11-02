@@ -9,6 +9,7 @@ using Omamori.Core.ModUi;
 using Omamori.Core.Notifications;
 using Omamori.Core.Safety;
 using Omamori.Core.Services;
+using osu.Framework.Platform;
 
 namespace Omamori.Core.Loading
 {
@@ -16,6 +17,7 @@ namespace Omamori.Core.Loading
     {
         private readonly ModManifest manifest;
         private readonly string dataDirectory;
+        private readonly GameHost? host;
 
         public ModManifest Manifest { get; }
         public string ModDirectory { get; }
@@ -37,10 +39,11 @@ namespace Omamori.Core.Loading
         public IModInput Input { get; }
         public IModServices Services { get; }
 
-        public ModContext(ModManifest manifest, string modDirectory, string dataDirectory)
+        public ModContext(ModManifest manifest, string modDirectory, string dataDirectory, GameHost? host = null)
         {
             this.manifest = manifest;
             this.dataDirectory = dataDirectory;
+            this.host = host;
             Manifest = ManifestCopy.Of(manifest);
             ModDirectory = modDirectory;
             Log = new ModLogger(manifest.Id);
@@ -62,6 +65,18 @@ namespace Omamori.Core.Loading
 
             var dependency = manifest.Dependencies.FirstOrDefault(d => d.Id == id);
             return dependency == null || DependencyResolver.VersionProblem(dependency, target.Manifest) == null;
+        }
+
+        // a file is shown rather than opened (prevent rce)
+        public bool ShowInFileBrowser(string path)
+        {
+            if (host == null)
+                return false;
+
+            if (Directory.Exists(path))
+                return host.OpenFileExternally(path);
+
+            return File.Exists(path) && host.PresentFileExternally(path);
         }
     }
 }

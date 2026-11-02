@@ -35,5 +35,13 @@ namespace Omamori.Tests
             Assert.That(context.DataDirectory, Is.EqualTo(data));
             Assert.That(Directory.Exists(data), Is.True);
         }
+
+        [Test]
+        public void ShowingAPathWithoutTheGameDoesNothing()
+        {
+            var context = new ModContext(new ModManifest { Id = "test.mod" }, Path.Combine(root, "mods", "test.mod"), Path.Combine(root, "data", "test.mod"));
+
+            Assert.That(context.ShowInFileBrowser(Path.GetTempPath()), Is.False);
+        }
     }
 }
