@@ -14,7 +14,7 @@ namespace Omamori.Bootstrap
     ///     lazer creates every ruleset in rulesets/ on startup which loads omamori
     ///     still has to pass lazer's compat check so the factories return empty
     /// </summary>
-    public class OmamoriRuleset : Ruleset
+    public sealed class OmamoriRuleset : Ruleset
     {
         public const string SHORT_NAME = "omamori";
 
