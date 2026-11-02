@@ -58,7 +58,7 @@
   </Target>
 
   <Target Name="OmamoriValidateManifest" BeforeTargets="CoreCompile" Condition="'$(MSBuildRuntimeType)' == 'Core'">
-    <ValidateManifest ManifestPath="$(MSBuildProjectDirectory)\mod.json" ExpectedEntry="$(TargetFileName)">
+    <ValidateManifest ManifestPath="$(MSBuildProjectDirectory)\mod.json" ExpectedEntry="$(TargetFileName)" UsesHarmony="$(OmamoriHarmony)">
       <Output TaskParameter="ModId" PropertyName="OmamoriModId" />
       <Output TaskParameter="ModVersion" PropertyName="OmamoriModVersion" />
     </ValidateManifest>

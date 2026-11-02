@@ -19,6 +19,9 @@ namespace Omamori.ModBuildConfig
         [Required]
         public string ExpectedEntry { get; set; } = string.Empty;
 
+        /// <summary>OmamoriHarmony, a mod that can patch has to say so in its capabilities</summary>
+        public bool UsesHarmony { get; set; }
+
         [Output]
         public string ModId { get; private set; } = string.Empty;
 
@@ -80,6 +83,9 @@ namespace Omamori.ModBuildConfig
                 if (root.TryGetProperty("dependencies", out var dependencies)
                     && dependencies.EnumerateArray().Any(d => string.Equals(d.GetProperty("id").GetString(), ModId, StringComparison.Ordinal)))
                     error("OMA007", "dependencies lists this mod's own id, a mod can't depend on itself");
+
+                if (UsesHarmony && !root.GetProperty("capabilities").EnumerateArray().Any(c => c.GetString() == "Patches"))
+                    error("OMA008", "OmamoriHarmony is on, add \"Patches\" to capabilities so players know this mod changes osu!'s code");
             }
 
             return !Log.HasLoggedErrors;

@@ -51,14 +51,15 @@
       ]
     },
     "capabilities": {
-      "description": "What the mod does, shown to users before install. Gameplay affecting mods are not allowed.",
+      "description": "What the mod does, shown to users before install. Gameplay affecting mods are not allowed. Patches means the mod changes osu!'s own code with Harmony.",
       "type": "array",
       "minItems": 1,
       "uniqueItems": true,
       "items": {
         "enum": [
           "Cosmetic",
-          "Informational"
+          "Informational",
+          "Patches"
         ]
       }
     },

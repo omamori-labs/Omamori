@@ -30,7 +30,7 @@
     </ItemGroup>
 
     <WriteLinesToFile File="$(_OmamoriTemplateOut)%(_OmamoriTemplateText.RecursiveDir)%(_OmamoriTemplateText.Filename)%(_OmamoriTemplateText.Extension)"
-                      Lines="$([MSBuild]::Escape($([System.IO.File]::ReadAllText('%(_OmamoriTemplateText.FullPath)').Replace('__OMAMORI_VERSION__', '$(PackageVersion)').Replace('__OMAMORI_API__', '$(_OmamoriApiVersion)'))))"
+                      Lines="$([MSBuild]::Escape($([System.Text.RegularExpressions.Regex]::Replace($([System.IO.File]::ReadAllText('%(_OmamoriTemplateText.FullPath)').Replace('__OMAMORI_VERSION__', '$(PackageVersion)')), '(?&lt;=&quot;apiVersion&quot;:\s*&quot;)[^&quot;]*', '$(_OmamoriApiVersion)'))))"
                       Overwrite="true" WriteOnlyWhenDifferent="true" />
 
     <Copy SourceFiles="@(_OmamoriTemplateOther)" DestinationFiles="@(_OmamoriTemplateOther->'$(_OmamoriTemplateOut)%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />

@@ -72,6 +72,14 @@ namespace Omamori.Tests
             Assert.That(run(valid.Replace("}", ",\"dependencies\":[{\"id\":\"a.b\"}]}", StringComparison.Ordinal)).Errors.Single().Code, Is.EqualTo("OMA007"));
 
         [Test]
+        public void HarmonyWithoutPatchesCapabilityFails() =>
+            Assert.That(run(valid, usesHarmony: true).Errors.Single().Code, Is.EqualTo("OMA008"));
+
+        [Test]
+        public void HarmonyWithPatchesCapabilityPasses() =>
+            Assert.That(run(valid.Replace("[\"Cosmetic\"]", "[\"Cosmetic\",\"Patches\"]", StringComparison.Ordinal), usesHarmony: true).Errors, Is.Empty);
+
+        [Test]
         [Platform("Win")]
         public void LockedManifestIsAnErrorNotACrash()
         {
@@ -87,7 +95,7 @@ namespace Omamori.Tests
         public void ErrorsPointAtTheManifest() =>
             Assert.That(run(valid, expectedEntry: "Other.dll").Errors.Single().File, Is.EqualTo(Path.Combine(directory, "mod.json")));
 
-        private (bool Ok, List<BuildErrorEventArgs> Errors, ValidateManifest Task) run(string? manifest, string expectedEntry = "A.dll")
+        private (bool Ok, List<BuildErrorEventArgs> Errors, ValidateManifest Task) run(string? manifest, string expectedEntry = "A.dll", bool usesHarmony = false)
         {
             string path = Path.Combine(directory, "mod.json");
             if (manifest != null)
@@ -97,7 +105,7 @@ namespace Omamori.Tests
             var engine = Substitute.For<IBuildEngine>();
             engine.When(e => e.LogErrorEvent(Arg.Any<BuildErrorEventArgs>())).Do(c => errors.Add(c.Arg<BuildErrorEventArgs>()));
 
-            var task = new ValidateManifest { BuildEngine = engine, ManifestPath = path, ExpectedEntry = expectedEntry };
+            var task = new ValidateManifest { BuildEngine = engine, ManifestPath = path, ExpectedEntry = expectedEntry, UsesHarmony = usesHarmony };
             return (task.Execute(), errors, task);
         }
     }

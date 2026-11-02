@@ -10,5 +10,8 @@ namespace Omamori.API
 
         /// <summary>info about game state</summary>
         Informational,
+
+        /// <summary>changes osu!'s own code with harmony, required for mods built with OmamoriHarmony</summary>
+        Patches,
     }
 }

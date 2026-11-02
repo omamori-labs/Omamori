@@ -45,7 +45,9 @@ When the API doesn't cover something, a mod can patch the game with [Harmony](ht
 </PropertyGroup>
 ```
 
-`dotnet new omamori-mod --harmony` starts a mod with this set and an example patch.
+Add `Patches` to `capabilities` in `mod.json` too, so players can see the mod changes osu!'s code. The build fails without it.
+
+`dotnet new omamori-mod --harmony` starts a mod with both set and an example patch.
 
 Apply patches from `Load` with your mod id as the Harmony id. If your mod crashes, Omamori removes its patches with the rest of it:
 

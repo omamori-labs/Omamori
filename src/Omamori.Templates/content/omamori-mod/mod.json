@@ -6,7 +6,7 @@
   "author": "MOD_AUTHOR",
   "description": "",
   "entry": "OmamoriMod.dll",
-  "apiVersion": "__OMAMORI_API__",
+  "apiVersion": "0.6",
   "capabilities": ["Cosmetic"],
   "hooks": {
     "MainMenu": "optional",

@@ -111,7 +111,8 @@ namespace Omamori.Build
         {
             bool leaked = File.Exists(Path.Combine(project, "MainMenuPatch.cs"))
                           || File.ReadAllText(Path.Combine(project, "Mod.cs")).Contains("Harmony", StringComparison.Ordinal)
-                          || File.ReadAllText(Path.Combine(project, "Plain.csproj")).Contains("OmamoriHarmony", StringComparison.Ordinal);
+                          || File.ReadAllText(Path.Combine(project, "Plain.csproj")).Contains("OmamoriHarmony", StringComparison.Ordinal)
+                          || File.ReadAllText(Path.Combine(project, "mod.json")).Contains("Patches", StringComparison.Ordinal);
 
             if (leaked)
                 throw new InvalidOperationException("the template without --harmony still has harmony in it");
@@ -124,6 +125,9 @@ namespace Omamori.Build
 
             if (id != mod_id)
                 throw new InvalidOperationException($"the template gave the mod id \"{id}\", expected \"{mod_id}\" from the project name");
+
+            if (!manifest.RootElement.GetProperty("capabilities").EnumerateArray().Any(c => c.GetString() == "Patches"))
+                throw new InvalidOperationException("the template with --harmony doesn't declare the Patches capability");
         }
 
         private static void checkZip(string path)

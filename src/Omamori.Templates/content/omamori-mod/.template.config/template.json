@@ -29,6 +29,19 @@
       "defaultValue": "false",
       "description": "Set up Harmony for patching osu!"
     },
+    "capabilities": {
+      "type": "generated",
+      "generator": "switch",
+      "datatype": "string",
+      "replaces": "[\"Cosmetic\"]",
+      "parameters": {
+        "evaluator": "C++",
+        "cases": [
+          { "condition": "(harmony)", "value": "[\"Cosmetic\", \"Patches\"]" },
+          { "condition": "(!harmony)", "value": "[\"Cosmetic\"]" }
+        ]
+      }
+    },
     "modId": {
       "type": "parameter",
       "datatype": "string",
