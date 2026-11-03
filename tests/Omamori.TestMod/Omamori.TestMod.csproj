@@ -6,5 +6,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Omamori.API\Omamori.API.csproj" Private="false" />
+    <PackageReference Include="Lib.Harmony" ExcludeAssets="runtime" />
   </ItemGroup>
 </Project>

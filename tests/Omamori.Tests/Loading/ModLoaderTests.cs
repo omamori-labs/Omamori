@@ -1,7 +1,10 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Reflection.Metadata;
+using System.Reflection.PortableExecutable;
 using System.Text.Json.Nodes;
+using HarmonyLib;
 using NUnit.Framework;
 using Omamori.API;
 using Omamori.Core.Features;
@@ -34,6 +37,10 @@ namespace Omamori.Tests
             UiHooks.Clear();
             ModFaults.Clear();
             ModFaults.History = null;
+
+            foreach (var mod in ModLoader.LOADED)
+                PatchRemoval.RemoveFrom(mod.Loader.LoadContext);
+
             ModLoader.LOADED.Clear();
             ModLoader.TURNED_OFF.Clear();
             ModLoader.SKIPPED.Clear();
@@ -329,6 +336,39 @@ namespace Omamori.Tests
             Assert.That(contextOf("test.dependent").IsModLoaded("test.base"), Is.False);
         }
 
+        [Test]
+        public void ModThatPatchesWithoutDeclaringItIsTurnedOffAndUnpatched()
+        {
+            installTestMod("sneaky", "test.sneaky", m => m["description"] = "patches");
+
+            loadAll();
+
+            Assert.That(skipReason("sneaky"), Is.EqualTo("it patches osu! but doesn't list Patches in its capabilities"));
+            Assert.That(ModFaults.IsFaulted("test.sneaky"), Is.True);
+            Assert.That(ModLoader.IsLoaded("test.sneaky"), Is.False);
+            Assert.That(testModPatched(), Is.False);
+        }
+
+        [Test]
+        public void ModThatDeclaresPatchesKeepsItsPatches()
+        {
+            installTestMod("open", "test.open", m =>
+            {
+                m["description"] = "patches";
+                m["capabilities"] = new JsonArray("Cosmetic", "Patches");
+            });
+
+            loadAll();
+
+            Assert.That(ModLoader.IsLoaded("test.open"), Is.True);
+            Assert.That(testModPatched(), Is.True);
+        }
+
+        private static bool testModPatched() =>
+            Harmony.GetAllPatchedMethods()
+                   .Where(m => m.DeclaringType?.FullName == "Omamori.TestMod.TestMod")
+                   .Any(m => Harmony.GetPatchInfo(m)?.Postfixes.Count > 0);
+
         private string installTestMod(string folder, string id, Action<JsonObject>? change = null)
         {
             string directory = writeMod(folder, id, m =>
@@ -337,8 +377,27 @@ namespace Omamori.Tests
                 change?.Invoke(m);
             });
 
-            File.Copy(Path.Combine(AppContext.BaseDirectory, "testmod", test_mod_assembly), Path.Combine(directory, test_mod_assembly));
+            copyAsNewAssembly(Path.Combine(AppContext.BaseDirectory, "testmod", test_mod_assembly), Path.Combine(directory, test_mod_assembly));
             return directory;
+        }
+
+        private static void copyAsNewAssembly(string source, string destination)
+        {
+            byte[] bytes = File.ReadAllBytes(source);
+            byte[] mvid;
+
+            using (var pe = new PEReader(new MemoryStream(bytes)))
+            {
+                var metadata = pe.GetMetadataReader();
+                mvid = metadata.GetGuid(metadata.GetModuleDefinition().Mvid).ToByteArray();
+            }
+
+            byte[] replacement = Guid.NewGuid().ToByteArray();
+
+            for (int i = bytes.AsSpan().IndexOf(mvid); i >= 0; i = bytes.AsSpan().IndexOf(mvid))
+                replacement.CopyTo(bytes, i);
+
+            File.WriteAllBytes(destination, bytes);
         }
 
         private static IModContext contextOf(string id)

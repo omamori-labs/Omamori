@@ -235,6 +235,13 @@ namespace Omamori.Core.Loading
                 instance.Load(new ModContext(manifest, candidate.Directory, CoreEntry.ModDataDirectory(manifest.Id), host));
             });
 
+            // catches mods that bring their own harmony
+            if (!manifest.Capabilities.Contains(ModCapability.Patches) && PatchRemoval.RemoveFrom(loader.LoadContext) > 0)
+            {
+                ModFaults.TurnOff(manifest.Id);
+                return "it patches osu! but doesn't list Patches in its capabilities";
+            }
+
             LOADED.Add(new LoadedMod(manifest, instance, loader));
             string author = manifest.Author.Length > 0 ? $" by {manifest.Author}" : string.Empty;
             LoaderLog.Info($"Loaded {manifest.Name} {manifest.Version}{author} [{string.Join(", ", manifest.Capabilities)}].");
