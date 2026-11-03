@@ -9,6 +9,8 @@ namespace Omamori.Core.Manager
     {
         public string? Id => Manifest?.Id;
 
+        public bool Patches => Manifest?.Capabilities.Contains(ModCapability.Patches) == true;
+
         public bool Enabled => Manifest != null && ModLoader.Switches?.IsEnabled(Manifest.Id) != false;
 
         public ModStatus Status =>

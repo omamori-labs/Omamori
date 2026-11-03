@@ -81,6 +81,17 @@ namespace Omamori.Tests
             Assert.That(new InstalledMod("Fine", crashed, true, null).CanRetry, Is.False);
         }
 
+        [Test]
+        public void OnlyModsDeclaringPatchesAreMarkedAsPatching()
+        {
+            var patching = unique();
+            patching.Capabilities = [ModCapability.Cosmetic, ModCapability.Patches];
+
+            Assert.That(new InstalledMod("Patching", patching, true, null).Patches, Is.True);
+            Assert.That(new InstalledMod("Cosmetic", unique(), true, null).Patches, Is.False);
+            Assert.That(new InstalledMod("Unreadable", null, false, "unreadable mod.json").Patches, Is.False);
+        }
+
         private static ModManifest unique() => new ModManifest { Id = $"test.installed-{Guid.NewGuid():N}", Version = "1.0.0" };
     }
 }

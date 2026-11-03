@@ -115,6 +115,15 @@ namespace Omamori.Core.Manager
             if (shown.Manifest is not { } manifest)
                 return;
 
+            if (shown.Patches)
+            {
+                content.Add(new SettingsNote
+                {
+                    RelativeSizeAxes = Axes.X,
+                    Current = { Value = new SettingsNote.Data("Changes osu!'s own code. If osu! acts up, especially after an update, try turning this off first.", SettingsNote.Type.Informational) },
+                });
+            }
+
             var enabled = new BindableBool(shown.Enabled);
             enabled.BindValueChanged(e => InstalledModList.SetEnabled(shown, e.NewValue));
             content.Add(new FormCheckBox { Caption = "Load this mod", Current = enabled });

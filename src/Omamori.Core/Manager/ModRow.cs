@@ -2,13 +2,17 @@ using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
+using osu.Framework.Graphics.Cursor;
 using osu.Framework.Graphics.Shapes;
+using osu.Framework.Graphics.Sprites;
 using osu.Framework.Input.Events;
+using osu.Framework.Localisation;
 using osu.Game.Graphics;
 using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.Sprites;
 using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Overlays;
+using osuTK;
 
 namespace Omamori.Core.Manager
 {
@@ -61,10 +65,27 @@ namespace Omamori.Core.Manager
                     Margin = new MarginPadding { Left = 18 },
                     Children =
                     [
-                        new OsuSpriteText
+                        new FillFlowContainer
                         {
-                            Text = Mod.Manifest == null ? Mod.Label : $"{Mod.Label}  {Mod.Manifest.Version}",
-                            Font = OsuFont.GetFont(size: 16, weight: FontWeight.SemiBold),
+                            AutoSizeAxes = Axes.Both,
+                            Direction = FillDirection.Horizontal,
+                            Spacing = new Vector2(8, 0),
+                            Children =
+                            [
+                                new OsuSpriteText
+                                {
+                                    Text = Mod.Manifest == null ? Mod.Label : $"{Mod.Label}  {Mod.Manifest.Version}",
+                                    Font = OsuFont.GetFont(size: 16, weight: FontWeight.SemiBold),
+                                },
+                                new PatchesIcon
+                                {
+                                    Anchor = Anchor.CentreLeft,
+                                    Origin = Anchor.CentreLeft,
+                                    Size = new Vector2(13),
+                                    Colour = colours.Yellow,
+                                    Alpha = Mod.Patches ? 1 : 0,
+                                },
+                            ],
                         },
                         status = new OsuSpriteText { Font = OsuFont.GetFont(size: 12) },
                     ],
@@ -126,5 +147,15 @@ namespace Omamori.Core.Manager
 
         private void updateBackground() =>
             background.Colour = selected.Value == Mod ? colourProvider.Background2 : IsHovered ? colourProvider.Background3 : colourProvider.Background4;
+
+        private sealed partial class PatchesIcon : SpriteIcon, IHasTooltip
+        {
+            public PatchesIcon() => Icon = FontAwesome.Solid.InfoCircle;
+
+            public LocalisableString TooltipText => "Patches osu!";
+
+            // the row is clickable too, this has to take hover so its tooltip wins
+            public override bool HandlePositionalInput => true;
+        }
     }
 }
