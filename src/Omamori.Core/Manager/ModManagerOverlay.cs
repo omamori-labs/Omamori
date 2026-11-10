@@ -197,7 +197,7 @@ namespace Omamori.Core.Manager
                 row.Refresh();
 
             foreach (var (value, button) in filterButtons)
-                button.Text = $"{value} ({mods.Count(m => matches(m, value))})";
+                button.Text = $"{value} ({mods.Count(m => m.Matches(value))})";
 
             updatePending();
             applyFilter();
@@ -212,21 +212,8 @@ namespace Omamori.Core.Manager
             string[] terms = search.Value.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
             foreach (var row in list.Children)
-            {
-                string haystack = string.Join(' ', row.Mod.Label, row.Mod.Manifest?.Id, row.Mod.Manifest?.Author, row.Mod.Manifest?.Description);
-                bool visible = matches(row.Mod, filter.Value) && terms.All(t => haystack.Contains(t, StringComparison.OrdinalIgnoreCase));
-
-                row.Alpha = visible ? 1 : 0;
-            }
+                row.Alpha = row.Mod.Matches(filter.Value) && row.Mod.Matches(terms) ? 1 : 0;
         }
-
-        private static bool matches(InstalledMod mod, ModFilter filter) => filter switch
-        {
-            ModFilter.On => mod.Status == ModStatus.On,
-            ModFilter.Off => mod.Status == ModStatus.Off,
-            ModFilter.Problems => mod.Status is ModStatus.Problem or ModStatus.Crashed,
-            _ => true,
-        };
 
         private InputBlockingContainer panel(Drawable content) => new InputBlockingContainer
         {

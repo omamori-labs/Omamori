@@ -66,7 +66,7 @@ namespace Omamori.Core.Manager
 
                     refreshes.Add(() =>
                     {
-                        int count = InstalledModList.All().Count(m => m.Status is ModStatus.Problem or ModStatus.Crashed);
+                        int count = InstalledModList.All().Count(m => m.HasProblem);
 
                         manage.CanBeShown.Value = ModManagerOverlay.Available;
                         problems.Text = $"Review {count} problem(s)";
@@ -119,9 +119,9 @@ namespace Omamori.Core.Manager
         private static SettingsNote.Data summarise(IReadOnlyList<InstalledMod> mods)
         {
             if (mods.Count == 0)
-                return new SettingsNote.Data("No mods installed. Each mod goes in its own folder inside omamori/mods.", SettingsNote.Type.Informational);
+                return new SettingsNote.Data(InstalledModList.NONE_INSTALLED, SettingsNote.Type.Informational);
 
-            int problems = mods.Count(m => m.Status is ModStatus.Problem or ModStatus.Crashed);
+            int problems = mods.Count(m => m.HasProblem);
             int pending = mods.Count(m => m.Pending);
 
             string text = $"{mods.Count(m => m.Status == ModStatus.On)} on, {mods.Count(m => m.Status == ModStatus.Off)} off, {problems} with problems.";

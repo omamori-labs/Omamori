@@ -11,6 +11,8 @@ namespace Omamori.Core.Manager
     /// </summary>
     internal static class InstalledModList
     {
+        public const string NONE_INSTALLED = "No mods installed. Each mod goes in its own folder inside omamori/mods.";
+
         private static readonly HashSet<string> retried = [];
 
         /// <summary>a switch or retry changed something, raised on the update thread</summary>

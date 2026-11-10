@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using NUnit.Framework;
 using Omamori.API;
 using Omamori.Core.Loading;
@@ -90,6 +91,40 @@ namespace Omamori.Tests
             Assert.That(new InstalledMod("Patching", patching, true, null).Patches, Is.True);
             Assert.That(new InstalledMod("Cosmetic", unique(), true, null).Patches, Is.False);
             Assert.That(new InstalledMod("Unreadable", null, false, "unreadable mod.json").Patches, Is.False);
+        }
+
+        [Test]
+        public void ProblemsFilterShowsCrashedAndFailedModsOnly()
+        {
+            var crashedManifest = unique();
+            ModFaults.TurnOff(crashedManifest.Id);
+
+            var crashed = new InstalledMod("Crashy", crashedManifest, true, null);
+            var failed = new InstalledMod("Broken", unique(), true, "entry assembly missing");
+            var on = new InstalledMod("Fine", unique(), true, null);
+            var off = new InstalledMod("Off", unique(), false, null);
+
+            InstalledMod[] mods = [crashed, failed, on, off];
+            InstalledMod[] problems = [crashed, failed];
+
+            Assert.That(mods.Where(m => m.Matches(ModFilter.Problems)), Is.EqualTo(problems));
+            Assert.That(mods.Single(m => m.Matches(ModFilter.On)), Is.SameAs(on));
+            Assert.That(mods.Single(m => m.Matches(ModFilter.Off)), Is.SameAs(off));
+            Assert.That(mods.Where(m => m.Matches(ModFilter.All)), Is.EqualTo(mods));
+        }
+
+        [Test]
+        public void SearchNeedsEveryTermButIgnoresCase()
+        {
+            var manifest = unique();
+            manifest.Author = "catforgor";
+            manifest.Description = "shows the current song";
+
+            var mod = new InstalledMod("Now Playing", manifest, true, null);
+
+            Assert.That(mod.Matches(["PLAYING", "catforgor"]), Is.True);
+            Assert.That(mod.Matches(["playing", "skin"]), Is.False);
+            Assert.That(mod.Matches([]), Is.True);
         }
 
         private static ModManifest unique() => new ModManifest { Id = $"test.installed-{Guid.NewGuid():N}", Version = "1.0.0" };

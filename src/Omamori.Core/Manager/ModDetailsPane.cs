@@ -67,30 +67,20 @@ namespace Omamori.Core.Manager
 
             if (mod == null)
             {
-                content.Add(text("No mods installed. Each mod goes in its own folder inside omamori/mods.", 16));
+                content.Add(text(InstalledModList.NONE_INSTALLED, 16));
                 return;
             }
 
-            content.Add(new OsuSpriteText { Text = mod.Label, Font = OsuFont.TorusAlternate.With(size: 28) });
-
-            if (mod.Manifest is { } manifest)
-            {
-                string[] facts = [manifest.Version, manifest.Author.Length > 0 ? $"by {manifest.Author}" : string.Empty, string.Join(", ", manifest.Capabilities)];
-                content.Add(text(string.Join("  ·  ", facts.Where(f => f.Length > 0)), 14, dim: true));
-            }
+            addHeading(mod);
 
             // a mod declares its settings in Load, so only loaded mods have any
             var settings = mod.Id is { } id ? ModConfig.For(id)?.Declared ?? [] : [];
 
-            if (settings.Count == 0)
-            {
-                addInfo(mod);
-                return;
-            }
+            // the tabs only show when there's a settings tab to switch to
+            if (settings.Count > 0)
+                content.Add(tabs());
 
-            content.Add(tabs());
-
-            if (tab.Value == ModDetailsTab.Settings)
+            if (settings.Count > 0 && tab.Value == ModDetailsTab.Settings)
             {
                 foreach (var setting in settings)
                     content.Add(setting.CreateItem());
@@ -101,28 +91,27 @@ namespace Omamori.Core.Manager
             }
         });
 
+        private void addHeading(InstalledMod shown)
+        {
+            content.Add(new OsuSpriteText { Text = shown.Label, Font = OsuFont.TorusAlternate.With(size: 28) });
+
+            if (shown.Manifest is not { } manifest)
+                return;
+
+            string[] facts = [manifest.Version, manifest.Author.Length > 0 ? $"by {manifest.Author}" : string.Empty, string.Join(", ", manifest.Capabilities)];
+            content.Add(text(string.Join("  ·  ", facts.Where(f => f.Length > 0)), 14, dim: true));
+        }
+
         private void addInfo(InstalledMod shown)
         {
             if (shown.StatusText is string status)
-            {
-                content.Add(new SettingsNote
-                {
-                    RelativeSizeAxes = Axes.X,
-                    Current = { Value = new SettingsNote.Data(status, shown.Pending ? SettingsNote.Type.Informational : shown.Status == ModStatus.Crashed ? SettingsNote.Type.Critical : SettingsNote.Type.Warning) },
-                });
-            }
+                content.Add(note(status, statusNoteType(shown)));
 
             if (shown.Manifest is not { } manifest)
                 return;
 
             if (shown.Patches)
-            {
-                content.Add(new SettingsNote
-                {
-                    RelativeSizeAxes = Axes.X,
-                    Current = { Value = new SettingsNote.Data("Changes osu!'s own code. If osu! acts up, especially after an update, try turning this off first.", SettingsNote.Type.Informational) },
-                });
-            }
+                content.Add(note("Changes osu!'s own code. If osu! acts up, especially after an update, try turning this off first.", SettingsNote.Type.Informational));
 
             var enabled = new BindableBool(shown.Enabled);
             enabled.BindValueChanged(e => InstalledModList.SetEnabled(shown, e.NewValue));
@@ -142,13 +131,31 @@ namespace Omamori.Core.Manager
                 content.Add(text(manifest.Description, 16));
 
             if (manifest.Dependencies.Count > 0)
-                content.Add(text($"Needs: {string.Join(", ", manifest.Dependencies.Select(d => d.Id + (d.MinVersion.Length > 0 ? $" {d.MinVersion}+" : string.Empty) + (d.Optional ? " (optional)" : string.Empty)))}", 14));
+                content.Add(text($"Needs: {string.Join(", ", manifest.Dependencies.Select(describe))}", 14));
 
             if (manifest.Hooks.Count > 0)
-                content.Add(text($"Uses: {string.Join(", ", manifest.Hooks.Select(h => hookName(h.Key) + (h.Value == HookRequirement.Optional ? " (optional)" : string.Empty)))}", 14));
+                content.Add(text($"Uses: {string.Join(", ", manifest.Hooks.Select(h => describe(h.Key, h.Value)))}", 14));
 
             content.Add(text($"Id: {manifest.Id}", 12, dim: true));
         }
+
+        private static SettingsNote.Type statusNoteType(InstalledMod shown)
+        {
+            if (shown.Pending)
+                return SettingsNote.Type.Informational;
+
+            return shown.Status == ModStatus.Crashed ? SettingsNote.Type.Critical : SettingsNote.Type.Warning;
+        }
+
+        private static string describe(ModDependency dependency)
+        {
+            string minVersion = dependency.MinVersion.Length > 0 ? $" {dependency.MinVersion}+" : string.Empty;
+            return dependency.Id + minVersion + optionalSuffix(dependency.Optional);
+        }
+
+        private static string describe(Hook hook, HookRequirement requirement) => hookName(hook) + optionalSuffix(requirement == HookRequirement.Optional);
+
+        private static string optionalSuffix(bool optional) => optional ? " (optional)" : string.Empty;
 
         private FillFlowContainer tabs()
         {
@@ -188,6 +195,12 @@ namespace Omamori.Core.Manager
                 return hook.ToString();
             }
         }
+
+        private static SettingsNote note(string text, SettingsNote.Type type) => new SettingsNote
+        {
+            RelativeSizeAxes = Axes.X,
+            Current = { Value = new SettingsNote.Data(text, type) },
+        };
 
         private OsuTextFlowContainer text(string content, float size, bool dim = false) => new OsuTextFlowContainer(s =>
         {
