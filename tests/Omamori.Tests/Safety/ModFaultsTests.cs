@@ -156,7 +156,7 @@ namespace Omamori.Tests
         private static LoadedMod loaded(string id)
         {
             var manifest = new ModManifest { Id = id, Name = id, Version = "1.0.0" };
-            return new LoadedMod(manifest, null!, ModIsolation.CreateLoader(Path.Combine(AppContext.BaseDirectory, "Semver.dll")));
+            return new LoadedMod(manifest, null!, ModIsolation.CreateLoader(Path.Combine(AppContext.BaseDirectory, "Semver.dll")), id);
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]

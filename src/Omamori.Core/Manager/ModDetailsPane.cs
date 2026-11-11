@@ -3,6 +3,7 @@ using System.Linq;
 using Omamori.API;
 using Omamori.Core.Config;
 using Omamori.Core.Features;
+using Omamori.Core.Loading;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
@@ -98,7 +99,7 @@ namespace Omamori.Core.Manager
             if (shown.Manifest is not { } manifest)
                 return;
 
-            string[] facts = [manifest.Version, manifest.Author.Length > 0 ? $"by {manifest.Author}" : string.Empty, string.Join(", ", manifest.Capabilities)];
+            string[] facts = [manifest.Version, ManifestText.Byline(manifest), string.Join(", ", manifest.Capabilities)];
             content.Add(text(string.Join("  ·  ", facts.Where(f => f.Length > 0)), 14, dim: true));
         }
 
@@ -169,15 +170,10 @@ namespace Omamori.Core.Manager
 
             foreach (var value in Enum.GetValues<ModDetailsTab>())
             {
-                var button = new ShearedToggleButton { Text = value.ToString(), Width = 140, Height = 36, Active = { Value = tab.Value == value } };
-                button.Active.BindValueChanged(e =>
-                {
-                    // switching rebuilds the pane this button is in
-                    if (e.NewValue)
-                        Schedule(() => tab.Value = value);
-                    else if (tab.Value == value)
-                        button.Active.Value = true;
-                });
+                var button = ToggleGroup.Button(value, tab, v => Schedule(() => tab.Value = v));
+                button.Text = value.ToString();
+                button.Width = 140;
+                button.Height = 36;
                 flow.Add(button);
             }
 

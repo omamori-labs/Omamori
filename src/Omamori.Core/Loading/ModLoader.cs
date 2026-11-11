@@ -202,13 +202,13 @@ namespace Omamori.Core.Loading
         {
             var manifest = candidate.Manifest;
             var loader = ModIsolation.CreateLoader(Path.Combine(candidate.Directory, manifest.Entry));
-            ModIsolation.ShareDependencies(loader, () => manifest.Dependencies.Select(d => Get(d.Id)).OfType<LoadedMod>());
 
-            foreach (var dependency in manifest.Dependencies.Select(d => Get(d.Id)).OfType<LoadedMod>())
-            {
-                if (File.Exists(Path.Combine(candidate.Directory, Path.GetFileName(dependency.Manifest.Entry))))
-                    LoaderLog.Info($"[{manifest.Id}] bundles its own copy of {dependency.Manifest.Entry}, services from {dependency.Manifest.Id} won't match. Reference it with OmamoriModReference instead.");
-            }
+            IEnumerable<LoadedMod> loadedDependencies() => manifest.Dependencies.Select(d => Get(d.Id)).OfType<LoadedMod>();
+
+            ModIsolation.ShareDependencies(loader, loadedDependencies);
+
+            foreach (var dependency in loadedDependencies())
+                warnIfBundled(candidate, dependency.Manifest);
 
             var assembly = loader.LoadDefaultAssembly();
 
@@ -242,10 +242,20 @@ namespace Omamori.Core.Loading
                 return "it patches osu! but doesn't list Patches in its capabilities";
             }
 
-            LOADED.Add(new LoadedMod(manifest, instance, loader));
-            string author = manifest.Author.Length > 0 ? $" by {manifest.Author}" : string.Empty;
-            LoaderLog.Info($"Loaded {manifest.Name} {manifest.Version}{author} [{string.Join(", ", manifest.Capabilities)}].");
+            LOADED.Add(new LoadedMod(manifest, instance, loader, candidate.Label));
+
+            string[] facts = [manifest.Name, manifest.Version, ManifestText.Byline(manifest)];
+            LoaderLog.Info($"Loaded {string.Join(' ', facts.Where(f => f.Length > 0))} [{string.Join(", ", manifest.Capabilities)}].");
             return null;
+        }
+
+        private static void warnIfBundled(ModCandidate candidate, ModManifest dependency)
+        {
+            if (!File.Exists(Path.Combine(candidate.Directory, Path.GetFileName(dependency.Entry))))
+                return;
+
+            LoaderLog.Info($"[{candidate.Manifest.Id}] bundles its own copy of {dependency.Entry}, services from {dependency.Id} won't match. "
+                           + "Reference it with OmamoriModReference instead.");
         }
 
         /// <summary>

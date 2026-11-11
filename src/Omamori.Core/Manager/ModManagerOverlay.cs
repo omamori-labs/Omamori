@@ -66,14 +66,8 @@ namespace Omamori.Core.Manager
 
             foreach (var value in Enum.GetValues<ModFilter>())
             {
-                var button = filterButtons[value] = new ShearedToggleButton { Width = 150 };
-                button.Active.BindValueChanged(e =>
-                {
-                    if (e.NewValue)
-                        filter.Value = value;
-                    else if (filter.Value == value)
-                        button.Active.Value = true;
-                });
+                var button = filterButtons[value] = ToggleGroup.Button(value, filter, v => filter.Value = v);
+                button.Width = 150;
                 toolbar.Add(button);
             }
 
