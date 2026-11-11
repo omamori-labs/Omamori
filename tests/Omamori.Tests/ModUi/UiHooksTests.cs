@@ -14,11 +14,7 @@ namespace Omamori.Tests
     public class UiHooksTests
     {
         [TearDown]
-        public void TearDown()
-        {
-            FeatureRegistry.Set(Feature.GlobalOverlay, FeatureState.Pending, null);
-            UiHooks.Clear();
-        }
+        public void TearDown() => CoreState.Reset();
 
         [Test]
         public void UnavailableHookIsSkippedNotThrown()

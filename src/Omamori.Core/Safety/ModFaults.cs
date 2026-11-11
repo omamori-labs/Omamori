@@ -118,7 +118,7 @@ namespace Omamori.Core.Safety
 
             return context == null || context == AssemblyLoadContext.Default
                 ? null
-                : ModLoader.LOADED.ToList().FirstOrDefault(m => m.Loader.LoadContext == context);
+                : ModLoader.Loaded.FirstOrDefault(m => m.Loader.LoadContext == context);
         }
 
         private static void cleanUp(LoadedMod mod)

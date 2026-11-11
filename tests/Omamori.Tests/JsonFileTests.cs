@@ -1,4 +1,3 @@
-using System;
 using System.IO;
 using NUnit.Framework;
 using Omamori.Core;
@@ -14,16 +13,12 @@ namespace Omamori.Tests
         [SetUp]
         public void SetUp()
         {
-            directory = Path.Combine(Path.GetTempPath(), $"omamori-tests-{Guid.NewGuid()}");
+            directory = TempDirectory.New();
             path = Path.Combine(directory, "state", "state.json");
         }
 
         [TearDown]
-        public void TearDown()
-        {
-            if (Directory.Exists(directory))
-                Directory.Delete(directory, recursive: true);
-        }
+        public void TearDown() => TempDirectory.Delete(directory);
 
         [Test]
         public void MissingFileStartsFresh() => Assert.That(JsonFile.Read<State>(path, "starting fresh").Name, Is.Null);

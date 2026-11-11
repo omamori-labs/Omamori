@@ -15,12 +15,7 @@ namespace Omamori.Tests
     public class GameEventsTests
     {
         [TearDown]
-        public void TearDown()
-        {
-            GameEvents.Clear();
-            FeatureRegistry.Set(Feature.ScreenEvents, FeatureState.Pending, null);
-            FeatureRegistry.Set(Feature.LifecycleEvents, FeatureState.Pending, null);
-        }
+        public void TearDown() => CoreState.Reset();
 
         [Test]
         public void UnavailableHookIsSkippedNotThrown()

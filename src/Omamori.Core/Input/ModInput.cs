@@ -14,13 +14,12 @@ namespace Omamori.Core.Input
         private static readonly List<Registration> registrations = [];
 
         private readonly ModManifest manifest;
-        private readonly IModLogger log;
-        private readonly HashSet<Hook> hinted = [];
+        private readonly HookCheck hooks;
 
         public ModInput(ModManifest manifest, IModLogger log)
         {
             this.manifest = manifest;
-            this.log = log;
+            hooks = new HookCheck(manifest, log);
         }
 
         public void OnPressed(IBindable<ModKeys> keys, Action handler) => register(keys, handler, onRelease: false);
@@ -29,7 +28,7 @@ namespace Omamori.Core.Input
 
         private void register(IBindable<ModKeys> keys, Action handler, bool onRelease)
         {
-            if (!HookCheck.CanRegister(manifest, log, hinted, Hook.KeyBindings, "key binding"))
+            if (!hooks.CanRegister(Hook.KeyBindings, "key binding"))
                 return;
 
             lock (registrations)

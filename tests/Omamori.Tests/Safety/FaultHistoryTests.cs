@@ -19,10 +19,10 @@ namespace Omamori.Tests
         private string path = null!;
 
         [SetUp]
-        public void SetUp() => path = Path.Combine(Path.GetTempPath(), $"omamori-tests-{Guid.NewGuid()}", FaultHistory.FILENAME);
+        public void SetUp() => path = Path.Combine(TempDirectory.New(), FaultHistory.FILENAME);
 
         [TearDown]
-        public void TearDown() => Directory.Delete(Path.GetDirectoryName(path)!, recursive: true);
+        public void TearDown() => TempDirectory.Delete(Path.GetDirectoryName(path)!);
 
         [Test]
         public void NoHistoryLoads() => Assert.That(FaultHistory.Open(path).SkipReason(mod), Is.Null);

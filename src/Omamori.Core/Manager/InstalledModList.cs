@@ -22,9 +22,9 @@ namespace Omamori.Core.Manager
 
         public static IReadOnlyList<InstalledMod> All() =>
         [
-            .. ModLoader.LOADED.ToList().Select(m => new InstalledMod(m.Label, m.Manifest, true, null))
-                        .Concat(ModLoader.TURNED_OFF.Select(c => new InstalledMod(c.Label, c.Manifest, false, null)))
-                        .Concat(ModLoader.SKIPPED.Select(s => new InstalledMod(s.Name, s.Manifest, s.Manifest != null, s.Reason)))
+            .. ModLoader.Loaded.Select(m => new InstalledMod(m.Label, m.Manifest, true, null))
+                        .Concat(ModLoader.TurnedOff.Select(c => new InstalledMod(c.Label, c.Manifest, false, null)))
+                        .Concat(ModLoader.Skipped.Select(s => new InstalledMod(s.Name, s.Manifest, s.Manifest != null, s.Reason)))
                         .OrderBy(m => m.Label, StringComparer.OrdinalIgnoreCase)
         ];
 

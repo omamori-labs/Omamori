@@ -1,8 +1,6 @@
-using System;
 using System.IO;
 using NUnit.Framework;
 using Omamori.API;
-using Omamori.Core.Config;
 using Omamori.Core.Loading;
 
 namespace Omamori.Tests
@@ -14,15 +12,13 @@ namespace Omamori.Tests
         private string root = null!;
 
         [SetUp]
-        public void SetUp() => root = Path.Combine(Path.GetTempPath(), $"omamori-tests-{Guid.NewGuid()}");
+        public void SetUp() => root = TempDirectory.New();
 
         [TearDown]
         public void TearDown()
         {
-            ModConfig.Clear();
-
-            if (Directory.Exists(root))
-                Directory.Delete(root, recursive: true);
+            CoreState.Reset();
+            TempDirectory.Delete(root);
         }
 
         [Test]

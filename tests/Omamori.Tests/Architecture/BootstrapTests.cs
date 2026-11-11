@@ -1,4 +1,3 @@
-using System;
 using System.IO;
 using System.Reflection;
 using NUnit.Framework;
@@ -15,14 +14,10 @@ namespace Omamori.Tests
         private string directory = null!;
 
         [SetUp]
-        public void SetUp() => directory = Path.Combine(Path.GetTempPath(), $"omamori-tests-{Guid.NewGuid()}");
+        public void SetUp() => directory = TempDirectory.New();
 
         [TearDown]
-        public void TearDown()
-        {
-            if (Directory.Exists(directory))
-                Directory.Delete(directory, recursive: true);
-        }
+        public void TearDown() => TempDirectory.Delete(directory);
 
         [Test]
         public void MissingCoreLeavesOsuRunning()

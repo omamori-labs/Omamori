@@ -13,13 +13,12 @@ namespace Omamori.Core.Events
         private static readonly Dictionary<GameEvent, object> last_raised = [];
 
         private readonly ModManifest manifest;
-        private readonly IModLogger log;
-        private readonly HashSet<Hook> hinted = [];
+        private readonly HookCheck hooks;
 
         public GameEvents(ModManifest manifest, IModLogger log)
         {
             this.manifest = manifest;
-            this.log = log;
+            hooks = new HookCheck(manifest, log);
         }
 
         public void OnScreenChanged(Action<ScreenChange> handler) => register(Hook.ScreenEvents, GameEvent.ScreenChanged, handler);
@@ -67,7 +66,7 @@ namespace Omamori.Core.Events
 
         private void register(Hook hook, GameEvent gameEvent, Delegate handler)
         {
-            if (!HookCheck.CanRegister(manifest, log, hinted, hook, "handler"))
+            if (!hooks.CanRegister(hook, "handler"))
                 return;
 
             lock (handlers)

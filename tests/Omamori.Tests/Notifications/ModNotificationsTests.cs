@@ -18,16 +18,12 @@ namespace Omamori.Tests
         [SetUp]
         public void SetUp()
         {
-            NotificationSink.Reset();
+            CoreState.Reset();
             overlay = Substitute.For<INotificationOverlay>();
         }
 
         [TearDown]
-        public void TearDown()
-        {
-            NotificationSink.Reset();
-            FeatureRegistry.Set(Feature.Notifications, FeatureState.Pending, null);
-        }
+        public void TearDown() => CoreState.Reset();
 
         [Test]
         public void PostsBeforeTheGameLoadsWaitForTheOverlay()

@@ -25,7 +25,7 @@ namespace Omamori.Tests
         [SetUp]
         public void SetUp()
         {
-            root = Path.Combine(Path.GetTempPath(), $"omamori-tests-{Guid.NewGuid()}");
+            root = TempDirectory.New();
             mods = Path.Combine(root, "mods");
             Directory.CreateDirectory(mods);
         }
@@ -33,23 +33,15 @@ namespace Omamori.Tests
         [TearDown]
         public void TearDown()
         {
-            FeatureRegistry.Set(Feature.GlobalOverlay, FeatureState.Pending, null);
-            UiHooks.Clear();
-            ModFaults.Clear();
-            ModFaults.History = null;
-
-            foreach (var mod in ModLoader.LOADED)
+            foreach (var mod in ModLoader.Loaded)
                 PatchRemoval.RemoveFrom(mod.Loader.LoadContext);
 
-            ModLoader.LOADED.Clear();
-            ModLoader.TURNED_OFF.Clear();
-            ModLoader.SKIPPED.Clear();
-            ModLoader.Switches = null;
+            CoreState.Reset();
 
+            // a loaded mod's dll can still be locked
             try
             {
-                if (Directory.Exists(root))
-                    Directory.Delete(root, recursive: true);
+                TempDirectory.Delete(root);
             }
             catch (UnauthorizedAccessException)
             {
@@ -98,8 +90,8 @@ namespace Omamori.Tests
             loadAll();
 
             Assert.That(Directory.Exists(mods), Is.True);
-            Assert.That(ModLoader.SKIPPED, Is.Empty);
-            Assert.That(ModLoader.LOADED, Is.Empty);
+            Assert.That(ModLoader.Skipped, Is.Empty);
+            Assert.That(ModLoader.Loaded, Is.Empty);
         }
 
         [Test]
@@ -109,7 +101,7 @@ namespace Omamori.Tests
 
             loadAll();
 
-            Assert.That(ModLoader.SKIPPED, Is.Empty);
+            Assert.That(ModLoader.Skipped, Is.Empty);
         }
 
         [Test]
@@ -173,7 +165,7 @@ namespace Omamori.Tests
             loadAll();
 
             Assert.That(skipReason("second in second"), Is.EqualTo("another mod with the same id is installed"));
-            Assert.That(ModLoader.SKIPPED.Select(s => s.Name), Does.Not.Contain("first in first"));
+            Assert.That(ModLoader.Skipped.Select(s => s.Name), Does.Not.Contain("first in first"));
         }
 
         [Test]
@@ -186,8 +178,8 @@ namespace Omamori.Tests
             loadAll(switches: switches);
 
             string[] expected = ["test.off"];
-            Assert.That(ModLoader.TURNED_OFF.Select(c => c.Manifest.Id), Is.EqualTo(expected));
-            Assert.That(ModLoader.SKIPPED, Is.Empty);
+            Assert.That(ModLoader.TurnedOff.Select(c => c.Manifest.Id), Is.EqualTo(expected));
+            Assert.That(ModLoader.Skipped, Is.Empty);
         }
 
         [Test]
@@ -247,7 +239,7 @@ namespace Omamori.Tests
             loadAll();
 
             Assert.That(skipReason("garbage"), Does.StartWith("failed to load: "));
-            Assert.That(ModLoader.LOADED, Is.Empty);
+            Assert.That(ModLoader.Loaded, Is.Empty);
         }
 
         [Test]
@@ -280,7 +272,7 @@ namespace Omamori.Tests
 
             loadAll();
 
-            Assert.That(ModLoader.SKIPPED, Is.Empty);
+            Assert.That(ModLoader.Skipped, Is.Empty);
             var context = contextOf("test.working");
             Assert.That(context.Manifest.Id, Is.EqualTo("test.working"));
             Assert.That(context.ModDirectory, Is.EqualTo(directory));
@@ -295,7 +287,7 @@ namespace Omamori.Tests
             loadAll();
 
             string[] expected = ["test.base", "test.dependent"];
-            Assert.That(ModLoader.LOADED.Select(m => m.Manifest.Id), Is.EqualTo(expected));
+            Assert.That(ModLoader.Loaded.Select(m => m.Manifest.Id), Is.EqualTo(expected));
             Assert.That(contextOf("test.dependent").IsModLoaded("test.base"), Is.True);
         }
 
@@ -438,6 +430,6 @@ namespace Omamori.Tests
 
         private ModSwitches openSwitches() => ModSwitches.Open(Path.Combine(root, ModSwitches.FILENAME));
 
-        private static string skipReason(string name) => ModLoader.SKIPPED.Single(s => s.Name == name).Reason;
+        private static string skipReason(string name) => ModLoader.Skipped.Single(s => s.Name == name).Reason;
     }
 }

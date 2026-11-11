@@ -16,13 +16,12 @@ namespace Omamori.Core.ModUi
         private static readonly List<(string ModId, Drawable Drawable, CompositeDrawable Target)> added = [];
 
         private readonly ModManifest manifest;
-        private readonly IModLogger log;
-        private readonly HashSet<Hook> hinted = [];
+        private readonly HookCheck hooks;
 
         public UiHooks(ModManifest manifest, IModLogger log)
         {
             this.manifest = manifest;
-            this.log = log;
+            hooks = new HookCheck(manifest, log);
         }
 
         public void AddToMainMenu(Func<Drawable> factory) => register(Hook.MainMenu, factory);
@@ -37,7 +36,7 @@ namespace Omamori.Core.ModUi
 
         private void register(Hook hook, Func<Drawable> factory)
         {
-            if (!HookCheck.CanRegister(manifest, log, hinted, hook, "UI"))
+            if (!hooks.CanRegister(hook, "UI"))
                 return;
 
             if (!registrations.TryGetValue(hook, out var list))

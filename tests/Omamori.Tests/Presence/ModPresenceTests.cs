@@ -23,12 +23,7 @@ namespace Omamori.Tests
         }
 
         [TearDown]
-        public void TearDown()
-        {
-            ModPresence.Reset();
-            ModFaults.Clear();
-            FeatureRegistry.Set(Feature.DiscordPresence, FeatureState.Pending, null);
-        }
+        public void TearDown() => CoreState.Reset();
 
         [Test]
         public void NothingSetLeavesOsusOwnPresence() => Assert.That(ModPresence.Current(), Is.Null);

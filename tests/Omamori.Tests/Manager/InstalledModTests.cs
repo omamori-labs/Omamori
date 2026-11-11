@@ -16,17 +16,13 @@ namespace Omamori.Tests
         private string directory = null!;
 
         [SetUp]
-        public void SetUp() => directory = Path.Combine(Path.GetTempPath(), $"omamori-tests-{Guid.NewGuid()}");
+        public void SetUp() => directory = TempDirectory.New();
 
         [TearDown]
         public void TearDown()
         {
-            ModLoader.Switches = null;
-            ModFaults.History = null;
-            ModFaults.Clear();
-
-            if (Directory.Exists(directory))
-                Directory.Delete(directory, recursive: true);
+            CoreState.Reset();
+            TempDirectory.Delete(directory);
         }
 
         [Test]

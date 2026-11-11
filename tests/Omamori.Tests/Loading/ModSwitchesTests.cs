@@ -1,4 +1,3 @@
-using System;
 using System.IO;
 using NUnit.Framework;
 using Omamori.Core.Loading;
@@ -14,16 +13,10 @@ namespace Omamori.Tests
         private string path = null!;
 
         [SetUp]
-        public void SetUp() => path = Path.Combine(Path.GetTempPath(), $"omamori-tests-{Guid.NewGuid()}", ModSwitches.FILENAME);
+        public void SetUp() => path = Path.Combine(TempDirectory.New(), ModSwitches.FILENAME);
 
         [TearDown]
-        public void TearDown()
-        {
-            string directory = Path.GetDirectoryName(path)!;
-
-            if (Directory.Exists(directory))
-                Directory.Delete(directory, recursive: true);
-        }
+        public void TearDown() => TempDirectory.Delete(Path.GetDirectoryName(path)!);
 
         [Test]
         public void EveryModStartsOn() => Assert.That(ModSwitches.Open(path).IsEnabled("test.mod"), Is.True);

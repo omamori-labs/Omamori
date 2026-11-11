@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using Omamori.API;
 using Omamori.Core.Features;
 using Omamori.Core.Safety;
@@ -10,13 +9,12 @@ namespace Omamori.Core.Notifications
     internal sealed class ModNotifications : IModNotifications
     {
         private readonly ModManifest manifest;
-        private readonly IModLogger log;
-        private readonly HashSet<Hook> hinted = [];
+        private readonly HookCheck hooks;
 
         public ModNotifications(ModManifest manifest, IModLogger log)
         {
             this.manifest = manifest;
-            this.log = log;
+            hooks = new HookCheck(manifest, log);
         }
 
         public void Post(string text, Action? onClick = null) => post(new SimpleNotification { Text = Label(manifest, text) }, onClick);
@@ -55,6 +53,6 @@ namespace Omamori.Core.Notifications
             NotificationSink.Post(notification);
         }
 
-        private bool canPost() => !ModFaults.IsFaulted(manifest.Id) && HookCheck.CanRegister(manifest, log, hinted, Hook.Notifications, "notification");
+        private bool canPost() => !ModFaults.IsFaulted(manifest.Id) && hooks.CanRegister(Hook.Notifications, "notification");
     }
 }

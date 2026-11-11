@@ -19,14 +19,10 @@ namespace Omamori.Tests
         private string directory = null!;
 
         [SetUp]
-        public void SetUp()
-        {
-            directory = Path.Combine(Path.GetTempPath(), $"omamori-tests-{Guid.NewGuid()}");
-            Directory.CreateDirectory(directory);
-        }
+        public void SetUp() => directory = TempDirectory.Create();
 
         [TearDown]
-        public void TearDown() => Directory.Delete(directory, recursive: true);
+        public void TearDown() => TempDirectory.Delete(directory);
 
         [Test]
         public void ValidManifestPassesAndReportsIdAndVersion()

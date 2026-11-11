@@ -3,7 +3,6 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using Microsoft.Build.Framework;
-using Omamori.API;
 using Omamori.Core.Loading;
 using MSBuildTask = Microsoft.Build.Utilities.Task;
 
@@ -77,14 +76,14 @@ namespace Omamori.ModBuildConfig
                 if (!string.Equals(entry, ExpectedEntry, StringComparison.Ordinal))
                     error("OMA004", $"entry is \"{entry}\" but this project builds {ExpectedEntry}");
 
-                if (!ApiVersions.IsCompatible(root.GetProperty("apiVersion").GetString(), ApiInfo.VERSION, out string? apiProblem))
+                if (ManifestRules.ApiProblem(root.GetProperty("apiVersion").GetString()) is string apiProblem)
                     error("OMA005", $"apiVersion: {apiProblem}");
 
                 if (root.TryGetProperty("dependencies", out var dependencies)
-                    && dependencies.EnumerateArray().Any(d => string.Equals(d.GetProperty("id").GetString(), ModId, StringComparison.Ordinal)))
+                    && ManifestRules.DependsOnItself(ModId, dependencies.EnumerateArray().Select(d => d.GetProperty("id").GetString())))
                     error("OMA007", "dependencies lists this mod's own id, a mod can't depend on itself");
 
-                if (UsesHarmony && !root.GetProperty("capabilities").EnumerateArray().Any(c => c.GetString() == "Patches"))
+                if (UsesHarmony && !ManifestRules.DeclaresPatches(root.GetProperty("capabilities").EnumerateArray().Select(c => c.GetString())))
                     error("OMA008", "OmamoriHarmony is on, add \"Patches\" to capabilities so players know this mod changes osu!'s code");
             }
 

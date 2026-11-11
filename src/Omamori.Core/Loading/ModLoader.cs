@@ -26,18 +26,30 @@ namespace Omamori.Core.Loading
             Converters = { new JsonStringEnumConverter(allowIntegerValues: false) },
         };
 
-        public static readonly List<LoadedMod> LOADED = [];
+        private static readonly List<LoadedMod> loaded_mods = [];
+        private static readonly List<ModCandidate> turned_off_mods = [];
+        private static readonly List<SkippedMod> skipped_mods = [];
 
-        public static readonly List<ModCandidate> TURNED_OFF = [];
+        // mods load on the update thread, but a crash on any thread looks up which mod it came from
+        private static readonly object list_lock = new object();
 
-        public static readonly List<SkippedMod> SKIPPED = [];
+        /// <summary>a copy, in load order</summary>
+        public static IReadOnlyList<LoadedMod> Loaded => snapshot(loaded_mods);
+
+        public static IReadOnlyList<ModCandidate> TurnedOff => snapshot(turned_off_mods);
+
+        public static IReadOnlyList<SkippedMod> Skipped => snapshot(skipped_mods);
 
         /// <summary>null until mods load</summary>
         public static ModSwitches? Switches { get; internal set; }
 
-        public static bool IsLoaded(string id) => LOADED.Any(m => m.Manifest.Id == id);
+        public static bool IsLoaded(string id) => Get(id) != null;
 
-        public static LoadedMod? Get(string id) => LOADED.FirstOrDefault(m => m.Manifest.Id == id);
+        public static LoadedMod? Get(string id)
+        {
+            lock (list_lock)
+                return loaded_mods.FirstOrDefault(m => m.Manifest.Id == id);
+        }
 
         public static void LoadAll(string modsDirectory, FaultHistory history, ModSwitches switches, GameHost? host = null)
         {
@@ -51,33 +63,70 @@ namespace Omamori.Core.Loading
                 return;
             }
 
-            var candidates = discover(modsDirectory, SKIPPED);
-            candidates = filter(candidates, SKIPPED, validate);
-            candidates = dedupe(candidates, SKIPPED);
+            var skipped = new List<SkippedMod>();
 
-            TURNED_OFF.AddRange(candidates.Where(c => !switches.IsEnabled(c.Manifest.Id)));
-            candidates = [.. candidates.Where(c => switches.IsEnabled(c.Manifest.Id))];
-
-            candidates = filter(candidates, SKIPPED, c => history.SkipReason(c.Manifest));
-            candidates = filter(candidates, SKIPPED, checkRequiredHooks);
-
-            foreach (var candidate in DependencyResolver.Resolve(candidates, SKIPPED, TURNED_OFF.Select(c => c.Manifest.Id).ToHashSet()))
+            try
             {
-                try
-                {
-                    string? problem = checkDependenciesLoaded(candidate) ?? load(candidate, host);
+                var candidates = discover(modsDirectory, skipped);
+                candidates = filter(candidates, skipped, validate);
+                candidates = dedupe(candidates, skipped);
 
-                    if (problem != null)
-                        SKIPPED.Add(new SkippedMod(candidate.Label, problem, candidate.Manifest));
-                }
-                catch (Exception e)
+                lock (list_lock)
+                    turned_off_mods.AddRange(candidates.Where(c => !switches.IsEnabled(c.Manifest.Id)));
+
+                candidates = [.. candidates.Where(c => switches.IsEnabled(c.Manifest.Id))];
+
+                candidates = filter(candidates, skipped, c => history.SkipReason(c.Manifest));
+                candidates = filter(candidates, skipped, checkRequiredHooks);
+
+                foreach (var candidate in DependencyResolver.Resolve(candidates, skipped, TurnedOff.Select(c => c.Manifest.Id).ToHashSet()))
                 {
-                    LoaderLog.Info(e.ToString());
-                    SKIPPED.Add(new SkippedMod(candidate.Label, $"failed to load: {(e as TargetInvocationException)?.InnerException?.Message ?? e.Message}", candidate.Manifest));
+                    try
+                    {
+                        string? problem = checkDependenciesLoaded(candidate) ?? load(candidate, host);
+
+                        if (problem != null)
+                            skipped.Add(new SkippedMod(candidate.Label, problem, candidate.Manifest));
+                    }
+                    catch (Exception e)
+                    {
+                        LoaderLog.Info(e.ToString());
+                        skipped.Add(new SkippedMod(candidate.Label, $"failed to load: {(e as TargetInvocationException)?.InnerException?.Message ?? e.Message}", candidate.Manifest));
+                    }
                 }
             }
+            finally
+            {
+                // also when loading throws part way, so the manager still lists what was skipped up to then
+                lock (list_lock)
+                    skipped_mods.AddRange(skipped);
+            }
 
-            report(SKIPPED);
+            report(skipped);
+        }
+
+        internal static void Add(LoadedMod mod)
+        {
+            lock (list_lock)
+                loaded_mods.Add(mod);
+        }
+
+        internal static void Clear()
+        {
+            lock (list_lock)
+            {
+                loaded_mods.Clear();
+                turned_off_mods.Clear();
+                skipped_mods.Clear();
+            }
+
+            Switches = null;
+        }
+
+        private static IReadOnlyList<T> snapshot<T>(List<T> list)
+        {
+            lock (list_lock)
+                return [.. list];
         }
 
         private static List<ModCandidate> discover(string modsDirectory, List<SkippedMod> skipped)
@@ -154,13 +203,13 @@ namespace Omamori.Core.Loading
         {
             var manifest = candidate.Manifest;
 
-            if (!ApiVersions.IsCompatible(manifest.ApiVersion, ApiInfo.VERSION, out string? apiProblem))
+            if (ManifestRules.ApiProblem(manifest.ApiVersion) is string apiProblem)
                 return apiProblem;
 
             if (!File.Exists(Path.Combine(candidate.Directory, manifest.Entry)))
                 return $"entry assembly {manifest.Entry} not found";
 
-            if (manifest.Dependencies.Any(d => d.Id == manifest.Id))
+            if (ManifestRules.DependsOnItself(manifest.Id, manifest.Dependencies.Select(d => d.Id)))
                 return "it depends on itself";
 
             return null;
@@ -236,13 +285,13 @@ namespace Omamori.Core.Loading
             });
 
             // catches mods that bring their own harmony
-            if (!manifest.Capabilities.Contains(ModCapability.Patches) && PatchRemoval.RemoveFrom(loader.LoadContext) > 0)
+            if (!ManifestRules.DeclaresPatches(manifest.Capabilities) && PatchRemoval.RemoveFrom(loader.LoadContext) > 0)
             {
                 ModFaults.TurnOff(manifest.Id);
                 return "it patches osu! but doesn't list Patches in its capabilities";
             }
 
-            LOADED.Add(new LoadedMod(manifest, instance, loader, candidate.Label));
+            Add(new LoadedMod(manifest, instance, loader, candidate.Label));
 
             string[] facts = [manifest.Name, manifest.Version, ManifestText.Byline(manifest)];
             LoaderLog.Info($"Loaded {string.Join(' ', facts.Where(f => f.Length > 0))} [{string.Join(", ", manifest.Capabilities)}].");
@@ -277,7 +326,7 @@ namespace Omamori.Core.Loading
 
         private static void report(List<SkippedMod> skipped)
         {
-            LoaderLog.Info($"Loaded {LOADED.Count} mod(s), skipped {skipped.Count}, {TURNED_OFF.Count} turned off in settings.");
+            LoaderLog.Info($"Loaded {Loaded.Count} mod(s), skipped {skipped.Count}, {TurnedOff.Count} turned off in settings.");
 
             foreach (var mod in skipped)
                 LoaderLog.Info($"  skipped {mod.Name}: {mod.Reason}");

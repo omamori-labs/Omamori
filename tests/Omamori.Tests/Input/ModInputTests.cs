@@ -29,11 +29,7 @@ namespace Omamori.Tests
         }
 
         [TearDown]
-        public void TearDown()
-        {
-            ModInput.Clear();
-            FeatureRegistry.Set(Feature.KeyBindings, FeatureState.Pending, null);
-        }
+        public void TearDown() => CoreState.Reset();
 
         [Test]
         public void PressAndReleaseFireOnce()

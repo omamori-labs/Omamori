@@ -22,12 +22,7 @@ namespace Omamori.Tests
         private static readonly Assembly tests = typeof(ModFaultsTests).Assembly;
 
         [TearDown]
-        public void TearDown()
-        {
-            FeatureRegistry.Set(Feature.GlobalOverlay, FeatureState.Pending, null);
-            UiHooks.Clear();
-            ModFaults.Clear();
-        }
+        public void TearDown() => CoreState.Reset();
 
         [Test]
         public void ThrowSiteIsBlamedOverItsCaller()
@@ -51,19 +46,12 @@ namespace Omamori.Tests
             var semver = mod.Loader.LoadDefaultAssembly();
             var parse = semver.GetType("Semver.SemVersion")!.GetMethod("Parse", [typeof(string), semver.GetType("Semver.SemVersionStyles")!, typeof(int)])!;
 
-            ModLoader.LOADED.Add(mod);
+            ModLoader.Add(mod);
 
-            try
-            {
-                var thrown = TestSetup.Caught(() => parse.Invoke(null, ["not a version", 0, 1024]));
+            var thrown = TestSetup.Caught(() => parse.Invoke(null, ["not a version", 0, 1024]));
 
-                Assert.That(ModFaults.TryContain(thrown, scheduler: null), Is.True);
-                Assert.That(ModFaults.IsFaulted(mod.Manifest.Id), Is.True);
-            }
-            finally
-            {
-                ModLoader.LOADED.Remove(mod);
-            }
+            Assert.That(ModFaults.TryContain(thrown, scheduler: null), Is.True);
+            Assert.That(ModFaults.IsFaulted(mod.Manifest.Id), Is.True);
         }
 
         [Test]

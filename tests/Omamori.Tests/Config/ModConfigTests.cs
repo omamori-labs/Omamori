@@ -23,16 +23,13 @@ namespace Omamori.Tests
         private string path = null!;
 
         [SetUp]
-        public void SetUp() => path = Path.Combine(Path.GetTempPath(), $"omamori-tests-{Guid.NewGuid()}", "test.settings.json");
+        public void SetUp() => path = Path.Combine(TempDirectory.New(), "test.settings.json");
 
         [TearDown]
         public void TearDown()
         {
-            ModConfig.Clear();
-
-            string directory = Path.GetDirectoryName(path)!;
-            if (Directory.Exists(directory))
-                Directory.Delete(directory, recursive: true);
+            CoreState.Reset();
+            TempDirectory.Delete(Path.GetDirectoryName(path)!);
         }
 
         [Test]

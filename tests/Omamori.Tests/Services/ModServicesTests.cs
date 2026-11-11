@@ -11,7 +11,7 @@ namespace Omamori.Tests
     public class ModServicesTests
     {
         [TearDown]
-        public void TearDown() => ModServices.Clear();
+        public void TearDown() => CoreState.Reset();
 
         [Test]
         public void AnotherModGetsWhatWasProvided()

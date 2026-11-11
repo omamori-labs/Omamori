@@ -19,14 +19,13 @@ namespace Omamori.Core.Presence
         private static Action? refresh;
 
         private readonly ModManifest manifest;
-        private readonly IModLogger log;
-        private readonly HashSet<Hook> hinted = [];
+        private readonly HookCheck hooks;
         private bool unavailable;
 
         public ModPresence(ModManifest manifest, IModLogger log)
         {
             this.manifest = manifest;
-            this.log = log;
+            hooks = new HookCheck(manifest, log);
         }
 
         public void Set(PresenceStatus status)
@@ -103,7 +102,7 @@ namespace Omamori.Core.Presence
             if (unavailable && !FeatureRegistry.IsAvailable(Hook.DiscordPresence))
                 return false;
 
-            unavailable = !HookCheck.CanRegister(manifest, log, hinted, Hook.DiscordPresence, "presence");
+            unavailable = !hooks.CanRegister(Hook.DiscordPresence, "presence");
             return !unavailable;
         }
     }

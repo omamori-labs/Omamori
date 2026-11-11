@@ -4,12 +4,25 @@ using Omamori.Core.Loading;
 
 namespace Omamori.Core.Features
 {
-    internal static class HookCheck
+    /// <summary>
+    ///     one per mod service, so each service hints about its own undeclared hooks once
+    /// </summary>
+    internal sealed class HookCheck
     {
+        private readonly ModManifest manifest;
+        private readonly IModLogger log;
+        private readonly HashSet<Hook> hinted = [];
+
+        public HookCheck(ModManifest manifest, IModLogger log)
+        {
+            this.manifest = manifest;
+            this.log = log;
+        }
+
         /// <summary>
         ///     an undeclared hook counts as optional and is hinted once, an unavailable one is skipped
         /// </summary>
-        public static bool CanRegister(ModManifest manifest, IModLogger log, HashSet<Hook> hinted, Hook hook, string what)
+        public bool CanRegister(Hook hook, string what)
         {
             if (!manifest.Hooks.ContainsKey(hook) && hinted.Add(hook))
                 log.Info($"uses the {hook} hook without declaring it in {ModLoader.MANIFEST_FILENAME}, treating it as optional.");
