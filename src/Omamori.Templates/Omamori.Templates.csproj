@@ -15,6 +15,28 @@
     <None Include="..\..\LICENSE" Pack="true" PackagePath="\" />
   </ItemGroup>
 
+  <UsingTask TaskName="_OmamoriFillTemplate" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+    <ParameterGroup>
+      <Source ParameterType="System.String" Required="true" />
+      <Destination ParameterType="System.String" Required="true" />
+      <OmamoriVersion ParameterType="System.String" Required="true" />
+      <ApiVersion ParameterType="System.String" Required="true" />
+    </ParameterGroup>
+    <Task>
+      <Using Namespace="System.IO" />
+      <Using Namespace="System.Text.RegularExpressions" />
+      <Code Type="Fragment" Language="cs"><![CDATA[
+        string text = File.ReadAllText(Source).Replace("__OMAMORI_VERSION__", OmamoriVersion);
+        text = Regex.Replace(text, "(?<=\"apiVersion\":\\s*\")[^\"]*", ApiVersion);
+
+        Directory.CreateDirectory(Path.GetDirectoryName(Destination));
+
+        if (!File.Exists(Destination) || File.ReadAllText(Destination) != text)
+            File.WriteAllText(Destination, text);
+      ]]></Code>
+    </Task>
+  </UsingTask>
+
   <Target Name="_OmamoriPackTemplates" DependsOnTargets="MinVer">
     <PropertyGroup>
       <_OmamoriApiVersion>$([System.Text.RegularExpressions.Regex]::Match($([System.IO.File]::ReadAllText('$(MSBuildThisFileDirectory)..\..\src\Omamori.API\ApiInfo.cs')), 'VERSION = "([^"]+)"').Groups[1].Value)</_OmamoriApiVersion>
@@ -29,9 +51,10 @@
       <_OmamoriTemplateOther Include="@(_OmamoriTemplateFile)" Exclude="@(_OmamoriTemplateText)" />
     </ItemGroup>
 
-    <WriteLinesToFile File="$(_OmamoriTemplateOut)%(_OmamoriTemplateText.RecursiveDir)%(_OmamoriTemplateText.Filename)%(_OmamoriTemplateText.Extension)"
-                      Lines="$([MSBuild]::Escape($([System.Text.RegularExpressions.Regex]::Replace($([System.IO.File]::ReadAllText('%(_OmamoriTemplateText.FullPath)').Replace('__OMAMORI_VERSION__', '$(PackageVersion)')), '(?&lt;=&quot;apiVersion&quot;:\s*&quot;)[^&quot;]*', '$(_OmamoriApiVersion)'))))"
-                      Overwrite="true" WriteOnlyWhenDifferent="true" />
+    <_OmamoriFillTemplate Source="%(_OmamoriTemplateText.FullPath)"
+                          Destination="$(_OmamoriTemplateOut)%(_OmamoriTemplateText.RecursiveDir)%(_OmamoriTemplateText.Filename)%(_OmamoriTemplateText.Extension)"
+                          OmamoriVersion="$(PackageVersion)"
+                          ApiVersion="$(_OmamoriApiVersion)" />
 
     <Copy SourceFiles="@(_OmamoriTemplateOther)" DestinationFiles="@(_OmamoriTemplateOther->'$(_OmamoriTemplateOut)%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
 
