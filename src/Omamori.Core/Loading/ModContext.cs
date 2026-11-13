@@ -6,7 +6,9 @@ using Omamori.Core.Events;
 using Omamori.Core.Features;
 using Omamori.Core.Input;
 using Omamori.Core.ModUi;
+using Omamori.Core.Mods;
 using Omamori.Core.Notifications;
+using Omamori.Core.Plays;
 using Omamori.Core.Presence;
 using Omamori.Core.Safety;
 using Omamori.Core.Services;
@@ -40,6 +42,8 @@ namespace Omamori.Core.Loading
         public IModInput Input { get; }
         public IModServices Services { get; }
         public IModPresence Presence { get; }
+        public IGameMods GameMods { get; }
+        public IGamePlays GamePlays { get; }
 
         public ModContext(ModManifest manifest, string modDirectory, string dataDirectory, GameHost? host = null)
         {
@@ -56,6 +60,8 @@ namespace Omamori.Core.Loading
             Input = new ModInput(manifest, Log);
             Services = new ModServices(manifest, Log);
             Presence = new ModPresence(manifest, Log);
+            GameMods = new GameMods(manifest, Log);
+            GamePlays = new GamePlays(manifest, Log);
         }
 
         public bool IsHookAvailable(Hook hook) => FeatureRegistry.IsAvailable(hook);

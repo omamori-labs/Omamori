@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using HarmonyLib;
 using Omamori.API;
 using Omamori.Core.Features;
@@ -6,6 +7,7 @@ using Omamori.Core.ModUi;
 using Omamori.Core.Notifications;
 using osu.Framework.Graphics;
 using osu.Game;
+using osu.Game.Screens.Footer;
 using osu.Game.Screens.Menu;
 using osu.Game.Screens.Play;
 using osu.Game.Screens.Ranking;
@@ -47,6 +49,20 @@ namespace Omamori.Core.Patching
             private static void postfix(SongSelect __instance)
             {
                 FeatureRegistry.Run(Feature.SongSelectUi, () => UiHooks.Populate(Hook.SongSelect, __instance));
+            }
+        }
+
+        /// <summary>
+        ///     solo song select builds its footer here, rooms override it and build their own
+        /// </summary>
+        [Feature(Feature.SongSelectFooter)]
+        [HarmonyPatch(typeof(SongSelect), nameof(SongSelect.CreateFooterButtons))]
+        internal static class SongSelectFooterInjection
+        {
+            [HarmonyPostfix]
+            private static void postfix(ref IReadOnlyList<ScreenFooterButton> __result)
+            {
+                __result = FeatureRegistry.Run(Feature.SongSelectFooter, __result, buttons => [.. buttons, .. UiHooks.FooterButtons()]);
             }
         }
 

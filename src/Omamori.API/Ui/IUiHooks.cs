@@ -1,5 +1,6 @@
 using System;
 using osu.Framework.Graphics;
+using osu.Game.Screens.Footer;
 
 namespace Omamori.API
 {
@@ -22,6 +23,12 @@ namespace Omamori.API
         ///     on top of song select, solo and multiplayer
         /// </summary>
         void AddToSongSelect(Func<Drawable> factory);
+
+        /// <summary>
+        ///     a button in song select's footer next to mods and options, lazer lays it out and animates it like its own
+        ///     only the solo song select asks for it, rooms build their own footers
+        /// </summary>
+        void AddToSongSelectFooter(Func<ScreenFooterButton> factory);
 
         /// <summary>
         ///     on top of the results screen after a play or when viewing a score

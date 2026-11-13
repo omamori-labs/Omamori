@@ -61,5 +61,14 @@ namespace Omamori.API
 
         /// <summary><see cref="IModContext.Presence"/></summary>
         DiscordPresence,
+
+        /// <summary><see cref="IGameMods.Add{T}"/></summary>
+        GameMods,
+
+        /// <summary><see cref="IGamePlays.OnStarting"/></summary>
+        PlayStarting,
+
+        /// <summary><see cref="IUiHooks.AddToSongSelectFooter"/></summary>
+        SongSelectFooter,
     }
 }

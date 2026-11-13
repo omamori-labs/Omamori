@@ -42,6 +42,7 @@ namespace Omamori.Core.Events.Sources
                 Ruleset = player.Ruleset.Value is { } ruleset ? ruleset.ShortName : string.Empty,
                 Mods = EventDetails.Acronyms(player.Mods.Value),
                 IsReplay = player is ReplayPlayer or SpectatorPlayer,
+                Kind = EventDetails.KindOf(player.GetType()),
             };
 
             if (plays.Start(play) is { } interrupted)

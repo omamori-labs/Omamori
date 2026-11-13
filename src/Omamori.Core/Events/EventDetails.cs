@@ -9,6 +9,10 @@ using osu.Game.Rulesets.Replays.Types;
 using osu.Game.Rulesets.Scoring;
 using osu.Game.Scoring;
 using osu.Game.Screens.Menu;
+using osu.Game.Screens.OnlinePlay.DailyChallenge;
+using osu.Game.Screens.OnlinePlay.Multiplayer;
+using osu.Game.Screens.OnlinePlay.Multiplayer.Spectate;
+using osu.Game.Screens.OnlinePlay.Playlists;
 using osu.Game.Screens.Play;
 using osu.Game.Users;
 
@@ -31,6 +35,15 @@ namespace Omamori.Core.Events
             osu.Game.Screens.OnlinePlay.Playlists.Playlists => GameScreen.Playlists,
             _ => GameScreen.Other,
         };
+
+        /// <summary>spectators before replays, a spectator player is a replay player underneath</summary>
+        public static PlayKind KindOf(Type player) =>
+            typeof(SoloPlayer).IsAssignableFrom(player) ? PlayKind.Solo
+            : typeof(PlaylistsPlayer).IsAssignableFrom(player) || typeof(DailyChallengePlayer).IsAssignableFrom(player) ? PlayKind.Playlist
+            : typeof(MultiplayerPlayer).IsAssignableFrom(player) ? PlayKind.Multiplayer
+            : typeof(SpectatorPlayer).IsAssignableFrom(player) || typeof(MultiSpectatorPlayer).IsAssignableFrom(player) ? PlayKind.Spectator
+            : typeof(ReplayPlayer).IsAssignableFrom(player) ? PlayKind.Replay
+            : PlayKind.Other;
 
         public static BeatmapDetails Beatmap(BeatmapInfo beatmap) => new BeatmapDetails
         {

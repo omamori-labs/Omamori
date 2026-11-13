@@ -30,5 +30,8 @@ namespace Omamori.Core.Features
         OverlayEvents,
         MultiplayerEvents,
         DiscordPresence,
+        GameMods,
+        PlayStarting,
+        SongSelectFooter,
     }
 }

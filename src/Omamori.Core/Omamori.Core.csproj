@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <ReferenceLazer>true</ReferenceLazer>
     <RootNamespace>Omamori.Core</RootNamespace>
@@ -28,6 +28,9 @@
     <Publicize Include="osu.Framework:osu.Framework.Platform.GameHost.PerformExit" />
     <Publicize Include="osu.Game:osu.Game.Screens.Menu.MainMenu.LoadComplete" />
     <Publicize Include="osu.Game:osu.Game.Screens.Select.SongSelect.LoadComplete" />
+    <Publicize Include="osu.Game:osu.Game.Screens.Select.SoloSongSelect.OnStart" />
+    <Publicize Include="osu.Game:osu.Game.Screens.Select.SongSelect.CreateFooterButtons" />
+    <Publicize Include="osu.Game:osu.Game.Screens.Play.SoloPlayer.CreateTokenRequest" />
     <Publicize Include="osu.Game:osu.Game.Screens.Ranking.ResultsScreen.LoadComplete" />
     <Publicize Include="osu.Game:osu.Game.Screens.Play.HUDOverlay.LoadComplete" />
     <Publicize Include="osu!:osu.Desktop.DiscordRichPresence" />

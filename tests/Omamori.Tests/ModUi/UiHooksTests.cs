@@ -63,6 +63,26 @@ namespace Omamori.Tests
             Assert.That(overlay, Does.Contain(marker));
         }
 
+        [Test]
+        public void ThrowingFooterFactoryDoesNotStopTheFooter()
+        {
+            FeatureRegistry.Set(Feature.SongSelectFooter, FeatureState.Active, null);
+
+            var hooks = new UiHooks(manifest(declared: true), Substitute.For<IModLogger>());
+            hooks.AddToSongSelectFooter(() => throw new InvalidOperationException("broken mod"));
+
+            Assert.That(UiHooks.FooterButtons(), Is.Empty);
+        }
+
+        [Test]
+        public void FooterButtonsAreSkippedWhenTheHookIsUnavailable()
+        {
+            var hooks = new UiHooks(manifest(declared: true), Substitute.For<IModLogger>());
+
+            Assert.DoesNotThrow(() => hooks.AddToSongSelectFooter(() => throw new InvalidOperationException("never built")));
+            Assert.That(UiHooks.FooterButtons(), Is.Empty);
+        }
+
         private static ModManifest manifest(bool declared) => new ModManifest
         {
             Id = "test.ui",

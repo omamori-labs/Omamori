@@ -1,4 +1,4 @@
-﻿{
+{
   GameOverlay: {
     BeatmapInfo: 5,
     BeatmapListing: 4,
@@ -25,6 +25,7 @@
   Hook: {
     BeatmapEvents: 3,
     DiscordPresence: 18,
+    GameMods: 19,
     GameplayHud: 14,
     GlobalOverlay: 1,
     KeyBindings: 17,
@@ -37,10 +38,12 @@
     Notifications: 16,
     OverlayEvents: 10,
     PlayEvents: 4,
+    PlayStarting: 20,
     Results: 13,
     ScreenEvents: 2,
     SkinEvents: 8,
     SongSelect: 12,
+    SongSelectFooter: 21,
     UserEvents: 7
   },
   HookRequirement: {
@@ -51,6 +54,14 @@
     Cosmetic: 0,
     Informational: 1,
     Patches: 2
+  },
+  PlayKind: {
+    Multiplayer: 2,
+    Other: 5,
+    Playlist: 1,
+    Replay: 3,
+    Solo: 0,
+    Spectator: 4
   },
   ReplayButtons: {
     Left1: 1,

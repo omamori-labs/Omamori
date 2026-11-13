@@ -86,7 +86,10 @@
           "LivePlayEvents",
           "Notifications",
           "KeyBindings",
-          "DiscordPresence"
+          "DiscordPresence",
+          "GameMods",
+          "PlayStarting",
+          "SongSelectFooter"
         ]
       },
       "additionalProperties": {

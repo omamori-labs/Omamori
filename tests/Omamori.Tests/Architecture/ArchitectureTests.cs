@@ -96,7 +96,7 @@ namespace Omamori.Tests
                 .Should().NotDependOnAny(inArea("Manager"))
                 .Check(architecture);
 
-        private static readonly string[] mod_services = ["Events", "Config", "ModUi", "Notifications", "Input", "Services", "Presence"];
+        private static readonly string[] mod_services = ["Events", "Config", "ModUi", "Notifications", "Input", "Services", "Presence", "Mods", "Plays"];
 
         // each is a separate service
         [TestCaseSource(nameof(mod_services))]

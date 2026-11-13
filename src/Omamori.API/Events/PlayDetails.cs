@@ -13,5 +13,7 @@ namespace Omamori.API
 
         /// <summary>watching a replay, autoplay or spectating, not the player playing</summary>
         public bool IsReplay { get; init; }
+
+        public PlayKind Kind { get; init; }
     }
 }

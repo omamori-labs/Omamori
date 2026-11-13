@@ -6,6 +6,7 @@ using Omamori.Core.Features;
 using Omamori.Core.Safety;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
+using osu.Game.Screens.Footer;
 
 namespace Omamori.Core.ModUi
 {
@@ -29,6 +30,8 @@ namespace Omamori.Core.ModUi
         public void AddGlobalOverlay(Func<Drawable> factory) => register(Hook.GlobalOverlay, factory);
 
         public void AddToSongSelect(Func<Drawable> factory) => register(Hook.SongSelect, factory);
+
+        public void AddToSongSelectFooter(Func<ScreenFooterButton> factory) => register(Hook.SongSelectFooter, factory);
 
         public void AddToResults(Func<Drawable> factory) => register(Hook.Results, factory);
 
@@ -67,6 +70,28 @@ namespace Omamori.Core.ModUi
                     }
                 });
             }
+        }
+
+        /// <summary>
+        ///     a factory that throws turns its mod off, a button that isn't removed with it is gone when the footer is next built
+        /// </summary>
+        public static IReadOnlyList<ScreenFooterButton> FooterButtons()
+        {
+            var buttons = new List<ScreenFooterButton>();
+
+            if (!registrations.TryGetValue(Hook.SongSelectFooter, out var list))
+                return buttons;
+
+            foreach (var registration in list)
+            {
+                ModFaults.RunForMod(registration.ModId, "UI factory", () =>
+                {
+                    if (registration.Factory() is ScreenFooterButton button)
+                        buttons.Add(button);
+                });
+            }
+
+            return buttons;
         }
 
         internal static void Clear()
