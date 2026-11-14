@@ -35,7 +35,11 @@ namespace Omamori.Core.Patching
             [HarmonyPrefix]
             private static void prefix(OsuGame __instance)
             {
-                FeatureRegistry.Run(Feature.ModLoading, () => ModLoader.LoadAll(CoreEntry.ModsDirectory, FaultHistory.Open(CoreEntry.FaultsFile), ModSwitches.Open(CoreEntry.SwitchesFile), __instance.Host));
+                FeatureRegistry.Run(Feature.ModLoading, () =>
+                {
+                    ModFaults.UpdateScheduler = __instance.Host.UpdateThread.Scheduler;
+                    ModLoader.LoadAll(CoreEntry.ModsDirectory, FaultHistory.Open(CoreEntry.FaultsFile), ModSwitches.Open(CoreEntry.SwitchesFile), __instance.Host);
+                });
             }
         }
     }

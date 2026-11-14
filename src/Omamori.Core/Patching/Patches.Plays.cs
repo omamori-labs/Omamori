@@ -21,8 +21,9 @@ namespace Omamori.Core.Patching
             [HarmonyPrefix]
             private static bool prefix() => FeatureRegistry.Run(Feature.PlayStarting, true, _ => GamePlays.Begin());
 
-            [HarmonyPostfix]
-            private static void postfix() => FeatureRegistry.Run(Feature.PlayStarting, GamePlays.End);
+            // a finalizer runs even when OnStart throws, so the decision never leaks into a later play
+            [HarmonyFinalizer]
+            private static void finalizer() => GamePlays.End();
         }
 
         /// <summary>
@@ -57,23 +58,21 @@ namespace Omamori.Core.Patching
         [HarmonyPatch(typeof(SoloPlayer), nameof(SoloPlayer.CreateTokenRequest))]
         internal static class SubmissionSuppression
         {
+            // false once another prefix has already kept the play from being submitted
             [HarmonyPrefix]
-            private static bool prefix(SoloPlayer __instance, ref APIRequest<APIScoreToken>? __result)
-            {
-                bool suppressed = FeatureRegistry.Run(Feature.PlayStarting, false, _ =>
-                {
-                    if (!GamePlays.IsSuppressed(__instance, out string? reason))
-                        return false;
+            private static bool prefix(SoloPlayer __instance, ref APIRequest<APIScoreToken>? __result, bool __runOriginal) =>
+                __runOriginal && submits(GamePlays.Unsubmitted(__instance), ref __result);
+        }
 
-                    LoaderLog.Info($"Not submitting this play: {reason}.");
-                    return true;
-                });
+        // false skips CreateTokenRequest with a null token, so the play runs but is never sent
+        private static bool submits(string? unsubmittedBecause, ref APIRequest<APIScoreToken>? result)
+        {
+            if (unsubmittedBecause == null)
+                return true;
 
-                if (suppressed)
-                    __result = null;
-
-                return !suppressed;
-            }
+            LoaderLog.Info($"Not submitting this play: {unsubmittedBecause}.");
+            result = null;
+            return false;
         }
     }
 }

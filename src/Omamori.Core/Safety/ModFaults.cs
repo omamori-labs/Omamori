@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Runtime.Loader;
 using Omamori.Core.Loading;
 using Omamori.Core.ModUi;
+using osu.Framework.Development;
 using osu.Framework.Threading;
 
 namespace Omamori.Core.Safety
@@ -20,6 +21,9 @@ namespace Omamori.Core.Safety
         private static readonly object fault_lock = new object();
 
         public static FaultHistory? History { get; set; }
+
+        /// <summary>where cleanup goes when a mod throws off the update thread, null until the game has loaded</summary>
+        public static Scheduler? UpdateScheduler { get; set; }
 
         /// <summary>the mod's id, raised on whichever thread it threw</summary>
         public static event Action<string>? Faulted;
@@ -46,7 +50,8 @@ namespace Omamori.Core.Safety
         }
 
         /// <summary>
-        ///     runs a mod's own code from omamori's, a throw turns that mod off instead of whatever called it, update thread only
+        ///     runs a mod's own code from omamori's, a throw turns that mod off instead of whatever called it
+        ///     cleanup touches drawables, so off the update thread it's left to the update thread
         /// </summary>
         public static void RunForMod(string modId, string what, Action action)
         {
@@ -60,7 +65,7 @@ namespace Omamori.Core.Safety
             catch (Exception e)
             {
                 if (ModLoader.Get(modId) is { } mod)
-                    Contain(mod, e, scheduler: null);
+                    Contain(mod, e, ThreadSafety.IsUpdateThread ? null : UpdateScheduler);
                 else
                     LoaderLog.Error($"[{modId}] {what} threw.", e);
             }

@@ -16,6 +16,7 @@ namespace Omamori.API
         /// <summary>
         ///     the play runs as normal but its score is never submitted, the same way lazer treats maps that aren't on the website
         ///     the first reason given is kept, retrying the play keeps it too
+        ///     if omamori can't check a play for this, it isn't submitted while any mod is listening for plays starting
         /// </summary>
         public void SuppressSubmission(string reason) => SuppressionReason ??= reason;
     }

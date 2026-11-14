@@ -36,13 +36,15 @@ namespace Omamori.Core.Events.Sources
 
         private static void start(Player player)
         {
+            var kind = EventDetails.KindOf(player.GetType());
+
             var play = new PlayDetails
             {
                 Beatmap = EventDetails.Beatmap(player.Beatmap.Value.BeatmapInfo),
                 Ruleset = player.Ruleset.Value is { } ruleset ? ruleset.ShortName : string.Empty,
                 Mods = EventDetails.Acronyms(player.Mods.Value),
-                IsReplay = player is ReplayPlayer or SpectatorPlayer,
-                Kind = EventDetails.KindOf(player.GetType()),
+                IsReplay = kind is PlayKind.Replay or PlayKind.Spectator,
+                Kind = kind,
             };
 
             if (plays.Start(play) is { } interrupted)

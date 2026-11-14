@@ -39,9 +39,8 @@ namespace Omamori.Tests
             object player = new object();
             GamePlays.Tag(player, GamePlays.Current!);
 
-            Assert.That(GamePlays.IsSuppressed(player, out string? reason), Is.True);
-            Assert.That(reason, Is.EqualTo("custom start"));
-            Assert.That(GamePlays.IsSuppressed(new object(), out _), Is.False);
+            Assert.That(GamePlays.Unsubmitted(player), Is.EqualTo("custom start"));
+            Assert.That(GamePlays.Unsubmitted(new object()), Is.Null);
         }
 
         [Test]
@@ -83,6 +82,23 @@ namespace Omamori.Tests
 
             Assert.DoesNotThrow(() => gamePlays("test.plays").OnStarting(starting => starting.Cancel()));
             Assert.That(GamePlays.Begin(), Is.True);
+        }
+
+        [Test]
+        public void BrokenCheckKeepsPlaysUnsubmittedWhileModsListen()
+        {
+            gamePlays("test.plays").OnStarting(_ => { });
+            FeatureRegistry.Set(Feature.PlayStarting, FeatureState.Faulted, "test");
+
+            Assert.That(GamePlays.Unsubmitted(new object()), Is.Not.Null);
+        }
+
+        [Test]
+        public void BrokenCheckSubmitsWhenNoModListens()
+        {
+            FeatureRegistry.Set(Feature.PlayStarting, FeatureState.Faulted, "test");
+
+            Assert.That(GamePlays.Unsubmitted(new object()), Is.Null);
         }
 
         private static GamePlays gamePlays(string id) => new GamePlays(new ModManifest { Id = id }, Substitute.For<IModLogger>());

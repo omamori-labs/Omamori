@@ -9,6 +9,8 @@ namespace Omamori.Core.Plays
 {
     internal sealed class GamePlays : IGamePlays
     {
+        private const string broken_check = "omamori couldn't check whether a mod asked to leave it unsubmitted";
+
         private static readonly List<(string ModId, Action<PlayStarting> Handler)> handlers = [];
 
         // keyed by the player, so a retry that makes a new one is still covered by the decision made on song select
@@ -58,10 +60,19 @@ namespace Omamori.Core.Plays
 
         public static void Tag(object player, PlayStarting starting) => started.AddOrUpdate(player, starting);
 
-        public static bool IsSuppressed(object player, out string? reason)
+        /// <summary>
+        ///     why the player's play mustn't be submitted, null to submit it
+        ///     if the check breaks, plays aren't submitted while any mod could have asked
+        /// </summary>
+        public static string? Unsubmitted(object player)
         {
-            reason = started.TryGetValue(player, out var starting) ? starting.SuppressionReason : null;
-            return reason != null;
+            bool anyHandlers;
+
+            lock (handlers)
+                anyHandlers = handlers.Count > 0;
+
+            return FeatureRegistry.Run(Feature.PlayStarting, anyHandlers ? broken_check : null,
+                _ => started.TryGetValue(player, out var starting) ? starting.SuppressionReason : null);
         }
 
         internal static void Clear()

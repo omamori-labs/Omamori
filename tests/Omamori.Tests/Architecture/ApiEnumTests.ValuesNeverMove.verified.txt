@@ -1,4 +1,4 @@
-{
+﻿{
   GameOverlay: {
     BeatmapInfo: 5,
     BeatmapListing: 4,
@@ -56,12 +56,12 @@
     Patches: 2
   },
   PlayKind: {
-    Multiplayer: 2,
-    Other: 5,
-    Playlist: 1,
-    Replay: 3,
-    Solo: 0,
-    Spectator: 4
+    Multiplayer: 3,
+    Other: 0,
+    Playlist: 2,
+    Replay: 4,
+    Solo: 1,
+    Spectator: 5
   },
   ReplayButtons: {
     Left1: 1,
