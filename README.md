@@ -1,27 +1,38 @@
 # Omamori
 
-A modding framework for osu!lazer. It loads mods into the game, gives them a stable API to build on, and turns off a mod that crashes instead of letting it take osu! down.
+[![Latest release](https://img.shields.io/github/v/release/omamori-labs/Omamori?include_prereleases&style=flat-square)](https://github.com/omamori-labs/Omamori/releases)
+[![MIT Licensed](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE)
+![ci](https://github.com/omamori-labs/Omamori/workflows/ci/badge.svg)
 
-Omamori is in alpha. The API can still change between releases, and each release is built for one osu!lazer version. On a different version it still starts, warns you, and turns off only the features that no longer fit.
+A modding framework for osu!lazer.
+
+Omamori is in alpha. The API is likely to heavily change between releases.
 
 ## For players
 
-### Install Omamori
+### Install with Torii
+
+[Torii](https://github.com/omamori-labs/Torii) installs Omamori and manages your mods and modded instances for you, on Windows and Linux.
+
+Get it from [Torii's releases](https://github.com/omamori-labs/Torii/releases). It's in alpha too, s
+
+### Install Omamori by hand
 
 1. Download `omamori-<version>.zip` from the [latest release](https://github.com/omamori-labs/Omamori/releases).
 2. Close osu!.
 3. Extract the zip into osu!'s data folder, so that `rulesets` and `omamori` sit next to your `files` folder.
 4. Start osu!. There is now an **Omamori** section in the settings.
 
-The data folder is where osu! keeps your beatmaps and scores, not where the game is installed. In osu!, Settings → General → "Open osu! folder" takes you there. By default it is:
+The data folder is where osu! keeps your beatmaps and scores, not where the game is installed. Settings → General → "Open osu! folder" takes you there.
 
-| System | Data folder |
+| System | Default data folder |
 |---|---|
 | Windows | `%APPDATA%\osu` |
 | macOS | `~/Library/Application Support/osu` |
 | Linux | `~/.local/share/osu` |
 
-To update, extract the new zip over the old one. To uninstall, delete `rulesets/osu.Game.Rulesets.Omamori.dll` and the `omamori` folder.
+- **Update:** extract the new zip over the old one.
+- **Uninstall:** delete `rulesets/osu.Game.Rulesets.Omamori.dll` and the `omamori` folder.
 
 ### Install mods
 
@@ -42,17 +53,18 @@ osu/
 
 Settings → Omamori → "Manage mods" lists every installed mod. From there you can:
 
-- turn a mod on or off (it applies the next time osu! starts)
+- turn a mod off straight away, or back on from the next time osu! starts
 - change a mod's settings and key bindings
 - see why a mod didn't load, and try it again after a crash
 
 ### What mods can and can't do
 
-- Mods get read-only information about the game: the current beatmap, plays, scores, and so on. They can add their own interface, settings, key bindings and notifications.
-- Mods that change gameplay are not allowed.
-- A mod marked **Patches osu!** changes the game's own code. If osu! acts up after an update, try turning those off first.
-- A mod that crashes is turned off for the session and osu! keeps running. If it crashes two sessions in a row, it stays off until it updates or you try it again.
-- Crashes caused by Omamori or a mod are not reported to the osu! team.
+- **Read the game:** the selected beatmap and what's in it, plays, scores, and so on.
+- **Add to it:** their own interface, settings, key bindings, notifications and sounds.
+- **Change a play:** start it partway through, jump around in it, stop it failing, or add their own mods to mod select. A play changed like this is never submitted.
+- **Skin components:** some mods add things you place on your HUD in the skin editor. If the mod is removed or turned off, the rest of your layout still loads and its components come back with it. Saving that skin in the meantime drops them for good.
+- **Patches osu!:** these mods change the game's own code. If osu! acts up after an update, turn them off first.
+- **Crashes:** a mod that crashes is turned off for the session and osu! keeps running. Two sessions in a row and it stays off until it updates or you try it again. Crashes caused by Omamori or a mod aren't reported to the osu! team.
 
 ## For mod authors
 
@@ -65,11 +77,11 @@ cd CoolMod
 dotnet build -p:OmamoriDeploy=true
 ```
 
-While Omamori is in alpha, give the template version explicitly; it is the same as the release version.
+- While Omamori is in alpha, give the template version explicitly. It's the same as the release version.
+- `OmamoriDeploy` copies the mod into your `omamori/mods` folder after each build, so restarting osu! picks it up.
+- A Release build also makes `<id>-<version>.zip`, ready to share.
 
-`OmamoriDeploy` copies the mod into your `omamori/mods` folder after each build, so restarting osu! picks it up. A Release build also makes `<id>-<version>.zip`, ready to share.
-
-The template is a working mod: a setting, a key binding, something on the main menu, and a notification after each play. Shortened, it looks like this:
+The template is a working mod with a setting, a key binding, something on the main menu, and a notification after each play. Shortened:
 
 ```csharp
 public class Mod : IMod
@@ -94,13 +106,20 @@ Everything a mod can reach is on `IModContext`:
 | | |
 |---|---|
 | `Events` | screens, beatmaps, plays, live hits, music, user, skin, library, overlays, multiplayer rooms |
-| `Ui` | add drawables to the main menu, song select, results, the gameplay HUD, or over everything |
+| `Ui` | drawables on the main menu, song select, results, the gameplay HUD, or over everything; toolbar and song select footer buttons; beatmap and score right-click menu items; skin editor components |
 | `Settings` | toggles, numbers, text, choices, colours, files and key bindings, shown in the mod manager and saved for you |
 | `Input` | run code when a key binding is pressed or released |
 | `Notifications` | post notifications, errors and progress |
+| `GamePlays` | cancel, start late or unsubmit a play; pause, seek, restart or exit the running one; stop it failing |
+| `GameMods` | add your own mods to mod select |
+| `Navigation` | select or play a beatmap, open an overlay, follow a link |
+| `Beatmaps` | the selected beatmap's objects, timing points, breaks and difficulty |
+| `Audio` | play sounds from your mod's folder, duck the music, control the track outside gameplay |
 | `Presence` | set the Discord status |
 | `Services` | offer objects to other mods, or use theirs |
 | `Log`, `DataDirectory` | a log prefixed with your mod, and a folder that survives updates |
+
+When a player turns your mod off, Omamori calls `IMod.Unload()`, then removes everything you registered and your patches. Use `Unload()` to stop anything else you started, like threads or timers.
 
 More:
 
@@ -110,7 +129,7 @@ More:
 
 ## Building Omamori
 
-You need the .NET 10 SDK. The build downloads its own copy of osu!lazer into `sandbox/lazer`, so it never touches your real install.
+You need the .NET 10 SDK. The build downloads its own copy of osu!lazer into `sandbox/lazer` and never touches your real install.
 
 ```sh
 ./build.ps1                                   # Windows: set up the sandbox, build, run the tests
