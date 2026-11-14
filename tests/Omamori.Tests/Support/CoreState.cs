@@ -1,3 +1,4 @@
+using Omamori.Core.Audio;
 using Omamori.Core.Beatmaps;
 using Omamori.Core.Config;
 using Omamori.Core.Events;
@@ -37,6 +38,7 @@ namespace Omamori.Tests
             GamePlays.Clear();
             GameNavigation.Clear();
             GameBeatmaps.Clear();
+            ModAudio.Clear();
             ModInput.Clear();
             ModServices.Clear();
             ModPresence.Reset();

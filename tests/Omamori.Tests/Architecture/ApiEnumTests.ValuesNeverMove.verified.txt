@@ -23,6 +23,7 @@
     SongSelect: 2
   },
   Hook: {
+    Audio: 28,
     BeatmapEvents: 3,
     Beatmaps: 27,
     ContextMenus: 25,

@@ -1,6 +1,7 @@
 using System.IO;
 using System.Linq;
 using Omamori.API;
+using Omamori.Core.Audio;
 using Omamori.Core.Beatmaps;
 using Omamori.Core.Config;
 using Omamori.Core.Events;
@@ -48,6 +49,7 @@ namespace Omamori.Core.Loading
         public IGamePlays GamePlays { get; }
         public IGameNavigation Navigation { get; }
         public IGameBeatmaps Beatmaps { get; }
+        public IModAudio Audio { get; }
 
         public ModContext(ModManifest manifest, string modDirectory, string dataDirectory, GameHost? host = null)
         {
@@ -68,6 +70,7 @@ namespace Omamori.Core.Loading
             GamePlays = new GamePlays(manifest, Log);
             Navigation = new GameNavigation(manifest, Log);
             Beatmaps = new GameBeatmaps(manifest, Log);
+            Audio = new ModAudio(manifest, modDirectory, Log);
         }
 
         public bool IsHookAvailable(Hook hook) => FeatureRegistry.IsAvailable(hook);

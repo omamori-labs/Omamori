@@ -45,6 +45,7 @@ namespace Omamori.Core.Features
             new FeatureInfo(Feature.ContextMenus, "context-menus", "Right-click menus", "mod items in beatmap and score right-click menus don't show", Hook.ContextMenus),
             new FeatureInfo(Feature.SkinComponents, "skin-components", "Skin components", "mod components can't be placed in the skin editor, skins that use them load without them", Hook.SkinComponents),
             new FeatureInfo(Feature.Beatmaps, "beatmaps", "Beatmap contents", "mods can't read the selected beatmap's objects or difficulty", Hook.Beatmaps),
+            new FeatureInfo(Feature.Audio, "audio", "Mod audio", "mods can't play sounds or control the music", Hook.Audio),
         ];
 
         private static readonly Dictionary<Feature, FeatureStatus> statuses = ALL.ToDictionary(f => f.Feature, f => new FeatureStatus(f, FeatureState.Pending, null));

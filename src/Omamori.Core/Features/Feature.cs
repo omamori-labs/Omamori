@@ -39,5 +39,6 @@ namespace Omamori.Core.Features
         ContextMenus,
         SkinComponents,
         Beatmaps,
+        Audio,
     }
 }

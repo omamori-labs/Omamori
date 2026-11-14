@@ -88,5 +88,8 @@ namespace Omamori.API
 
         /// <summary><see cref="IModContext.Beatmaps"/></summary>
         Beatmaps,
+
+        /// <summary><see cref="IModContext.Audio"/></summary>
+        Audio,
     }
 }

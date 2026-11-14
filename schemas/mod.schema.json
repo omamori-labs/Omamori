@@ -95,7 +95,8 @@
           "Toolbar",
           "ContextMenus",
           "SkinComponents",
-          "Beatmaps"
+          "Beatmaps",
+          "Audio"
         ]
       },
       "additionalProperties": {
