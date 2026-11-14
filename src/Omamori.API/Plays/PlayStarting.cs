@@ -1,3 +1,5 @@
+using System;
+
 namespace Omamori.API
 {
     /// <summary>
@@ -10,6 +12,9 @@ namespace Omamori.API
         /// <summary>null when nothing asked for this play to be left unsubmitted</summary>
         public string? SuppressionReason { get; private set; }
 
+        /// <summary>null to start from the beginning</summary>
+        public TimeSpan? StartTime { get; private set; }
+
         /// <summary>the play never starts and the player stays on song select</summary>
         public void Cancel() => IsCancelled = true;
 
@@ -19,5 +24,19 @@ namespace Omamori.API
         ///     if omamori can't check a play for this, it isn't submitted while any mod is listening for plays starting
         /// </summary>
         public void SuppressSubmission(string reason) => SuppressionReason ??= reason;
+
+        /// <summary>
+        ///     starts the play at <paramref name="time"/> instead of the beginning, retrying the play starts there too
+        ///     objects before it are left out, and the play waits on the resume overlay with osu!'s cursor on the first object left
+        ///     a late start is never submitted, the first time given is kept, and a time past the last object starts from the beginning
+        /// </summary>
+        public void StartAt(TimeSpan time)
+        {
+            if (time <= TimeSpan.Zero || StartTime != null)
+                return;
+
+            StartTime = time;
+            SuppressSubmission("started partway through the map");
+        }
     }
 }

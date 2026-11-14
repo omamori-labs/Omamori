@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using Omamori.API;
 using Omamori.Core.Features;
 using Omamori.Core.Safety;
+using osu.Game.Beatmaps;
 
 namespace Omamori.Core.Plays
 {
@@ -16,6 +17,9 @@ namespace Omamori.Core.Plays
         // keyed by the player, so a retry that makes a new one is still covered by the decision made on song select
 #pragma warning disable IDE0028 // a weak table has no collection expression form
         private static readonly ConditionalWeakTable<object, PlayStarting> started = new ConditionalWeakTable<object, PlayStarting>();
+
+        // only players whose beatmap was actually cut down, a start past the last object plays from the beginning
+        private static readonly ConditionalWeakTable<object, StrongBox<double>> late_starts = new ConditionalWeakTable<object, StrongBox<double>>();
 #pragma warning restore IDE0028
 
         private readonly ModManifest manifest;
@@ -59,6 +63,18 @@ namespace Omamori.Core.Plays
         public static void End() => Current = null;
 
         public static void Tag(object player, PlayStarting starting) => started.AddOrUpdate(player, starting);
+
+        /// <summary>
+        ///     cuts a player's fresh beatmap down when a mod asked for the play to start later, every retry makes a new one
+        /// </summary>
+        public static void PrepareStart(object player, IBeatmap beatmap)
+        {
+            if (started.TryGetValue(player, out var starting) && starting.StartTime is { } time && LateStart.Trim(beatmap, time.TotalMilliseconds))
+                late_starts.AddOrUpdate(player, new StrongBox<double>(time.TotalMilliseconds));
+        }
+
+        /// <summary>where the player's gameplay starts in milliseconds, null for the beginning</summary>
+        public static double? StartTimeFor(object player) => late_starts.TryGetValue(player, out var start) ? start.Value : null;
 
         /// <summary>
         ///     why the player's play mustn't be submitted, null to submit it

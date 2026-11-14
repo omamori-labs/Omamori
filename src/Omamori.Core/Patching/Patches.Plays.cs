@@ -2,6 +2,7 @@ using System;
 using HarmonyLib;
 using Omamori.Core.Features;
 using Omamori.Core.Plays;
+using osu.Game.Beatmaps;
 using osu.Game.Online.API;
 using osu.Game.Online.Rooms;
 using osu.Game.Screens.Play;
@@ -47,6 +48,52 @@ namespace Omamori.Core.Patching
                         GamePlays.Tag(player, starting);
                         return player;
                     };
+                });
+            }
+        }
+
+        /// <summary>
+        ///     every player makes its own playable beatmap, so a late start cuts it down here before anything is drawn
+        /// </summary>
+        [Feature(Feature.PlayStarting)]
+        [HarmonyPatch(typeof(Player), nameof(Player.loadPlayableBeatmap))]
+        internal static class LateStartBeatmap
+        {
+            [HarmonyPostfix]
+            private static void postfix(Player __instance, IBeatmap? __result)
+            {
+                FeatureRegistry.Run(Feature.PlayStarting, () =>
+                {
+                    if (__result != null)
+                        GamePlays.PrepareStart(__instance, __result);
+                });
+            }
+        }
+
+        /// <summary>
+        ///     lazer starts every play from the beginning, a late one jumps ahead and waits for the player to resume
+        /// </summary>
+        [Feature(Feature.PlayStarting)]
+        [HarmonyPatch(typeof(SubmittingPlayer), nameof(SubmittingPlayer.StartGameplay))]
+        internal static class LateStartGameplay
+        {
+            [HarmonyPrefix]
+            private static void prefix(SubmittingPlayer __instance)
+            {
+                FeatureRegistry.Run(Feature.PlayStarting, () =>
+                {
+                    if (GamePlays.StartTimeFor(__instance) is { } start)
+                        __instance.SetGameplayStartTime(start);
+                });
+            }
+
+            [HarmonyPostfix]
+            private static void postfix(SubmittingPlayer __instance)
+            {
+                FeatureRegistry.Run(Feature.PlayStarting, () =>
+                {
+                    if (GamePlays.StartTimeFor(__instance) != null)
+                        LateStart.HoldForResume(__instance);
                 });
             }
         }
