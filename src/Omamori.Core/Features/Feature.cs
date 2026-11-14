@@ -37,5 +37,6 @@ namespace Omamori.Core.Features
         Navigation,
         Toolbar,
         ContextMenus,
+        SkinComponents,
     }
 }

@@ -13,6 +13,8 @@
 
   <ItemGroup>
     <PackageReference Include="Lib.Harmony" />
+    <!-- lazer's own copy, it reads skin layouts with it -->
+    <Reference Include="Newtonsoft.Json" HintPath="$(LazerPath)\Newtonsoft.Json.dll" Private="false" />
     <PackageReference Include="Semver" />
     <PackageReference Include="QuikGraph" />
     <PackageReference Include="JsonSchema.Net" />

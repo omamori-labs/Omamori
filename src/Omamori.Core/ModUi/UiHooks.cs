@@ -7,6 +7,7 @@ using Omamori.Core.Safety;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
+using osu.Game.Skinning;
 using osu.Game.Screens.Footer;
 
 namespace Omamori.Core.ModUi
@@ -45,6 +46,12 @@ namespace Omamori.Core.ModUi
         public void AddBeatmapSetMenuItem(string text, Action<BeatmapSetDetails> action) => addMenuItem(MenuTarget.BeatmapSet, text, d => action((BeatmapSetDetails)d));
 
         public void AddScoreMenuItem(string text, Action<ScoreDetails> action) => addMenuItem(MenuTarget.Score, text, d => action((ScoreDetails)d));
+
+        public void AddSkinComponent<T>() where T : Drawable, ISerialisableDrawable, new()
+        {
+            if (hooks.CanRegister(Hook.SkinComponents, "skin component"))
+                SkinComponents.Add(manifest.Id, typeof(T));
+        }
 
         public void AddToResults(Func<Drawable> factory) => register(Hook.Results, factory);
 
@@ -156,6 +163,7 @@ namespace Omamori.Core.ModUi
         {
             registrations.Clear();
             ContextMenus.Clear();
+            SkinComponents.Clear();
 
             lock (added)
                 added.Clear();
@@ -171,6 +179,9 @@ namespace Omamori.Core.ModUi
                 ours = [.. added.Where(a => a.ModId == modId)];
                 added.RemoveAll(a => a.ModId == modId);
             }
+
+            // skin components aren't in the list, the skin is built again without them instead
+            SkinComponents.ModTurnedOff(modId);
 
             int removed = 0;
 

@@ -13,12 +13,14 @@ using osu.Framework.Graphics.Cursor;
 using osu.Framework.Graphics.UserInterface;
 using osu.Game;
 using osu.Game.Online.Leaderboards;
+using osu.Game.Rulesets;
 using osu.Game.Overlays.Toolbar;
 using osu.Game.Screens.Footer;
 using osu.Game.Screens.Menu;
 using osu.Game.Screens.Play;
 using osu.Game.Screens.Ranking;
 using osu.Game.Screens.Select;
+using osu.Game.Skinning;
 
 namespace Omamori.Core.Patching
 {
@@ -118,6 +120,55 @@ namespace Omamori.Core.Patching
             {
                 __result = FeatureRegistry.Run(Feature.ContextMenus, __result, items => ContextMenus.Extend(__instance, items));
             }
+        }
+
+        /// <summary>
+        ///     the skin editor's toolbox lists what this returns, a null ruleset is the global list every ruleset's HUD shares
+        /// </summary>
+        [Feature(Feature.SkinComponents)]
+        [HarmonyPatch(typeof(SerialisedDrawableInfo), nameof(SerialisedDrawableInfo.GetAllAvailableDrawables))]
+        internal static class SkinComponentToolbox
+        {
+            [HarmonyPostfix]
+            private static void postfix(RulesetInfo? ruleset, ref Type[] __result)
+            {
+                if (ruleset == null)
+                    __result = FeatureRegistry.Run(Feature.SkinComponents, __result, SkinComponents.WithModComponents);
+            }
+        }
+
+        /// <summary>
+        ///     one unresolvable type fails a whole layout, so a mod that isn't loaded only costs its own elements
+        /// </summary>
+        [Feature(Feature.SkinComponents)]
+        [HarmonyPatch(typeof(Skin), nameof(Skin.parseLayoutInfo))]
+        internal static class SkinLayoutFilter
+        {
+            [HarmonyPrefix]
+            // skins can be built off the update thread, so nothing realm backed is read here
+            private static void prefix(ref string jsonContent)
+            {
+                jsonContent = FeatureRegistry.Run(Feature.SkinComponents, jsonContent, json =>
+                {
+                    string filtered = SkinComponents.Filter(json, out int leftOut);
+
+                    if (leftOut > 0)
+                        LoaderLog.Info($"Left {leftOut} component(s) out of a skin layout, their mod isn't loaded.");
+
+                    return filtered;
+                });
+            }
+        }
+
+        /// <summary>
+        ///     the current skin was parsed before mods loaded, so it's built again once they have
+        /// </summary>
+        [Feature(Feature.SkinComponents)]
+        [HarmonyPatch(typeof(OsuGame), nameof(OsuGame.LoadComplete))]
+        internal static class SkinComponentsReady
+        {
+            [HarmonyPostfix]
+            private static void postfix(OsuGame __instance) => FeatureRegistry.Run(Feature.SkinComponents, () => SkinComponents.Attach(__instance.SkinManager));
         }
 
         [Feature(Feature.ResultsUi)]

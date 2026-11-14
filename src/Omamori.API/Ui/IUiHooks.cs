@@ -2,6 +2,7 @@ using System;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Sprites;
 using osu.Game.Screens.Footer;
+using osu.Game.Skinning;
 
 namespace Omamori.API
 {
@@ -53,6 +54,14 @@ namespace Omamori.API
         ///     on top of the results screen after a play or when viewing a score
         /// </summary>
         void AddToResults(Func<Drawable> factory);
+
+        /// <summary>
+        ///     a component players place on the HUD themselves from the skin editor, saved in their skin like osu!'s own
+        ///     it needs a public parameterless constructor, and its settings go on [SettingSource] bindables like osu!'s components
+        ///     when a skin loads without this mod, its components are left out of that skin's layout and come back with the mod
+        ///     saving in the skin editor meanwhile drops them for good
+        /// </summary>
+        void AddSkinComponent<T>() where T : Drawable, ISerialisableDrawable, new();
 
         /// <summary>
         ///     in the gameplay HUD, fades out with it when the player hides the HUD, gets no mouse or keyboard input

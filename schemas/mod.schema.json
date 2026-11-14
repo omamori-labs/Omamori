@@ -93,7 +93,8 @@
           "PlayControl",
           "Navigation",
           "Toolbar",
-          "ContextMenus"
+          "ContextMenus",
+          "SkinComponents"
         ]
       },
       "additionalProperties": {

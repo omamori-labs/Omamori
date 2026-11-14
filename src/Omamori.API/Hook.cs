@@ -82,5 +82,8 @@ namespace Omamori.API
 
         /// <summary><see cref="IUiHooks.AddBeatmapMenuItem"/>, <see cref="IUiHooks.AddBeatmapSetMenuItem"/> and <see cref="IUiHooks.AddScoreMenuItem"/></summary>
         ContextMenus,
+
+        /// <summary><see cref="IUiHooks.AddSkinComponent{T}"/></summary>
+        SkinComponents,
     }
 }

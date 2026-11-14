@@ -44,6 +44,7 @@
     PlayStarting: 20,
     Results: 13,
     ScreenEvents: 2,
+    SkinComponents: 26,
     SkinEvents: 8,
     SongSelect: 12,
     SongSelectFooter: 21,

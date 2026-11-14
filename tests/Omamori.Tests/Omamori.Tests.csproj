@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <Reference Include="DiscordRPC" HintPath="$(LazerPath)\DiscordRPC.dll" Private="false" />
+    <Reference Include="Newtonsoft.Json" HintPath="$(LazerPath)\Newtonsoft.Json.dll" Private="false" />
   </ItemGroup>
 
   <ItemGroup>
