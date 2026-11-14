@@ -94,7 +94,8 @@
           "Navigation",
           "Toolbar",
           "ContextMenus",
-          "SkinComponents"
+          "SkinComponents",
+          "Beatmaps"
         ]
       },
       "additionalProperties": {

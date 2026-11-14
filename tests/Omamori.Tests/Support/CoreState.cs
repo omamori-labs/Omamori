@@ -1,3 +1,4 @@
+using Omamori.Core.Beatmaps;
 using Omamori.Core.Config;
 using Omamori.Core.Events;
 using Omamori.Core.Features;
@@ -35,6 +36,7 @@ namespace Omamori.Tests
             GameMods.Clear();
             GamePlays.Clear();
             GameNavigation.Clear();
+            GameBeatmaps.Clear();
             ModInput.Clear();
             ModServices.Clear();
             ModPresence.Reset();

@@ -4,7 +4,10 @@ using System.Linq;
 using Omamori.API;
 using osu.Framework.Screens;
 using osu.Game.Beatmaps;
+using osu.Game.Rulesets;
 using osu.Game.Rulesets.Mods;
+using osu.Game.Rulesets.Objects;
+using osu.Game.Rulesets.Objects.Types;
 using osu.Game.Rulesets.Replays.Types;
 using osu.Game.Rulesets.Scoring;
 using osu.Game.Scoring;
@@ -66,6 +69,26 @@ namespace Omamori.Core.Details
             Creator = set.Metadata.Author is { } author ? author.Username : string.Empty,
             OnlineId = set.OnlineID > 0 ? set.OnlineID : null,
             Difficulties = set.Beatmaps.Count,
+        };
+
+        public static BeatmapContent Content(IBeatmap playable, BeatmapInfo beatmap, RulesetInfo ruleset, IReadOnlyList<Mod> mods) => new BeatmapContent
+        {
+            Beatmap = Beatmap(beatmap),
+            Ruleset = ruleset.ShortName,
+            Mods = Acronyms(mods),
+            HitObjects = [.. playable.HitObjects.Select(HitObjectOf)],
+            TimingPoints = [.. playable.ControlPointInfo.TimingPoints.Select(t => new TimingPointDetails { Time = t.Time, BeatLength = t.BeatLength, Bpm = t.BPM, BeatsPerBar = t.TimeSignature.Numerator })],
+            Breaks = [.. playable.Breaks.Select(b => new BreakDetails { StartTime = b.StartTime, EndTime = b.EndTime })],
+        };
+
+        public static HitObjectDetails HitObjectOf(HitObject hit) => new HitObjectDetails
+        {
+            StartTime = hit.StartTime,
+            EndTime = hit.GetEndTime(),
+            Type = hit.GetType().Name,
+            X = hit is IHasXPosition x ? x.X : null,
+            Y = hit is IHasYPosition y ? y.Y : null,
+            IsNewCombo = hit is IHasCombo { NewCombo: true },
         };
 
         public static ScoreDetails Score(ScoreInfo score) => new ScoreDetails

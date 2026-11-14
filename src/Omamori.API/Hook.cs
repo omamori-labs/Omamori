@@ -85,5 +85,8 @@ namespace Omamori.API
 
         /// <summary><see cref="IUiHooks.AddSkinComponent{T}"/></summary>
         SkinComponents,
+
+        /// <summary><see cref="IModContext.Beatmaps"/></summary>
+        Beatmaps,
     }
 }
