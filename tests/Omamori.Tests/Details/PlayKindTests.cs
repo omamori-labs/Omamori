@@ -1,6 +1,6 @@
 using NUnit.Framework;
 using Omamori.API;
-using Omamori.Core.Events;
+using Omamori.Core.Details;
 using osu.Game.Screens.OnlinePlay.DailyChallenge;
 using osu.Game.Screens.OnlinePlay.Multiplayer;
 using osu.Game.Screens.OnlinePlay.Multiplayer.Spectate;
@@ -21,6 +21,6 @@ namespace Omamori.Tests
         [TestCase(typeof(SoloSpectatorPlayer), PlayKind.Spectator)]
         [TestCase(typeof(MultiSpectatorPlayer), PlayKind.Spectator)]
         [TestCase(typeof(string), PlayKind.Other)]
-        public void PlayerTypeMapsToItsKind(System.Type player, PlayKind expected) => Assert.That(EventDetails.KindOf(player), Is.EqualTo(expected));
+        public void PlayerTypeMapsToItsKind(System.Type player, PlayKind expected) => Assert.That(GameDetails.KindOf(player), Is.EqualTo(expected));
     }
 }

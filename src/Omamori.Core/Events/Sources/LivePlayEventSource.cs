@@ -1,3 +1,4 @@
+using Omamori.Core.Details;
 using Omamori.Core.Features;
 using osu.Game;
 using osu.Game.Rulesets.Scoring;
@@ -37,7 +38,7 @@ namespace Omamori.Core.Events.Sources
                 foreach (var hit in cursor.Unseen(score.HitEvents))
                 {
                     if (hits)
-                        GameEvents.Raise(GameEvent.Hit, EventDetails.Hit(hit));
+                        GameEvents.Raise(GameEvent.Hit, GameDetails.Hit(hit));
                 }
 
                 raiseState(score, health);
@@ -55,7 +56,7 @@ namespace Omamori.Core.Events.Sources
         private static void raiseState(ScoreProcessor score, HealthProcessor health)
         {
             if (GameEvents.HasHandlers(GameEvent.PlayStateChanged))
-                GameEvents.Raise(GameEvent.PlayStateChanged, EventDetails.PlayState(score, health));
+                GameEvents.Raise(GameEvent.PlayStateChanged, GameDetails.PlayState(score, health));
         }
     }
 }

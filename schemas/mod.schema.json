@@ -92,7 +92,8 @@
           "SongSelectFooter",
           "PlayControl",
           "Navigation",
-          "Toolbar"
+          "Toolbar",
+          "ContextMenus"
         ]
       },
       "additionalProperties": {

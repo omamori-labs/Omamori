@@ -36,5 +36,6 @@ namespace Omamori.Core.Features
         PlayControl,
         Navigation,
         Toolbar,
+        ContextMenus,
     }
 }

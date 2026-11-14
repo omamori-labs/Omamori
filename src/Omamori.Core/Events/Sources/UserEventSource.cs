@@ -1,4 +1,5 @@
 using Omamori.API;
+using Omamori.Core.Details;
 using Omamori.Core.Features;
 using osu.Framework.Allocation;
 using osu.Game;
@@ -40,8 +41,8 @@ namespace Omamori.Core.Events.Sources
                 GameEvents.Raise(GameEvent.StatisticsUpdated, new StatisticsUpdate
                 {
                     Ruleset = update.Ruleset.ShortName,
-                    Before = update.OldStatistics is { } before ? EventDetails.Statistics(before) : null,
-                    After = EventDetails.Statistics(update.NewStatistics),
+                    Before = update.OldStatistics is { } before ? GameDetails.Statistics(before) : null,
+                    After = GameDetails.Statistics(update.NewStatistics),
                 })));
         }
     }

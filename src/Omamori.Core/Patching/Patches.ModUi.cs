@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Reflection;
 using HarmonyLib;
 using Omamori.API;
 using Omamori.Core.Features;
@@ -7,7 +9,10 @@ using Omamori.Core.ModUi;
 using Omamori.Core.Notifications;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
+using osu.Framework.Graphics.Cursor;
+using osu.Framework.Graphics.UserInterface;
 using osu.Game;
+using osu.Game.Online.Leaderboards;
 using osu.Game.Overlays.Toolbar;
 using osu.Game.Screens.Footer;
 using osu.Game.Screens.Menu;
@@ -85,6 +90,33 @@ namespace Omamori.Core.Patching
                     else
                         LoaderLog.Info("The toolbar's layout changed, mod toolbar buttons can't be placed.");
                 });
+            }
+        }
+
+        /// <summary>
+        ///     each panel builds its menu when it's right-clicked, song select's scores implement the getter explicitly so it has no name to use
+        ///     the interface map finds every panel's own getter instead, a panel that stops having a menu fails this feature when it's applied
+        /// </summary>
+        [Feature(Feature.ContextMenus)]
+        [HarmonyPatch]
+        internal static class ContextMenuInjection
+        {
+            [HarmonyTargetMethods]
+            internal static IEnumerable<MethodBase> Targets()
+            {
+                var getter = typeof(IHasContextMenu).GetProperty(nameof(IHasContextMenu.ContextMenuItems))!.GetMethod!;
+
+                foreach (var panel in new[] { typeof(PanelBeatmap), typeof(PanelBeatmapStandalone), typeof(PanelBeatmapSet), typeof(BeatmapLeaderboardScore), typeof(LeaderboardScore) })
+                {
+                    var map = panel.GetInterfaceMap(typeof(IHasContextMenu));
+                    yield return map.TargetMethods[Array.IndexOf(map.InterfaceMethods, getter)];
+                }
+            }
+
+            [HarmonyPostfix]
+            private static void postfix(object __instance, ref MenuItem[]? __result)
+            {
+                __result = FeatureRegistry.Run(Feature.ContextMenus, __result, items => ContextMenus.Extend(__instance, items));
             }
         }
 

@@ -38,6 +38,18 @@ namespace Omamori.API
         void AddToolbarButton(IconUsage icon, string tooltip, Action action, string? subTooltip = null);
 
         /// <summary>
+        ///     an item in the right-click menu of a difficulty in song select, after osu!'s own
+        ///     the details are taken when the menu opens, the action runs on the update thread when the item is clicked
+        /// </summary>
+        void AddBeatmapMenuItem(string text, Action<BeatmapDetails> action);
+
+        /// <summary>an item in the right-click menu of a beatmap set in song select, see <see cref="AddBeatmapMenuItem"/></summary>
+        void AddBeatmapSetMenuItem(string text, Action<BeatmapSetDetails> action);
+
+        /// <summary>an item in the right-click menu of a score, on song select's leaderboard and the beatmap info overlay's</summary>
+        void AddScoreMenuItem(string text, Action<ScoreDetails> action);
+
+        /// <summary>
         ///     on top of the results screen after a play or when viewing a score
         /// </summary>
         void AddToResults(Func<Drawable> factory);

@@ -40,9 +40,21 @@ namespace Omamori.Core.ModUi
             register(Hook.Toolbar, () => new ModToolbarButton(icon, tooltip, subTooltip, () => ModFaults.RunForMod(modId, "toolbar button", action)));
         }
 
+        public void AddBeatmapMenuItem(string text, Action<BeatmapDetails> action) => addMenuItem(MenuTarget.Beatmap, text, d => action((BeatmapDetails)d));
+
+        public void AddBeatmapSetMenuItem(string text, Action<BeatmapSetDetails> action) => addMenuItem(MenuTarget.BeatmapSet, text, d => action((BeatmapSetDetails)d));
+
+        public void AddScoreMenuItem(string text, Action<ScoreDetails> action) => addMenuItem(MenuTarget.Score, text, d => action((ScoreDetails)d));
+
         public void AddToResults(Func<Drawable> factory) => register(Hook.Results, factory);
 
         public void AddToGameplayHud(Func<Drawable> factory) => register(Hook.GameplayHud, factory);
+
+        private void addMenuItem(MenuTarget target, string text, Action<object> action)
+        {
+            if (hooks.CanRegister(Hook.ContextMenus, "menu item"))
+                ContextMenus.Add(manifest.Id, target, text, action);
+        }
 
         private void register(Hook hook, Func<Drawable> factory)
         {
@@ -143,6 +155,7 @@ namespace Omamori.Core.ModUi
         internal static void Clear()
         {
             registrations.Clear();
+            ContextMenus.Clear();
 
             lock (added)
                 added.Clear();

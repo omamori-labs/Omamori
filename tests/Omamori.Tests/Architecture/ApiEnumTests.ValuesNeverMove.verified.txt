@@ -24,6 +24,7 @@
   },
   Hook: {
     BeatmapEvents: 3,
+    ContextMenus: 25,
     DiscordPresence: 18,
     GameMods: 19,
     GameplayHud: 14,

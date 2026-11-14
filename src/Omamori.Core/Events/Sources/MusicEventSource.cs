@@ -1,3 +1,4 @@
+using Omamori.Core.Details;
 using Omamori.Core.Features;
 using osu.Game;
 using osu.Game.Beatmaps;
@@ -11,7 +12,7 @@ namespace Omamori.Core.Events.Sources
             game.MusicController.TrackChanged += (beatmap, _) => FeatureRegistry.Run(Feature.MusicEvents, () =>
             {
                 if (beatmap is not DummyWorkingBeatmap)
-                    GameEvents.Raise(GameEvent.TrackChanged, EventDetails.Beatmap(beatmap.BeatmapInfo));
+                    GameEvents.Raise(GameEvent.TrackChanged, GameDetails.Beatmap(beatmap.BeatmapInfo));
             });
 
             game.Add(new MusicPlayingWatcher(game.MusicController));

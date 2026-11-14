@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using NUnit.Framework;
 using Omamori.API;
-using Omamori.Core.Events;
+using Omamori.Core.Details;
 using osu.Game.Beatmaps;
 using osu.Game.Scoring;
 
@@ -12,10 +12,10 @@ namespace Omamori.Tests
     ///     the read-only copies mods get from lazer's objects
     /// </summary>
     [TestFixture]
-    public class EventDetailsTests
+    public class GameDetailsTests
     {
         [Test]
-        public void NoScreenIsOther() => Assert.That(EventDetails.Screen(null), Is.EqualTo(GameScreen.Other));
+        public void NoScreenIsOther() => Assert.That(GameDetails.Screen(null), Is.EqualTo(GameScreen.Other));
 
         [Test]
         public void BeatmapIsCopied()
@@ -30,7 +30,7 @@ namespace Omamori.Tests
                 Metadata = { Title = "song", Artist = "artist" },
             };
 
-            var details = EventDetails.Beatmap(beatmap);
+            var details = GameDetails.Beatmap(beatmap);
 
             Assert.That(details.Title, Is.EqualTo("song"));
             Assert.That(details.Difficulty, Is.EqualTo("Insane"));
@@ -44,13 +44,13 @@ namespace Omamori.Tests
         {
             var beatmap = new BeatmapInfo { OnlineID = 2, BeatmapSet = new BeatmapSetInfo { OnlineID = 1 } };
 
-            Assert.That(EventDetails.Beatmap(beatmap).SetOnlineId, Is.EqualTo(1));
+            Assert.That(GameDetails.Beatmap(beatmap).SetOnlineId, Is.EqualTo(1));
         }
 
         [Test]
         public void ScoreIsCopied()
         {
-            var details = EventDetails.Score(new ScoreInfo { TotalScore = 1_000_000, Accuracy = 0.98, Rank = ScoreRank.S, MaxCombo = 500, Passed = true });
+            var details = GameDetails.Score(new ScoreInfo { TotalScore = 1_000_000, Accuracy = 0.98, Rank = ScoreRank.S, MaxCombo = 500, Passed = true });
 
             Assert.That(details.TotalScore, Is.EqualTo(1_000_000));
             Assert.That(details.Rank, Is.EqualTo("S"));
@@ -60,7 +60,7 @@ namespace Omamori.Tests
         [Test]
         public void StatisticsAccuracyIsZeroToOne()
         {
-            var details = EventDetails.Statistics(new osu.Game.Users.UserStatistics { Accuracy = 98.5, PP = 1234.5m, GlobalRank = 1000 });
+            var details = GameDetails.Statistics(new osu.Game.Users.UserStatistics { Accuracy = 98.5, PP = 1234.5m, GlobalRank = 1000 });
 
             Assert.That(details.Accuracy, Is.EqualTo(0.985).Within(1e-9));
             Assert.That(details.Pp, Is.EqualTo(1234.5).Within(1e-9));
@@ -73,7 +73,7 @@ namespace Omamori.Tests
             var score = new ScoreInfo();
             score.HitEvents.Add(new osu.Game.Rulesets.Scoring.HitEvent(-12, null, osu.Game.Rulesets.Scoring.HitResult.Great, new osu.Game.Rulesets.Objects.HitObject { StartTime = 1500 }, null, new osuTK.Vector2(3, 4)));
 
-            var hit = EventDetails.Hits(score).Single();
+            var hit = GameDetails.Hits(score).Single();
 
             Assert.That(hit.Time, Is.EqualTo(1500));
             Assert.That(hit.Offset, Is.EqualTo(-12));
@@ -82,6 +82,6 @@ namespace Omamori.Tests
         }
 
         [Test]
-        public void ScoreWithoutBeatmapHasNone() => Assert.That(EventDetails.Score(new ScoreInfo { BeatmapInfo = null }).Beatmap, Is.Null);
+        public void ScoreWithoutBeatmapHasNone() => Assert.That(GameDetails.Score(new ScoreInfo { BeatmapInfo = null }).Beatmap, Is.Null);
     }
 }

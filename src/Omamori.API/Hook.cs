@@ -79,5 +79,8 @@ namespace Omamori.API
 
         /// <summary><see cref="IUiHooks.AddToolbarButton"/></summary>
         Toolbar,
+
+        /// <summary><see cref="IUiHooks.AddBeatmapMenuItem"/>, <see cref="IUiHooks.AddBeatmapSetMenuItem"/> and <see cref="IUiHooks.AddScoreMenuItem"/></summary>
+        ContextMenus,
     }
 }

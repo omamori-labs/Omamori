@@ -16,13 +16,13 @@ using osu.Game.Screens.OnlinePlay.Playlists;
 using osu.Game.Screens.Play;
 using osu.Game.Users;
 
-namespace Omamori.Core.Events
+namespace Omamori.Core.Details
 {
     /// <summary>
     ///     turns lazer's objects into the read-only copies mods get
     ///     null checks on realm objects use patterns, == needs realm's operators
     /// </summary>
-    internal static class EventDetails
+    internal static class GameDetails
     {
         public static GameScreen Screen(IScreen? screen) => screen switch
         {

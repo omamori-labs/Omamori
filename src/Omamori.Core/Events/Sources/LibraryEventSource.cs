@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Omamori.Core.Details;
 using Omamori.Core.Features;
 using osu.Game;
 using osu.Game.Beatmaps;
@@ -33,7 +34,7 @@ namespace Omamori.Core.Events.Sources
                 return;
 
             foreach (int i in changes.InsertedIndices)
-                GameEvents.Raise(GameEvent.ScoreSaved, EventDetails.Score(sender[i]));
+                GameEvents.Raise(GameEvent.ScoreSaved, GameDetails.Score(sender[i]));
         });
 
         private static void setsChanged(IRealmCollection<BeatmapSetInfo> sender, ChangeSet? changes) => FeatureRegistry.Run(Feature.LibraryEvents, () =>
@@ -41,20 +42,20 @@ namespace Omamori.Core.Events.Sources
             // the first call, or realm resubscribing, is the whole library
             if (changes == null)
             {
-                sets.Reset(sender.Select(EventDetails.BeatmapSet));
+                sets.Reset(sender.Select(GameDetails.BeatmapSet));
                 return;
             }
 
             foreach (var removed in sets.Remove(changes.DeletedIndices))
                 GameEvents.Raise(GameEvent.BeatmapSetRemoved, removed);
 
-            var inserted = changes.InsertedIndices.Select(i => (i, EventDetails.BeatmapSet(sender[i]))).ToList();
+            var inserted = changes.InsertedIndices.Select(i => (i, GameDetails.BeatmapSet(sender[i]))).ToList();
             sets.Insert(inserted);
 
             foreach (var (_, added) in inserted.OrderBy(i => i.Item1))
                 GameEvents.Raise(GameEvent.BeatmapSetAdded, added);
 
-            sets.Replace(changes.NewModifiedIndices.Select(i => (i, EventDetails.BeatmapSet(sender[i]))));
+            sets.Replace(changes.NewModifiedIndices.Select(i => (i, GameDetails.BeatmapSet(sender[i]))));
         });
     }
 }

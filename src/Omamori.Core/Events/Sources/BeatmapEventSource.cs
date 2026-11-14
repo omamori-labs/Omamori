@@ -1,4 +1,5 @@
 using Omamori.API;
+using Omamori.Core.Details;
 using Omamori.Core.Features;
 using osu.Game;
 using osu.Game.Beatmaps;
@@ -18,7 +19,7 @@ namespace Omamori.Core.Events.Sources
             {
                 // song select swaps in a new working beatmap for the same map, RaiseChanged drops the repeat
                 if (e.NewValue is not DummyWorkingBeatmap)
-                    GameEvents.RaiseChanged(GameEvent.BeatmapChanged, EventDetails.Beatmap(e.NewValue.BeatmapInfo));
+                    GameEvents.RaiseChanged(GameEvent.BeatmapChanged, GameDetails.Beatmap(e.NewValue.BeatmapInfo));
             }), true);
 
             game.Ruleset.BindValueChanged(e => FeatureRegistry.Run(Feature.BeatmapEvents, () =>
@@ -29,7 +30,7 @@ namespace Omamori.Core.Events.Sources
 
             game.SelectedMods.BindValueChanged(e => FeatureRegistry.Run(Feature.BeatmapEvents, () =>
             {
-                var mods = EventDetails.Acronyms(e.NewValue);
+                var mods = GameDetails.Acronyms(e.NewValue);
 
                 if (selected_mods.Update(mods))
                     GameEvents.Raise(GameEvent.ModsChanged, mods);

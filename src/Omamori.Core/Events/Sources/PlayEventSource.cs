@@ -1,4 +1,5 @@
 using Omamori.API;
+using Omamori.Core.Details;
 using Omamori.Core.Features;
 using osu.Framework.Bindables;
 using osu.Game;
@@ -36,13 +37,13 @@ namespace Omamori.Core.Events.Sources
 
         private static void start(Player player)
         {
-            var kind = EventDetails.KindOf(player.GetType());
+            var kind = GameDetails.KindOf(player.GetType());
 
             var play = new PlayDetails
             {
-                Beatmap = EventDetails.Beatmap(player.Beatmap.Value.BeatmapInfo),
+                Beatmap = GameDetails.Beatmap(player.Beatmap.Value.BeatmapInfo),
                 Ruleset = player.Ruleset.Value is { } ruleset ? ruleset.ShortName : string.Empty,
-                Mods = EventDetails.Acronyms(player.Mods.Value),
+                Mods = GameDetails.Acronyms(player.Mods.Value),
                 IsReplay = kind is PlayKind.Replay or PlayKind.Spectator,
                 Kind = kind,
             };
@@ -89,9 +90,9 @@ namespace Omamori.Core.Events.Sources
             {
                 Play = play,
                 Completed = score is not null,
-                Score = score is null ? null : EventDetails.Score(score),
-                Hits = detailed ? EventDetails.Hits(score!) : [],
-                Replay = detailed ? EventDetails.Replay(player) : [],
+                Score = score is null ? null : GameDetails.Score(score),
+                Hits = detailed ? GameDetails.Hits(score!) : [],
+                Replay = detailed ? GameDetails.Replay(player) : [],
             });
         }
     }
