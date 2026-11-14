@@ -5,6 +5,7 @@ using Omamori.Core.Input;
 using Omamori.Core.Loading;
 using Omamori.Core.ModUi;
 using Omamori.Core.Mods;
+using Omamori.Core.Navigation;
 using Omamori.Core.Notifications;
 using Omamori.Core.Patching;
 using Omamori.Core.Plays;
@@ -33,6 +34,7 @@ namespace Omamori.Tests
             UiHooks.Clear();
             GameMods.Clear();
             GamePlays.Clear();
+            GameNavigation.Clear();
             ModInput.Clear();
             ModServices.Clear();
             ModPresence.Reset();

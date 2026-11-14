@@ -40,6 +40,7 @@ namespace Omamori.Core.Features
             new FeatureInfo(Feature.PlayStarting, "play-starting", "Play starting", "mods can't cancel or unsubmit a play before it starts", Hook.PlayStarting),
             new FeatureInfo(Feature.SongSelectFooter, "song-select-footer", "Song select footer", "mod buttons in the song select footer don't show", Hook.SongSelectFooter),
             new FeatureInfo(Feature.PlayControl, "play-control", "Play control", "mods can't pause, seek or stop a play from failing", Hook.PlayControl),
+            new FeatureInfo(Feature.Navigation, "navigation", "Navigation", "mods can't select maps, start plays or open overlays", Hook.Navigation),
         ];
 
         private static readonly Dictionary<Feature, FeatureStatus> statuses = ALL.ToDictionary(f => f.Feature, f => new FeatureStatus(f, FeatureState.Pending, null));

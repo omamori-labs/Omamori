@@ -90,7 +90,8 @@
           "GameMods",
           "PlayStarting",
           "SongSelectFooter",
-          "PlayControl"
+          "PlayControl",
+          "Navigation"
         ]
       },
       "additionalProperties": {

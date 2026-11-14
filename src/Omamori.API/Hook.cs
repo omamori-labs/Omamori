@@ -73,5 +73,8 @@ namespace Omamori.API
 
         /// <summary><see cref="IGamePlays.Running"/> and <see cref="IGamePlays.OnFailing"/></summary>
         PlayControl,
+
+        /// <summary><see cref="IModContext.Navigation"/></summary>
+        Navigation,
     }
 }

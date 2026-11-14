@@ -35,6 +35,7 @@
     MainMenu: 0,
     MultiplayerEvents: 11,
     MusicEvents: 6,
+    Navigation: 23,
     Notifications: 16,
     OverlayEvents: 10,
     PlayControl: 22,

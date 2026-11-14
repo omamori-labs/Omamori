@@ -34,5 +34,6 @@ namespace Omamori.Core.Features
         PlayStarting,
         SongSelectFooter,
         PlayControl,
+        Navigation,
     }
 }
