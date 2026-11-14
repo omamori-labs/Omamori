@@ -15,7 +15,11 @@ namespace Omamori.Tests
     public class GamePlaysTests
     {
         [SetUp]
-        public void SetUp() => FeatureRegistry.Set(Feature.PlayStarting, FeatureState.Active, null);
+        public void SetUp()
+        {
+            FeatureRegistry.Set(Feature.PlayStarting, FeatureState.Active, null);
+            FeatureRegistry.Set(Feature.PlayControl, FeatureState.Active, null);
+        }
 
         [TearDown]
         public void TearDown() => CoreState.Reset();
@@ -180,6 +184,67 @@ namespace Omamori.Tests
             GamePlays.PrepareStart(player, beatmapWithObjectsAt(1000, 2000));
 
             Assert.That(GamePlays.StartTimeFor(player), Is.Null);
+        }
+
+        [Test]
+        public void NothingIsRunningOutsideGameplay() => Assert.That(gamePlays("test.plays").Running, Is.Null);
+
+        [Test]
+        public void PlayFailsWhenNobodyPrevents()
+        {
+            gamePlays("test.plays").OnFailing(_ => { });
+
+            Assert.That(GamePlays.AllowFail(new object()), Is.True);
+        }
+
+        [Test]
+        public void PreventedFailLeavesThePlayUnsubmitted()
+        {
+            gamePlays("test.plays").OnFailing(failing => failing.Prevent());
+            object player = new object();
+
+            Assert.That(GamePlays.AllowFail(player), Is.False);
+            Assert.That(GamePlays.UnsubmittedMidPlay(player), Is.Not.Null);
+        }
+
+        [Test]
+        public void PreventedFailIsNotAskedAboutAgain()
+        {
+            int asked = 0;
+            gamePlays("test.plays").OnFailing(failing =>
+            {
+                asked++;
+                failing.Prevent();
+            });
+            object player = new object();
+
+            GamePlays.AllowFail(player);
+            GamePlays.AllowFail(player);
+
+            Assert.That(asked, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void FirstMidPlayReasonIsKept()
+        {
+            object player = new object();
+
+            GamePlays.Unsubmit(player, "first");
+            GamePlays.Unsubmit(player, "second");
+
+            Assert.That(GamePlays.UnsubmittedMidPlay(player), Is.EqualTo("first"));
+        }
+
+        [Test]
+        public void FailHandlersAreSkippedWhenTheHookIsUnavailable()
+        {
+            FeatureRegistry.Set(Feature.PlayControl, FeatureState.Failed, "test");
+
+            var plays = gamePlays("test.plays");
+            plays.OnFailing(failing => failing.Prevent());
+
+            Assert.That(GamePlays.AllowFail(new object()), Is.True);
+            Assert.That(plays.Running, Is.Null);
         }
 
         private static Beatmap<HitObject> beatmapWithObjectsAt(params double[] times) => new Beatmap<HitObject>

@@ -37,6 +37,7 @@
     MusicEvents: 6,
     Notifications: 16,
     OverlayEvents: 10,
+    PlayControl: 22,
     PlayEvents: 4,
     PlayStarting: 20,
     Results: 13,

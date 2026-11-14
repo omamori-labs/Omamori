@@ -89,7 +89,8 @@
           "DiscordPresence",
           "GameMods",
           "PlayStarting",
-          "SongSelectFooter"
+          "SongSelectFooter",
+          "PlayControl"
         ]
       },
       "additionalProperties": {

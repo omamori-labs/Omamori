@@ -32,6 +32,7 @@
     <Publicize Include="osu.Game:osu.Game.Screens.Select.SongSelect.CreateFooterButtons" />
     <Publicize Include="osu.Game:osu.Game.Screens.Play.SoloPlayer.CreateTokenRequest" />
     <Publicize Include="osu.Game:osu.Game.Screens.Play.SubmittingPlayer.StartGameplay" />
+    <Publicize Include="osu.Game:osu.Game.Screens.Play.Player.CheckModsAllowFailure" />
     <Publicize Include="osu.Game:osu.Game.Screens.Ranking.ResultsScreen.LoadComplete" />
     <Publicize Include="osu.Game:osu.Game.Screens.Play.HUDOverlay.LoadComplete" />
     <Publicize Include="osu!:osu.Desktop.DiscordRichPresence" />

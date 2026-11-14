@@ -5,6 +5,7 @@ using Omamori.API;
 using Omamori.Core.Features;
 using Omamori.Core.Safety;
 using osu.Game.Beatmaps;
+using osu.Game.Screens.Play;
 
 namespace Omamori.Core.Plays
 {
@@ -20,7 +21,18 @@ namespace Omamori.Core.Plays
 
         // only players whose beatmap was actually cut down, a start past the last object plays from the beginning
         private static readonly ConditionalWeakTable<object, StrongBox<double>> late_starts = new ConditionalWeakTable<object, StrongBox<double>>();
+
+        // why a play that already had its token was left unsubmitted, first reason kept
+        private static readonly ConditionalWeakTable<object, string> unsubmitted_mid_play = new ConditionalWeakTable<object, string>();
+
+        // a fail a mod prevented stays prevented, health stays empty so lazer asks again on every judgement
+        private static readonly ConditionalWeakTable<object, PlayFailing> prevented_fails = new ConditionalWeakTable<object, PlayFailing>();
 #pragma warning restore IDE0028
+
+        private static readonly List<(string ModId, Action<PlayFailing> Handler)> failing_handlers = [];
+
+        // update thread only
+        private static WeakReference<Player>? onScreen;
 
         private readonly ModManifest manifest;
         private readonly HookCheck hooks;
@@ -42,6 +54,67 @@ namespace Omamori.Core.Plays
             lock (handlers)
                 handlers.Add((manifest.Id, handler));
         }
+
+        public IRunningPlay? Running =>
+            FeatureRegistry.IsAvailable(Hook.PlayControl) && onScreen is { } current && current.TryGetTarget(out var player) ? new RunningPlay(player) : null;
+
+        public void OnFailing(Action<PlayFailing> handler)
+        {
+            if (!hooks.CanRegister(Hook.PlayControl, "fail handler"))
+                return;
+
+            lock (failing_handlers)
+                failing_handlers.Add((manifest.Id, handler));
+        }
+
+        public static void Entered(Player player) => onScreen = new WeakReference<Player>(player);
+
+        public static void Left(Player player)
+        {
+            if (onScreen is { } current && current.TryGetTarget(out var shown) && ReferenceEquals(shown, player))
+                onScreen = null;
+        }
+
+        /// <summary>false when a mod prevented the fail, which also leaves the play unsubmitted</summary>
+        public static bool AllowFail(object player)
+        {
+            if (prevented_fails.TryGetValue(player, out _))
+                return false;
+
+            (string ModId, Action<PlayFailing> Handler)[] snapshot;
+
+            lock (failing_handlers)
+                snapshot = [.. failing_handlers];
+
+            var failing = new PlayFailing();
+
+            foreach (var (modId, handler) in snapshot)
+                ModFaults.RunForMod(modId, "fail handler", () => handler(failing));
+
+            if (!failing.IsPrevented)
+                return true;
+
+            prevented_fails.AddOrUpdate(player, failing);
+            Unsubmit(player, "a mod stopped it from failing");
+            return false;
+        }
+
+        /// <summary>
+        ///     leaves a play that already started unsubmitted, lazer skips submitting without a token the same as when it couldn't get one
+        /// </summary>
+        public static void Unsubmit(object player, string reason)
+        {
+            if (!unsubmitted_mid_play.TryGetValue(player, out _))
+            {
+                unsubmitted_mid_play.AddOrUpdate(player, reason);
+                LoaderLog.Info($"Not submitting this play: {reason}.");
+            }
+
+            if (player is SubmittingPlayer submitting)
+                submitting.token = null;
+        }
+
+        public static string? UnsubmittedMidPlay(object player) => unsubmitted_mid_play.TryGetValue(player, out string? reason) ? reason : null;
 
         /// <summary>false when a handler cancelled the play</summary>
         public static bool Begin()
@@ -96,7 +169,11 @@ namespace Omamori.Core.Plays
             lock (handlers)
                 handlers.Clear();
 
+            lock (failing_handlers)
+                failing_handlers.Clear();
+
             Current = null;
+            onScreen = null;
         }
     }
 }

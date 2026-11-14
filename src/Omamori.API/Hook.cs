@@ -70,5 +70,8 @@ namespace Omamori.API
 
         /// <summary><see cref="IUiHooks.AddToSongSelectFooter"/></summary>
         SongSelectFooter,
+
+        /// <summary><see cref="IGamePlays.Running"/> and <see cref="IGamePlays.OnFailing"/></summary>
+        PlayControl,
     }
 }

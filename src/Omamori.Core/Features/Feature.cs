@@ -33,5 +33,6 @@ namespace Omamori.Core.Features
         GameMods,
         PlayStarting,
         SongSelectFooter,
+        PlayControl,
     }
 }

@@ -111,6 +111,54 @@ namespace Omamori.Core.Patching
                 __runOriginal && submits(GamePlays.Unsubmitted(__instance), ref __result);
         }
 
+        /// <summary>
+        ///     a player on screen is what mods can control, it stops being that behind results or once it exits
+        /// </summary>
+        [Feature(Feature.PlayControl)]
+        [HarmonyPatch(typeof(Player), nameof(Player.OnEntering))]
+        internal static class PlayControlEntered
+        {
+            [HarmonyPostfix]
+            private static void postfix(Player __instance) => FeatureRegistry.Run(Feature.PlayControl, () => GamePlays.Entered(__instance));
+        }
+
+        [Feature(Feature.PlayControl)]
+        [HarmonyPatch(typeof(Player), nameof(Player.OnSuspending))]
+        internal static class PlayControlSuspended
+        {
+            [HarmonyPostfix]
+            private static void postfix(Player __instance) => FeatureRegistry.Run(Feature.PlayControl, () => GamePlays.Left(__instance));
+        }
+
+        [Feature(Feature.PlayControl)]
+        [HarmonyPatch(typeof(Player), nameof(Player.OnExiting))]
+        internal static class PlayControlExited
+        {
+            // true means the player refused to exit, eg to show the fail or pause screen first
+            [HarmonyPostfix]
+            private static void postfix(Player __instance, bool __result)
+            {
+                if (!__result)
+                    FeatureRegistry.Run(Feature.PlayControl, () => GamePlays.Left(__instance));
+            }
+        }
+
+        /// <summary>
+        ///     where lazer asks whether a play may fail, the same question no fail answers
+        /// </summary>
+        [Feature(Feature.PlayControl)]
+        [HarmonyPatch(typeof(Player), nameof(Player.CheckModsAllowFailure))]
+        internal static class PlayControlFailing
+        {
+            // a broken check lets the fail happen, failing is what osu! would do anyway
+            [HarmonyPostfix]
+            private static void postfix(Player __instance, ref bool __result)
+            {
+                if (__result && __instance is SoloPlayer)
+                    __result = FeatureRegistry.Run(Feature.PlayControl, true, _ => GamePlays.AllowFail(__instance));
+            }
+        }
+
         // false skips CreateTokenRequest with a null token, so the play runs but is never sent
         private static bool submits(string? unsubmittedBecause, ref APIRequest<APIScoreToken>? result)
         {
