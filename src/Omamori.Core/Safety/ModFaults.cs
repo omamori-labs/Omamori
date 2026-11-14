@@ -18,6 +18,10 @@ namespace Omamori.Core.Safety
         internal static readonly TimeSpan GRACE = TimeSpan.FromSeconds(2);
 
         private static readonly Dictionary<string, DateTime> faulted = [];
+
+        // turned off by the player mid session, they skip everything a faulted mod does without counting as a crash
+        private static readonly HashSet<string> unloaded = [];
+
         private static readonly object fault_lock = new object();
 
         public static FaultHistory? History { get; set; }
@@ -25,10 +29,17 @@ namespace Omamori.Core.Safety
         /// <summary>where cleanup goes when a mod throws off the update thread, null until the game has loaded</summary>
         public static Scheduler? UpdateScheduler { get; set; }
 
-        /// <summary>the mod's id, raised on whichever thread it threw</summary>
+        /// <summary>the mod's id, raised on whichever thread it threw, or on the update thread when the player turned it off</summary>
         public static event Action<string>? Faulted;
 
+        /// <summary>not running anymore this session, because it crashed or the player turned it off</summary>
         public static bool IsFaulted(string id)
+        {
+            lock (fault_lock)
+                return faulted.ContainsKey(id) || unloaded.Contains(id);
+        }
+
+        public static bool HasCrashed(string id)
         {
             lock (fault_lock)
                 return faulted.ContainsKey(id);
@@ -37,7 +48,25 @@ namespace Omamori.Core.Safety
         internal static void Clear()
         {
             lock (fault_lock)
+            {
                 faulted.Clear();
+                unloaded.Clear();
+            }
+        }
+
+        /// <summary>
+        ///     the player turned the mod off, the same cleanup as a crash without the strike or the crash notification, update thread only
+        /// </summary>
+        public static void Unload(LoadedMod mod)
+        {
+            lock (fault_lock)
+            {
+                if (!unloaded.Add(mod.Manifest.Id))
+                    return;
+            }
+
+            cleanUp(mod);
+            Faulted?.Invoke(mod.Manifest.Id);
         }
 
         /// <summary>
@@ -82,6 +111,13 @@ namespace Omamori.Core.Safety
 
             lock (fault_lock)
             {
+                // code it left running after the player turned it off, it's out of the session already so osu! keeps going
+                if (unloaded.Contains(id))
+                {
+                    LoaderLog.Info($"[{id}] threw {exception.GetType().Name} after it was turned off: {exception.Message}");
+                    return true;
+                }
+
                 if (faulted.TryGetValue(id, out var since))
                     return DateTime.UtcNow - since < GRACE;
 
@@ -123,7 +159,7 @@ namespace Omamori.Core.Safety
 
             return context == null || context == AssemblyLoadContext.Default
                 ? null
-                : ModLoader.Loaded.FirstOrDefault(m => m.Loader.LoadContext == context);
+                : ModLoader.Loaded.Concat(ModLoader.Unloaded).FirstOrDefault(m => m.Loader.LoadContext == context);
         }
 
         private static void cleanUp(LoadedMod mod)

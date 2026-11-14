@@ -17,7 +17,7 @@ namespace Omamori.Core.Manager
 
         public ModStatus Status =>
             Problem != null ? ModStatus.Problem
-            : Id != null && ModFaults.IsFaulted(Id) ? ModStatus.Crashed
+            : Id != null && ModFaults.HasCrashed(Id) ? ModStatus.Crashed
             : !OnAtLaunch ? ModStatus.Off
             : ModStatus.On;
 

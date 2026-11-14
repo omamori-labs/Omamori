@@ -7,7 +7,8 @@ using Omamori.Core.Safety;
 namespace Omamori.Core.Manager
 {
     /// <summary>
-    ///     what the settings list and the mod manager show, changes apply next launch since a mod's Load only runs once
+    ///     what the settings list and the mod manager show
+    ///     turning a running mod off takes it out straight away, turning one on waits for the next launch since Load only runs then
     /// </summary>
     internal static class InstalledModList
     {
@@ -40,6 +41,10 @@ namespace Omamori.Core.Manager
                 return;
 
             switches.SetEnabled(mod.Id, enabled);
+
+            if (!enabled)
+                ModLoader.TurnOffNow(mod.Id);
+
             Changed?.Invoke();
         }
 

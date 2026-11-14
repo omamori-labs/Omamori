@@ -30,6 +30,9 @@ namespace Omamori.Core.Loading
         private static readonly List<ModCandidate> turned_off_mods = [];
         private static readonly List<SkippedMod> skipped_mods = [];
 
+        // turned off mid session, their code is still loaded so a stray throw from it can still be traced back to them
+        private static readonly List<LoadedMod> unloaded_mods = [];
+
         // mods load on the update thread, but a crash on any thread looks up which mod it came from
         private static readonly object list_lock = new object();
 
@@ -39,6 +42,8 @@ namespace Omamori.Core.Loading
         public static IReadOnlyList<ModCandidate> TurnedOff => snapshot(turned_off_mods);
 
         public static IReadOnlyList<SkippedMod> Skipped => snapshot(skipped_mods);
+
+        public static IReadOnlyList<LoadedMod> Unloaded => snapshot(unloaded_mods);
 
         /// <summary>null until mods load</summary>
         public static ModSwitches? Switches { get; internal set; }
@@ -105,6 +110,24 @@ namespace Omamori.Core.Loading
             report(skipped);
         }
 
+        /// <summary>
+        ///     takes a mod out of this session straight away, update thread only
+        ///     mods that need it go first, newest first, and are listed as unable to load until it's back
+        ///     its code stays loaded, so turning it back on waits for the next launch
+        /// </summary>
+        public static void TurnOffNow(string id)
+        {
+            if (Get(id) is not { } mod)
+                return;
+
+            var dependents = dependentsOf(id);
+
+            foreach (var dependent in Loaded.Reverse().Where(m => dependents.Contains(m.Manifest.Id)))
+                unload(dependent, $"turned off with {mod.Manifest.Name}, which it needs");
+
+            unload(mod, null);
+        }
+
         internal static void Add(LoadedMod mod)
         {
             lock (list_lock)
@@ -118,9 +141,61 @@ namespace Omamori.Core.Loading
                 loaded_mods.Clear();
                 turned_off_mods.Clear();
                 skipped_mods.Clear();
+                unloaded_mods.Clear();
             }
 
             Switches = null;
+        }
+
+        // only required dependencies, an optional one already copes with the other mod missing
+        private static HashSet<string> dependentsOf(string id)
+        {
+            var found = new HashSet<string>();
+            var loaded = Loaded;
+            bool grew = true;
+
+            while (grew)
+            {
+                grew = false;
+
+                foreach (var mod in loaded)
+                {
+                    if (!found.Contains(mod.Manifest.Id) && mod.Manifest.Dependencies.Any(d => !d.Optional && (d.Id == id || found.Contains(d.Id))))
+                        grew = found.Add(mod.Manifest.Id) || grew;
+                }
+            }
+
+            return found;
+        }
+
+        private static void unload(LoadedMod mod, string? needed)
+        {
+            string id = mod.Manifest.Id;
+
+            // the mod's own cleanup runs first, while what it registered still exists
+            try
+            {
+                mod.Instance.Unload();
+            }
+            catch (Exception e)
+            {
+                LoaderLog.Error($"[{id}] Unload threw, turning it off anyway.", e);
+            }
+
+            ModFaults.Unload(mod);
+
+            lock (list_lock)
+            {
+                loaded_mods.Remove(mod);
+                unloaded_mods.Add(mod);
+
+                if (needed == null)
+                    turned_off_mods.Add(new ModCandidate(mod.Directory, mod.Manifest));
+                else
+                    skipped_mods.Add(new SkippedMod(mod.Label, needed, mod.Manifest));
+            }
+
+            LoaderLog.Info(needed == null ? $"[{id}] turned off for the rest of this session." : $"[{id}] {needed}.");
         }
 
         private static IReadOnlyList<T> snapshot<T>(List<T> list)
@@ -291,7 +366,7 @@ namespace Omamori.Core.Loading
                 return "it patches osu! but doesn't list Patches in its capabilities";
             }
 
-            Add(new LoadedMod(manifest, instance, loader, candidate.Label));
+            Add(new LoadedMod(manifest, instance, loader, candidate.Label, candidate.Directory));
 
             string[] facts = [manifest.Name, manifest.Version, ManifestText.Byline(manifest)];
             LoaderLog.Info($"Loaded {string.Join(' ', facts.Where(f => f.Length > 0))} [{string.Join(", ", manifest.Capabilities)}].");
