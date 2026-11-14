@@ -14,25 +14,24 @@ Omamori is in alpha. The API is likely to heavily change between releases.
 
 [Torii](https://github.com/omamori-labs/Torii) installs Omamori and manages your mods and modded instances for you, on Windows and Linux.
 
-Get it from [Torii's releases](https://github.com/omamori-labs/Torii/releases). It's in alpha too, s
+Get it from [Torii's releases](https://github.com/omamori-labs/Torii/releases). It's in alpha too, so expect big changes between releases.
 
 ### Install Omamori by hand
 
 1. Download `omamori-<version>.zip` from the [latest release](https://github.com/omamori-labs/Omamori/releases).
-2. Close osu!.
-3. Extract the zip into osu!'s data folder, so that `rulesets` and `omamori` sit next to your `files` folder.
-4. Start osu!. There is now an **Omamori** section in the settings.
+2. Extract the zip into osu!'s data folder, so that `rulesets` and `omamori` sit next to your `files` folder.
+3. Start osu!. There is now an **Omamori** section in the settings.
 
-The data folder is where osu! keeps your beatmaps and scores, not where the game is installed. Settings → General → "Open osu! folder" takes you there.
-
+The data folder is where osu! keeps your beatmaps and scores, not where the game is installed.
 | System | Default data folder |
 |---|---|
 | Windows | `%APPDATA%\osu` |
 | macOS | `~/Library/Application Support/osu` |
 | Linux | `~/.local/share/osu` |
 
-- **Update:** extract the new zip over the old one.
-- **Uninstall:** delete `rulesets/osu.Game.Rulesets.Omamori.dll` and the `omamori` folder.
+- **Updating:** extract the new zip over the old one.
+
+- **Uninstalling:** delete `rulesets/osu.Game.Rulesets.Omamori.dll` and the `omamori` folder.
 
 ### Install mods
 
@@ -53,18 +52,9 @@ osu/
 
 Settings → Omamori → "Manage mods" lists every installed mod. From there you can:
 
-- turn a mod off straight away, or back on from the next time osu! starts
+- turn a mod off immediately, or back on from the next time osu! starts
 - change a mod's settings and key bindings
 - see why a mod didn't load, and try it again after a crash
-
-### What mods can and can't do
-
-- **Read the game:** the selected beatmap and what's in it, plays, scores, and so on.
-- **Add to it:** their own interface, settings, key bindings, notifications and sounds.
-- **Change a play:** start it partway through, jump around in it, stop it failing, or add their own mods to mod select. A play changed like this is never submitted.
-- **Skin components:** some mods add things you place on your HUD in the skin editor. If the mod is removed or turned off, the rest of your layout still loads and its components come back with it. Saving that skin in the meantime drops them for good.
-- **Patches osu!:** these mods change the game's own code. If osu! acts up after an update, turn them off first.
-- **Crashes:** a mod that crashes is turned off for the session and osu! keeps running. Two sessions in a row and it stays off until it updates or you try it again. Crashes caused by Omamori or a mod aren't reported to the osu! team.
 
 ## For mod authors
 
@@ -77,7 +67,7 @@ cd CoolMod
 dotnet build -p:OmamoriDeploy=true
 ```
 
-- While Omamori is in alpha, give the template version explicitly. It's the same as the release version.
+- While Omamori is in alpha, give the template version explicitly. It's the same as the release version.    
 - `OmamoriDeploy` copies the mod into your `omamori/mods` folder after each build, so restarting osu! picks it up.
 - A Release build also makes `<id>-<version>.zip`, ready to share.
 
@@ -134,7 +124,7 @@ You need the .NET 10 SDK. The build downloads its own copy of osu!lazer into `sa
 ```sh
 ./build.ps1                                   # Windows: set up the sandbox, build, run the tests
 ./build.sh                                    # Linux and macOS
-./build.ps1 --target=Deploy --mods samples    # install the build and the sample mods into the sandbox
+./build.ps1 --target=Deploy --mods samples    # install the build and the sample mods into the sandboxs
 ```
 
 Then start `sandbox/lazer/osu!.exe` to try it.
