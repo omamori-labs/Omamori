@@ -53,11 +53,12 @@ namespace Omamori.Core.Plays
             player.Schedule((Action)(() =>
             {
                 // the resume overlay copies the gameplay cursor's position, and skips itself while that cursor is hidden
-                if (ruleset.Cursor is { } cursor && ruleset.ResumeOverlay is { } overlay && ruleset.Objects.FirstOrDefault() is IHasPosition first)
+                // objects are placed in the playfield's own space, which the overlay doesn't share
+                if (ruleset.Cursor is { } cursor && ruleset.ResumeOverlay != null && ruleset.Objects.FirstOrDefault() is IHasPosition first)
                 {
                     cursor.LastFrameState = Visibility.Visible;
                     cursor.ActiveCursor.RelativePositionAxes = Axes.None;
-                    cursor.ActiveCursor.Position = cursor.ActiveCursor.Parent!.ToLocalSpace(overlay.ToScreenSpace(first.Position));
+                    cursor.ActiveCursor.Position = cursor.ActiveCursor.Parent!.ToLocalSpace(ruleset.Playfield.ToScreenSpace(first.Position));
                 }
 
                 ruleset.RequestResume(() =>
