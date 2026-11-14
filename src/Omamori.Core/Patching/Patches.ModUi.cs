@@ -6,7 +6,9 @@ using Omamori.Core.Input;
 using Omamori.Core.ModUi;
 using Omamori.Core.Notifications;
 using osu.Framework.Graphics;
+using osu.Framework.Graphics.Containers;
 using osu.Game;
+using osu.Game.Overlays.Toolbar;
 using osu.Game.Screens.Footer;
 using osu.Game.Screens.Menu;
 using osu.Game.Screens.Play;
@@ -63,6 +65,26 @@ namespace Omamori.Core.Patching
             private static void postfix(ref IReadOnlyList<ScreenFooterButton> __result)
             {
                 __result = FeatureRegistry.Run(Feature.SongSelectFooter, __result, buttons => [.. buttons, .. UiHooks.FooterButtons()]);
+            }
+        }
+
+        /// <summary>
+        ///     the toolbar is built once, its right-hand row only exists as the user button's parent, which is set once it has loaded
+        /// </summary>
+        [Feature(Feature.Toolbar)]
+        [HarmonyPatch(typeof(Toolbar), nameof(Toolbar.LoadComplete))]
+        internal static class ToolbarInjection
+        {
+            [HarmonyPostfix]
+            private static void postfix(Toolbar __instance)
+            {
+                FeatureRegistry.Run(Feature.Toolbar, () =>
+                {
+                    if (__instance.userButton.Parent is FillFlowContainer row)
+                        UiHooks.PopulateToolbar(row, __instance.userButton);
+                    else
+                        LoaderLog.Info("The toolbar's layout changed, mod toolbar buttons can't be placed.");
+                });
             }
         }
 

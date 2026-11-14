@@ -1,5 +1,6 @@
 using System;
 using osu.Framework.Graphics;
+using osu.Framework.Graphics.Sprites;
 using osu.Game.Screens.Footer;
 
 namespace Omamori.API
@@ -29,6 +30,12 @@ namespace Omamori.API
         ///     only the solo song select asks for it, rooms build their own footers
         /// </summary>
         void AddToSongSelectFooter(Func<ScreenFooterButton> factory);
+
+        /// <summary>
+        ///     a button in the toolbar at the top of the screen, left of the user button, styled like osu!'s own
+        ///     the toolbar is built once when the game loads, so register from <see cref="IMod.Load"/>
+        /// </summary>
+        void AddToolbarButton(IconUsage icon, string tooltip, Action action, string? subTooltip = null);
 
         /// <summary>
         ///     on top of the results screen after a play or when viewing a score

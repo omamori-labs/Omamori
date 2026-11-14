@@ -91,7 +91,8 @@
           "PlayStarting",
           "SongSelectFooter",
           "PlayControl",
-          "Navigation"
+          "Navigation",
+          "Toolbar"
         ]
       },
       "additionalProperties": {

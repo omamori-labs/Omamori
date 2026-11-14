@@ -46,6 +46,7 @@
     SkinEvents: 8,
     SongSelect: 12,
     SongSelectFooter: 21,
+    Toolbar: 24,
     UserEvents: 7
   },
   HookRequirement: {

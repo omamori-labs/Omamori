@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using NSubstitute;
 using NUnit.Framework;
 using Omamori.API;
 using Omamori.Core.Features;
 using Omamori.Core.ModUi;
 using osu.Framework.Graphics.Containers;
+using osu.Framework.Graphics.Sprites;
 
 namespace Omamori.Tests
 {
@@ -81,6 +83,39 @@ namespace Omamori.Tests
 
             Assert.DoesNotThrow(() => hooks.AddToSongSelectFooter(() => throw new InvalidOperationException("never built")));
             Assert.That(UiHooks.FooterButtons(), Is.Empty);
+        }
+
+        [Test]
+        public void ToolbarButtonsGoJustBeforeTheUserButtonInLoadOrder()
+        {
+            FeatureRegistry.Set(Feature.Toolbar, FeatureState.Active, null);
+
+            var music = new Container();
+            var user = new Container();
+            var row = new FillFlowContainer { Children = [music, user, new Container()] };
+
+            var hooks = new UiHooks(manifest(declared: true), Substitute.For<IModLogger>());
+            hooks.AddToolbarButton(FontAwesome.Solid.Star, "first", () => { });
+            hooks.AddToolbarButton(FontAwesome.Solid.Heart, "second", () => { });
+
+            UiHooks.PopulateToolbar(row, user);
+
+            var added = row.Children.OfType<ModToolbarButton>().Select(row.GetLayoutPosition).ToList();
+
+            Assert.That(added, Has.Count.EqualTo(2));
+            Assert.That(added, Is.Ordered.Ascending);
+            Assert.That(added, Has.All.GreaterThan(row.GetLayoutPosition(music)).And.All.LessThan(row.GetLayoutPosition(user)));
+        }
+
+        [Test]
+        public void ToolbarIsLeftAloneWithoutButtons()
+        {
+            var user = new Container();
+            var row = new FillFlowContainer { Children = [user] };
+
+            UiHooks.PopulateToolbar(row, user);
+
+            Assert.That(row.Children, Has.Count.EqualTo(1));
         }
 
         private static ModManifest manifest(bool declared) => new ModManifest

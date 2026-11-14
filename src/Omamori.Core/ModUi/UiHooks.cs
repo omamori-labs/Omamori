@@ -6,6 +6,7 @@ using Omamori.Core.Features;
 using Omamori.Core.Safety;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
+using osu.Framework.Graphics.Sprites;
 using osu.Game.Screens.Footer;
 
 namespace Omamori.Core.ModUi
@@ -32,6 +33,12 @@ namespace Omamori.Core.ModUi
         public void AddToSongSelect(Func<Drawable> factory) => register(Hook.SongSelect, factory);
 
         public void AddToSongSelectFooter(Func<ScreenFooterButton> factory) => register(Hook.SongSelectFooter, factory);
+
+        public void AddToolbarButton(IconUsage icon, string tooltip, Action action, string? subTooltip = null)
+        {
+            string modId = manifest.Id;
+            register(Hook.Toolbar, () => new ModToolbarButton(icon, tooltip, subTooltip, () => ModFaults.RunForMod(modId, "toolbar button", action)));
+        }
 
         public void AddToResults(Func<Drawable> factory) => register(Hook.Results, factory);
 
@@ -92,6 +99,45 @@ namespace Omamori.Core.ModUi
             }
 
             return buttons;
+        }
+
+        /// <summary>
+        ///     into the toolbar's right-hand row just before the user button, in mod load order
+        ///     added to the same list as other mod ui, so a mod that faults loses its buttons too
+        /// </summary>
+        public static void PopulateToolbar(FillFlowContainer row, Drawable userButton)
+        {
+            if (!registrations.TryGetValue(Hook.Toolbar, out var list) || list.Count == 0)
+                return;
+
+            // lazer's buttons all sit at layout position 0 and keep the order they were added in, so they get real positions first
+            var ordered = row.Children.Select((child, index) => (child, index))
+                             .OrderBy(c => row.GetLayoutPosition(c.child))
+                             .ThenBy(c => c.index)
+                             .Select(c => c.child)
+                             .ToList();
+
+            for (int i = 0; i < ordered.Count; i++)
+                row.SetLayoutPosition(ordered[i], i);
+
+            float before = ordered.IndexOf(userButton);
+            float step = 1f / (list.Count + 1);
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                var registration = list[i];
+                float position = before - 1 + (step * (i + 1));
+
+                ModFaults.RunForMod(registration.ModId, "UI factory", () =>
+                {
+                    var button = registration.Factory();
+                    row.Add(button);
+                    row.SetLayoutPosition(button, position);
+
+                    lock (added)
+                        added.Add((registration.ModId, button, row));
+                });
+            }
         }
 
         internal static void Clear()

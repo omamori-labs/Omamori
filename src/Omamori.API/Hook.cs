@@ -76,5 +76,8 @@ namespace Omamori.API
 
         /// <summary><see cref="IModContext.Navigation"/></summary>
         Navigation,
+
+        /// <summary><see cref="IUiHooks.AddToolbarButton"/></summary>
+        Toolbar,
     }
 }
