@@ -99,10 +99,10 @@ namespace Omamori.Core.Presence
 
         private bool canSet()
         {
-            if (unavailable && !FeatureRegistry.IsAvailable(Hook.DiscordPresence))
+            if (unavailable && !FeatureRegistry.IsAvailable(Hook.Presence))
                 return false;
 
-            unavailable = !hooks.CanRegister(Hook.DiscordPresence, "presence");
+            unavailable = !hooks.CanRegister(Hook.Presence, "presence");
             return !unavailable;
         }
     }

@@ -12,7 +12,7 @@ using osu.Game.Screens.Footer;
 
 namespace Omamori.Core.ModUi
 {
-    internal sealed class UiHooks : IUiHooks
+    internal sealed class UiHooks : IModUi
     {
         private static readonly Dictionary<Hook, List<UiRegistration>> registrations = [];
 

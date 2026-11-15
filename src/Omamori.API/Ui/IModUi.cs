@@ -9,7 +9,7 @@ namespace Omamori.API
     /// <summary>
     ///     the factory runs every time its screen is created, so return a new drawable each call
     /// </summary>
-    public interface IUiHooks
+    public interface IModUi
     {
         /// <summary>
         ///     on top of the main menu

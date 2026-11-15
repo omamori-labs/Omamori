@@ -101,7 +101,7 @@ namespace Omamori.Tests
 
         private static ModPresence presenceFor(string id)
         {
-            var manifest = new ModManifest { Id = id, Hooks = { [Hook.DiscordPresence] = HookRequirement.Optional } };
+            var manifest = new ModManifest { Id = id, Hooks = { [Hook.Presence] = HookRequirement.Optional } };
             return new ModPresence(manifest, new ModLogger(id));
         }
     }

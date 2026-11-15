@@ -25,7 +25,7 @@ namespace OmamoriMod
                 context.Ui.AddToMainMenu(() => new Greeting(text, shown));
 
             // read-only, the result arrives after the play
-            context.Events.OnPlayEnded(result =>
+            context.GameEvents.OnPlayEnded(result =>
             {
                 if (result.Score is { } score && !result.Play.IsReplay)
                     context.Notifications.Post($"finished with {score.Rank}, {score.Accuracy:P2}");

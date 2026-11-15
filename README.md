@@ -82,7 +82,7 @@ public class Mod : IMod
 
         context.Ui.AddToMainMenu(() => new Greeting(text));
 
-        context.Events.OnPlayEnded(result =>
+        context.GameEvents.OnPlayEnded(result =>
         {
             if (result.Score is { } score)
                 context.Notifications.Post($"finished with {score.Rank}");

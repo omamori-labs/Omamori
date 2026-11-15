@@ -23,7 +23,7 @@ namespace Omamori.Tests
         public void SetUp()
         {
             FeatureRegistry.Set(Feature.KeyBindings, FeatureState.Active, null);
-            input = new ModInput(new ModManifest { Id = "test.input", Hooks = new Dictionary<Hook, HookRequirement> { [Hook.KeyBindings] = HookRequirement.Optional } },
+            input = new ModInput(new ModManifest { Id = "test.input", Hooks = new Dictionary<Hook, HookRequirement> { [Hook.Input] = HookRequirement.Optional } },
                 Substitute.For<IModLogger>());
             calls = [];
         }

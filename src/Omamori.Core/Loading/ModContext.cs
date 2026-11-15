@@ -38,8 +38,8 @@ namespace Omamori.Core.Loading
         }
 
         public IModLogger Log { get; }
-        public IUiHooks Ui { get; }
-        public IGameEvents Events { get; }
+        public IModUi Ui { get; }
+        public IGameEvents GameEvents { get; }
         public IModSettings Settings { get; }
         public IModNotifications Notifications { get; }
         public IModInput Input { get; }
@@ -47,8 +47,8 @@ namespace Omamori.Core.Loading
         public IModPresence Presence { get; }
         public IGameMods GameMods { get; }
         public IGamePlays GamePlays { get; }
-        public IGameNavigation Navigation { get; }
-        public IGameBeatmaps Beatmaps { get; }
+        public IGameNavigation GameNavigation { get; }
+        public IGameBeatmaps GameBeatmaps { get; }
         public IModAudio Audio { get; }
 
         public ModContext(ModManifest manifest, string modDirectory, string dataDirectory, GameHost? host = null)
@@ -60,7 +60,7 @@ namespace Omamori.Core.Loading
             ModDirectory = modDirectory;
             Log = new ModLogger(manifest.Id);
             Ui = new UiHooks(manifest, Log);
-            Events = new GameEvents(manifest, Log);
+            GameEvents = new GameEvents(manifest, Log);
             Settings = new ModConfig(manifest, ModConfig.PathFor(CoreEntry.ConfigDirectory, manifest.Id));
             Notifications = new ModNotifications(manifest, Log);
             Input = new ModInput(manifest, Log);
@@ -68,8 +68,8 @@ namespace Omamori.Core.Loading
             Presence = new ModPresence(manifest, Log);
             GameMods = new GameMods(manifest, Log);
             GamePlays = new GamePlays(manifest, Log);
-            Navigation = new GameNavigation(manifest, Log);
-            Beatmaps = new GameBeatmaps(manifest, Log);
+            GameNavigation = new GameNavigation(manifest, Log);
+            GameBeatmaps = new GameBeatmaps(manifest, Log);
             Audio = new ModAudio(manifest, modDirectory, Log);
         }
 

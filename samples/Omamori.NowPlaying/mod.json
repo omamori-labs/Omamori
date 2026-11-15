@@ -9,7 +9,7 @@
   "apiVersion": "0.5",
   "capabilities": ["Informational"],
   "hooks": {
-    "DiscordPresence": "required",
+    "Presence": "required",
     "ScreenEvents": "required",
     "BeatmapEvents": "optional",
     "PlayEvents": "optional"

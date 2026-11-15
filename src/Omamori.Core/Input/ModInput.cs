@@ -28,7 +28,7 @@ namespace Omamori.Core.Input
 
         private void register(IBindable<ModKeys> keys, Action handler, bool onRelease)
         {
-            if (!hooks.CanRegister(Hook.KeyBindings, "key binding"))
+            if (!hooks.CanRegister(Hook.Input, "key binding"))
                 return;
 
             lock (registrations)

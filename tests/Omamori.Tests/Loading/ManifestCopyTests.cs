@@ -39,7 +39,7 @@ namespace Omamori.Tests
 
             copy.Id = "other.mod";
             copy.Capabilities.Add(ModCapability.Informational);
-            copy.Hooks[Hook.KeyBindings] = HookRequirement.Required;
+            copy.Hooks[Hook.Input] = HookRequirement.Required;
             copy.Dependencies[0].Optional = true;
             copy.Dependencies.Clear();
 

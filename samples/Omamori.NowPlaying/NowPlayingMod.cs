@@ -58,11 +58,11 @@ namespace Omamori.NowPlaying
             watch(smallImageUrl);
             watch(smallImageText);
 
-            context.Events.OnScreenChanged(change => update(() => status.Screen = change.Screen));
-            context.Events.OnBeatmapChanged(beatmap => update(() => status.Beatmap = beatmap));
-            context.Events.OnModsChanged(mods => update(() => status.Mods = mods));
-            context.Events.OnPlayStarted(play => update(() => status.Play = play));
-            context.Events.OnPlayEnded(_ => update(() => status.Play = null));
+            context.GameEvents.OnScreenChanged(change => update(() => status.Screen = change.Screen));
+            context.GameEvents.OnBeatmapChanged(beatmap => update(() => status.Beatmap = beatmap));
+            context.GameEvents.OnModsChanged(mods => update(() => status.Mods = mods));
+            context.GameEvents.OnPlayStarted(play => update(() => status.Play = play));
+            context.GameEvents.OnPlayEnded(_ => update(() => status.Play = null));
         }
 
         private void update(Action change)

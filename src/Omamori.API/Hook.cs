@@ -5,10 +5,10 @@ namespace Omamori.API
     /// </summary>
     public enum Hook
     {
-        /// <summary><see cref="IUiHooks.AddToMainMenu"/></summary>
+        /// <summary><see cref="IModUi.AddToMainMenu"/></summary>
         MainMenu,
 
-        /// <summary><see cref="IUiHooks.AddGlobalOverlay"/></summary>
+        /// <summary><see cref="IModUi.AddGlobalOverlay"/></summary>
         GlobalOverlay,
 
         /// <summary><see cref="IGameEvents.OnScreenChanged"/></summary>
@@ -41,13 +41,13 @@ namespace Omamori.API
         /// <summary><see cref="IGameEvents.OnRoomChanged"/></summary>
         MultiplayerEvents,
 
-        /// <summary><see cref="IUiHooks.AddToSongSelect"/></summary>
+        /// <summary><see cref="IModUi.AddToSongSelect"/></summary>
         SongSelect,
 
-        /// <summary><see cref="IUiHooks.AddToResults"/></summary>
+        /// <summary><see cref="IModUi.AddToResults"/></summary>
         Results,
 
-        /// <summary><see cref="IUiHooks.AddToGameplayHud"/></summary>
+        /// <summary><see cref="IModUi.AddToGameplayHud"/></summary>
         GameplayHud,
 
         /// <summary><see cref="IGameEvents.OnHit"/> and <see cref="IGameEvents.OnPlayStateChanged"/></summary>
@@ -57,10 +57,10 @@ namespace Omamori.API
         Notifications,
 
         /// <summary><see cref="IModInput.OnPressed"/> and <see cref="IModInput.OnReleased"/></summary>
-        KeyBindings,
+        Input,
 
         /// <summary><see cref="IModContext.Presence"/></summary>
-        DiscordPresence,
+        Presence,
 
         /// <summary><see cref="IGameMods.Add{T}"/></summary>
         GameMods,
@@ -68,25 +68,25 @@ namespace Omamori.API
         /// <summary><see cref="IGamePlays.OnStarting"/></summary>
         PlayStarting,
 
-        /// <summary><see cref="IUiHooks.AddToSongSelectFooter"/></summary>
+        /// <summary><see cref="IModUi.AddToSongSelectFooter"/></summary>
         SongSelectFooter,
 
         /// <summary><see cref="IGamePlays.Running"/> and <see cref="IGamePlays.OnFailing"/></summary>
         PlayControl,
 
-        /// <summary><see cref="IModContext.Navigation"/></summary>
+        /// <summary><see cref="IModContext.GameNavigation"/></summary>
         Navigation,
 
-        /// <summary><see cref="IUiHooks.AddToolbarButton"/></summary>
+        /// <summary><see cref="IModUi.AddToolbarButton"/></summary>
         Toolbar,
 
-        /// <summary><see cref="IUiHooks.AddBeatmapMenuItem"/>, <see cref="IUiHooks.AddBeatmapSetMenuItem"/> and <see cref="IUiHooks.AddScoreMenuItem"/></summary>
+        /// <summary><see cref="IModUi.AddBeatmapMenuItem"/>, <see cref="IModUi.AddBeatmapSetMenuItem"/> and <see cref="IModUi.AddScoreMenuItem"/></summary>
         ContextMenus,
 
-        /// <summary><see cref="IUiHooks.AddSkinComponent{T}"/></summary>
+        /// <summary><see cref="IModUi.AddSkinComponent{T}"/></summary>
         SkinComponents,
 
-        /// <summary><see cref="IModContext.Beatmaps"/></summary>
+        /// <summary><see cref="IModContext.GameBeatmaps"/></summary>
         Beatmaps,
 
         /// <summary><see cref="IModContext.Audio"/></summary>

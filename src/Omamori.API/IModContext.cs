@@ -1,7 +1,7 @@
 namespace Omamori.API
 {
     /// <summary>
-    ///     everything a mod is allowed to touch
+    ///     everything a mod is allowed to touch, the Game ones reach into osu! and the rest belong to the mod
     /// </summary>
     public interface IModContext
     {
@@ -16,9 +16,9 @@ namespace Omamori.API
 
         IModLogger Log { get; }
 
-        IUiHooks Ui { get; }
+        IModUi Ui { get; }
 
-        IGameEvents Events { get; }
+        IGameEvents GameEvents { get; }
 
         IModSettings Settings { get; }
 
@@ -34,9 +34,9 @@ namespace Omamori.API
 
         IGamePlays GamePlays { get; }
 
-        IGameNavigation Navigation { get; }
+        IGameNavigation GameNavigation { get; }
 
-        IGameBeatmaps Beatmaps { get; }
+        IGameBeatmaps GameBeatmaps { get; }
 
         IModAudio Audio { get; }
 

@@ -11,7 +11,7 @@
   "hooks": {
     "MainMenu": "optional",
     "PlayEvents": "optional",
-    "KeyBindings": "optional",
+    "Input": "optional",
     "Notifications": "optional"
   }
 }
