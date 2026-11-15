@@ -46,25 +46,40 @@ namespace Omamori.Core.Plays
         /// <summary>what song select decided for the play it is starting right now, null outside of that</summary>
         public static PlayStarting? Current { get; private set; }
 
-        public void OnStarting(Action<PlayStarting> handler)
+        public IDisposable OnStarting(Action<PlayStarting> handler)
         {
             if (!hooks.CanRegister(Hook.PlayStarting, "handler"))
-                return;
+                return Subscription.NONE;
 
-            lock (handlers)
-                handlers.Add((manifest.Id, handler));
+            return add(handlers, handler);
         }
 
         public IRunningPlay? Running =>
             FeatureRegistry.IsAvailable(Hook.PlayControl) && onScreen is { } current && current.TryGetTarget(out var player) ? new RunningPlay(player) : null;
 
-        public void OnFailing(Action<PlayFailing> handler)
+        public IDisposable OnFailing(Action<PlayFailing> handler)
         {
             if (!hooks.CanRegister(Hook.PlayControl, "fail handler"))
-                return;
+                return Subscription.NONE;
 
-            lock (failing_handlers)
-                failing_handlers.Add((manifest.Id, handler));
+            return add(failing_handlers, handler);
+        }
+
+        private Subscription add<T>(List<(string ModId, Action<T> Handler)> list, Action<T> handler)
+        {
+            string modId = manifest.Id;
+
+            lock (list)
+                list.Add((modId, handler));
+
+            return new Subscription(() =>
+            {
+                lock (list)
+                {
+                    if (list.FindIndex(r => r.ModId == modId && ReferenceEquals(r.Handler, handler)) is var index and >= 0)
+                        list.RemoveAt(index);
+                }
+            });
         }
 
         public static void Entered(Player player) => onScreen = new WeakReference<Player>(player);

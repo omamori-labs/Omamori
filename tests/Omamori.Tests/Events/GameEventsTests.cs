@@ -47,6 +47,26 @@ namespace Omamori.Tests
         }
 
         [Test]
+        public void DisposedHandlerStopsRunningAndTheRestCarryOn()
+        {
+            FeatureRegistry.Set(Feature.ScreenEvents, FeatureState.Active, null);
+
+            var events = new GameEvents(manifest(), Substitute.For<IModLogger>());
+            int first = 0;
+            int second = 0;
+
+            var subscription = events.OnScreenChanged(_ => first++);
+            events.OnScreenChanged(_ => second++);
+
+            subscription.Dispose();
+            subscription.Dispose();
+            GameEvents.Raise(GameEvent.ScreenChanged, new ScreenChange());
+
+            Assert.That(first, Is.Zero);
+            Assert.That(second, Is.EqualTo(1));
+        }
+
+        [Test]
         public void OnlyTheRaisedEventsHandlersRun()
         {
             FeatureRegistry.Set(Feature.ScreenEvents, FeatureState.Active, null);

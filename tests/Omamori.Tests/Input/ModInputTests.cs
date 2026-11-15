@@ -44,6 +44,16 @@ namespace Omamori.Tests
         }
 
         [Test]
+        public void DisposedKeyHandlerStopsFiring()
+        {
+            input.OnPressed(new Bindable<ModKeys>(new ModKeys(InputKey.K)), () => calls.Add("down")).Dispose();
+
+            press(InputKey.K);
+
+            Assert.That(calls, Is.Empty);
+        }
+
+        [Test]
         public void ModifiersMatchExactly()
         {
             listen(new Bindable<ModKeys>(new ModKeys(InputKey.Control, InputKey.K)));

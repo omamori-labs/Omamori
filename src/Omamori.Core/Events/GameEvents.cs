@@ -21,61 +21,73 @@ namespace Omamori.Core.Events
             hooks = new HookCheck(manifest, log);
         }
 
-        public void OnScreenChanged(Action<ScreenChange> handler) => register(Hook.ScreenEvents, GameEvent.ScreenChanged, handler);
+        public IDisposable OnScreenChanged(Action<ScreenChange> handler) => register(Hook.ScreenEvents, GameEvent.ScreenChanged, handler);
 
-        public void OnBeatmapChanged(Action<BeatmapDetails> handler) => register(Hook.BeatmapEvents, GameEvent.BeatmapChanged, handler);
+        public IDisposable OnBeatmapChanged(Action<BeatmapDetails> handler) => register(Hook.BeatmapEvents, GameEvent.BeatmapChanged, handler);
 
-        public void OnRulesetChanged(Action<RulesetDetails> handler) => register(Hook.BeatmapEvents, GameEvent.RulesetChanged, handler);
+        public IDisposable OnRulesetChanged(Action<RulesetDetails> handler) => register(Hook.BeatmapEvents, GameEvent.RulesetChanged, handler);
 
-        public void OnModsChanged(Action<IReadOnlyList<ModDetails>> handler) => register(Hook.BeatmapEvents, GameEvent.ModsChanged, handler);
+        public IDisposable OnModsChanged(Action<IReadOnlyList<ModDetails>> handler) => register(Hook.BeatmapEvents, GameEvent.ModsChanged, handler);
 
-        public void OnPlayStarted(Action<PlayDetails> handler) => register(Hook.PlayEvents, GameEvent.PlayStarted, handler);
+        public IDisposable OnPlayStarted(Action<PlayDetails> handler) => register(Hook.PlayEvents, GameEvent.PlayStarted, handler);
 
-        public void OnPlayEnded(Action<PlayResult> handler) => register(Hook.PlayEvents, GameEvent.PlayEnded, handler);
+        public IDisposable OnPlayEnded(Action<PlayResult> handler) => register(Hook.PlayEvents, GameEvent.PlayEnded, handler);
 
-        public void OnPlayPauseChanged(Action<bool> handler) => register(Hook.PlayEvents, GameEvent.PlayPaused, handler);
+        public IDisposable OnPlayPauseChanged(Action<bool> handler) => register(Hook.PlayEvents, GameEvent.PlayPaused, handler);
 
-        public void OnHit(Action<HitDetails> handler) => register(Hook.LivePlayEvents, GameEvent.Hit, handler);
+        public IDisposable OnHit(Action<HitDetails> handler) => register(Hook.LivePlayEvents, GameEvent.Hit, handler);
 
-        public void OnPlayStateChanged(Action<LivePlayState> handler) => register(Hook.LivePlayEvents, GameEvent.PlayStateChanged, handler);
+        public IDisposable OnPlayStateChanged(Action<LivePlayState> handler) => register(Hook.LivePlayEvents, GameEvent.PlayStateChanged, handler);
 
         // every handler takes one argument internally
-        public void OnGameExiting(Action handler) => register(Hook.LifecycleEvents, GameEvent.GameExiting, new Action<bool>(_ => handler()));
+        public IDisposable OnGameExiting(Action handler) => register(Hook.LifecycleEvents, GameEvent.GameExiting, new Action<bool>(_ => handler()));
 
-        public void OnWindowChanged(Action<WindowDetails> handler) => register(Hook.LifecycleEvents, GameEvent.WindowChanged, handler);
+        public IDisposable OnWindowChanged(Action<WindowDetails> handler) => register(Hook.LifecycleEvents, GameEvent.WindowChanged, handler);
 
-        public void OnTrackChanged(Action<BeatmapDetails> handler) => register(Hook.MusicEvents, GameEvent.TrackChanged, handler);
+        public IDisposable OnTrackChanged(Action<BeatmapDetails> handler) => register(Hook.MusicEvents, GameEvent.TrackChanged, handler);
 
-        public void OnMusicPlayingChanged(Action<bool> handler) => register(Hook.MusicEvents, GameEvent.MusicPlayingChanged, handler);
+        public IDisposable OnMusicPlayingChanged(Action<bool> handler) => register(Hook.MusicEvents, GameEvent.MusicPlayingChanged, handler);
 
-        public void OnUserChanged(Action<UserDetails> handler) => register(Hook.UserEvents, GameEvent.UserChanged, handler);
+        public IDisposable OnUserChanged(Action<UserDetails> handler) => register(Hook.UserEvents, GameEvent.UserChanged, handler);
 
-        public void OnStatisticsUpdated(Action<StatisticsUpdate> handler) => register(Hook.UserEvents, GameEvent.StatisticsUpdated, handler);
+        public IDisposable OnStatisticsUpdated(Action<StatisticsUpdate> handler) => register(Hook.UserEvents, GameEvent.StatisticsUpdated, handler);
 
-        public void OnSkinChanged(Action<SkinDetails> handler) => register(Hook.SkinEvents, GameEvent.SkinChanged, handler);
+        public IDisposable OnSkinChanged(Action<SkinDetails> handler) => register(Hook.SkinEvents, GameEvent.SkinChanged, handler);
 
-        public void OnScoreSaved(Action<ScoreDetails> handler) => register(Hook.LibraryEvents, GameEvent.ScoreSaved, handler);
+        public IDisposable OnScoreSaved(Action<ScoreDetails> handler) => register(Hook.LibraryEvents, GameEvent.ScoreSaved, handler);
 
-        public void OnBeatmapSetAdded(Action<BeatmapSetDetails> handler) => register(Hook.LibraryEvents, GameEvent.BeatmapSetAdded, handler);
+        public IDisposable OnBeatmapSetAdded(Action<BeatmapSetDetails> handler) => register(Hook.LibraryEvents, GameEvent.BeatmapSetAdded, handler);
 
-        public void OnBeatmapSetRemoved(Action<BeatmapSetDetails> handler) => register(Hook.LibraryEvents, GameEvent.BeatmapSetRemoved, handler);
+        public IDisposable OnBeatmapSetRemoved(Action<BeatmapSetDetails> handler) => register(Hook.LibraryEvents, GameEvent.BeatmapSetRemoved, handler);
 
-        public void OnOverlayChanged(Action<OverlayChange> handler) => register(Hook.OverlayEvents, GameEvent.OverlayChanged, handler);
+        public IDisposable OnOverlayChanged(Action<OverlayChange> handler) => register(Hook.OverlayEvents, GameEvent.OverlayChanged, handler);
 
-        public void OnRoomChanged(Action<RoomChange> handler) => register(Hook.MultiplayerEvents, GameEvent.RoomChanged, handler);
+        public IDisposable OnRoomChanged(Action<RoomChange> handler) => register(Hook.MultiplayerEvents, GameEvent.RoomChanged, handler);
 
-        private void register(Hook hook, GameEvent gameEvent, Delegate handler)
+        private IDisposable register(Hook hook, GameEvent gameEvent, Delegate handler)
         {
             if (!hooks.CanRegister(hook, "handler"))
-                return;
+                return Subscription.NONE;
+
+            string modId = manifest.Id;
 
             lock (handlers)
             {
                 if (!handlers.TryGetValue(gameEvent, out var list))
                     handlers[gameEvent] = list = [];
 
-                list.Add((manifest.Id, handler));
+                list.Add((modId, handler));
             }
+
+            // by reference, the same handler registered twice is taken out once per dispose
+            return new Subscription(() =>
+            {
+                lock (handlers)
+                {
+                    if (handlers.TryGetValue(gameEvent, out var list) && list.FindIndex(r => r.ModId == modId && ReferenceEquals(r.Handler, handler)) is var index and >= 0)
+                        list.RemoveAt(index);
+                }
+            });
         }
 
         public static bool HasHandlers(GameEvent gameEvent)

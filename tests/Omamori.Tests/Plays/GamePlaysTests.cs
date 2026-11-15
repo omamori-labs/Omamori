@@ -188,6 +188,17 @@ namespace Omamori.Tests
         }
 
         [Test]
+        public void DisposedStartingHandlerIsNotAsked()
+        {
+            bool asked = false;
+            gamePlays("test.plays").OnStarting(_ => asked = true).Dispose();
+
+            GamePlays.Begin();
+
+            Assert.That(asked, Is.False);
+        }
+
+        [Test]
         public void NothingIsRunningOutsideGameplay() => Assert.That(gamePlays("test.plays").Running, Is.Null);
 
         [Test]

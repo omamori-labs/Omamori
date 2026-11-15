@@ -22,17 +22,25 @@ namespace Omamori.Core.Input
             hooks = new HookCheck(manifest, log);
         }
 
-        public void OnPressed(IBindable<ModKeys> keys, Action handler) => register(keys, handler, onRelease: false);
+        public IDisposable OnPressed(IBindable<ModKeys> keys, Action handler) => register(keys, handler, onRelease: false);
 
-        public void OnReleased(IBindable<ModKeys> keys, Action handler) => register(keys, handler, onRelease: true);
+        public IDisposable OnReleased(IBindable<ModKeys> keys, Action handler) => register(keys, handler, onRelease: true);
 
-        private void register(IBindable<ModKeys> keys, Action handler, bool onRelease)
+        private IDisposable register(IBindable<ModKeys> keys, Action handler, bool onRelease)
         {
             if (!hooks.CanRegister(Hook.Input, "key binding"))
-                return;
+                return Subscription.NONE;
+
+            var registration = new Registration(manifest.Id, keys.GetBoundCopy(), handler, onRelease);
 
             lock (registrations)
-                registrations.Add(new Registration(manifest.Id, keys.GetBoundCopy(), handler, onRelease));
+                registrations.Add(registration);
+
+            return new Subscription(() =>
+            {
+                lock (registrations)
+                    registrations.Remove(registration);
+            });
         }
 
         /// <summary>
