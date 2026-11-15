@@ -35,17 +35,17 @@ namespace Omamori.Core.ModUi
 
         public void AddToSongSelectFooter(Func<ScreenFooterButton> factory) => register(Hook.SongSelectFooter, factory);
 
-        public void AddToolbarButton(IconUsage icon, string tooltip, Action action, string? subTooltip = null)
+        public void AddToolbarButton(IconUsage icon, string tooltip, Action onClick, string? subTooltip = null)
         {
             string modId = manifest.Id;
-            register(Hook.Toolbar, () => new ModToolbarButton(icon, tooltip, subTooltip, () => ModFaults.RunForMod(modId, "toolbar button", action)));
+            register(Hook.Toolbar, () => new ModToolbarButton(icon, tooltip, subTooltip, () => ModFaults.RunForMod(modId, "toolbar button", onClick)));
         }
 
-        public void AddBeatmapMenuItem(string text, Action<BeatmapDetails> action) => addMenuItem(MenuTarget.Beatmap, text, d => action((BeatmapDetails)d));
+        public void AddBeatmapMenuItem(string text, Action<BeatmapDetails> onClick) => addMenuItem(MenuTarget.Beatmap, text, d => onClick((BeatmapDetails)d));
 
-        public void AddBeatmapSetMenuItem(string text, Action<BeatmapSetDetails> action) => addMenuItem(MenuTarget.BeatmapSet, text, d => action((BeatmapSetDetails)d));
+        public void AddBeatmapSetMenuItem(string text, Action<BeatmapSetDetails> onClick) => addMenuItem(MenuTarget.BeatmapSet, text, d => onClick((BeatmapSetDetails)d));
 
-        public void AddScoreMenuItem(string text, Action<ScoreDetails> action) => addMenuItem(MenuTarget.Score, text, d => action((ScoreDetails)d));
+        public void AddScoreMenuItem(string text, Action<ScoreDetails> onClick) => addMenuItem(MenuTarget.Score, text, d => onClick((ScoreDetails)d));
 
         public void AddSkinComponent<T>() where T : Drawable, ISerialisableDrawable, new()
         {

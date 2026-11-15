@@ -14,9 +14,13 @@ namespace Omamori
         public static void Notify(string message) => Logger.Log($"[Omamori] {message}", level: LogLevel.Important);
 
         // not LogLevel.Error, lazer turns those into notifications too and these are for the log
-        public static void Error(string message, Exception? exception = null)
+        public static void Error(string message, Exception? exception = null) => write("error", message, exception);
+
+        public static void Warning(string message, Exception? exception = null) => write("warning", message, exception);
+
+        private static void write(string kind, string message, Exception? exception)
         {
-            Logger.Log($"[Omamori] error: {message}");
+            Logger.Log($"[Omamori] {kind}: {message}");
 
             if (exception != null)
                 Logger.Log($"[Omamori] {exception}");

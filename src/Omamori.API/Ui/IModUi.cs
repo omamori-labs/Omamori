@@ -37,19 +37,19 @@ namespace Omamori.API
         ///     a button in the toolbar at the top of the screen, left of the user button, styled like osu!'s own
         ///     the toolbar is built once when the game loads, so register from <see cref="IMod.Load"/>
         /// </summary>
-        void AddToolbarButton(IconUsage icon, string tooltip, Action action, string? subTooltip = null);
+        void AddToolbarButton(IconUsage icon, string tooltip, Action onClick, string? subTooltip = null);
 
         /// <summary>
         ///     an item in the right-click menu of a difficulty in song select, after osu!'s own
-        ///     the details are taken when the menu opens, the action runs on the update thread when the item is clicked
+        ///     the details are taken when the menu opens, <paramref name="onClick"/> runs on the update thread when the item is clicked
         /// </summary>
-        void AddBeatmapMenuItem(string text, Action<BeatmapDetails> action);
+        void AddBeatmapMenuItem(string text, Action<BeatmapDetails> onClick);
 
         /// <summary>an item in the right-click menu of a beatmap set in song select, see <see cref="AddBeatmapMenuItem"/></summary>
-        void AddBeatmapSetMenuItem(string text, Action<BeatmapSetDetails> action);
+        void AddBeatmapSetMenuItem(string text, Action<BeatmapSetDetails> onClick);
 
         /// <summary>an item in the right-click menu of a score, on song select's leaderboard and the beatmap info overlay's</summary>
-        void AddScoreMenuItem(string text, Action<ScoreDetails> action);
+        void AddScoreMenuItem(string text, Action<ScoreDetails> onClick);
 
         /// <summary>
         ///     on top of the results screen after a play or when viewing a score

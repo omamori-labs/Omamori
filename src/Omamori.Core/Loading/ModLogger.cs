@@ -14,6 +14,8 @@ namespace Omamori.Core.Loading
 
         public void Info(string message) => LoaderLog.Info($"[{modId}] {message}");
 
+        public void Warning(string message, Exception? exception = null) => LoaderLog.Warning($"[{modId}] {message}", exception);
+
         public void Error(string message, Exception? exception = null) => LoaderLog.Error($"[{modId}] {message}", exception);
     }
 }

@@ -37,7 +37,7 @@ namespace Omamori.Core.Presence
 
             if (tooLong(status.LargeImage) || tooLong(status.SmallImage))
             {
-                log.Error($"Presence wasn't set, images can be at most {MAX_IMAGE_BYTES} bytes.");
+                log.Warning($"Presence wasn't set, images can be at most {MAX_IMAGE_BYTES} bytes.");
                 return false;
             }
 

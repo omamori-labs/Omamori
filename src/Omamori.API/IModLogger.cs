@@ -10,7 +10,10 @@ namespace Omamori.API
     {
         void Info(string message);
 
-        /// <summary>log only, the exception's details go on the next line</summary>
+        /// <summary>something went wrong but the mod carries on, the exception's details go on the next line</summary>
+        void Warning(string message, Exception? exception = null);
+
+        /// <summary>log only like the rest, it never becomes a notification, the exception's details go on the next line</summary>
         void Error(string message, Exception? exception = null);
     }
 }
