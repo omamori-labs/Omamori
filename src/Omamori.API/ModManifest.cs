@@ -10,10 +10,10 @@ namespace Omamori.API
         public string Author { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
 
-        /// <summary>name of mods assembly</summary>
+        /// <summary>the file name of the mod's assembly</summary>
         public string Entry { get; set; } = string.Empty;
 
-        /// <summary>The <see cref="ApiInfo.VERSION"/> the mod was built for</summary>
+        /// <summary>the <see cref="ApiInfo.VERSION"/> the mod was built for</summary>
         public string ApiVersion { get; set; } = string.Empty;
 
         public List<ModCapability> Capabilities { get; set; } = [];

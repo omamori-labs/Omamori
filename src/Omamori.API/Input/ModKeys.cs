@@ -36,6 +36,7 @@ namespace Omamori.API
             return hash.ToHashCode();
         }
 
-        public override string ToString() => string.Join(',', Keys.Select(k => (int)k));
+        /// <summary>for logs, like Control+Shift+A, not a format to store</summary>
+        public override string ToString() => IsNone ? "None" : string.Join('+', Keys);
     }
 }

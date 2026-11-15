@@ -148,7 +148,7 @@ namespace Omamori.Core.Config
         public IBindable<ModKeys> KeyBinding(string key, string label, ModKeys defaultKeys, SettingOptions? options = null) =>
             add(key, label, options, defaultKeys, v => new Bindable<ModKeys>(v), readKeys,
                 (setting, current) => SettingControls.KeyBinding(manifest.Id, setting, current),
-                v => v.ToString());
+                v => string.Join(',', v.Keys.Select(k => (int)k)));
 
         public void Button(string label, string buttonText, Action onClick) =>
             declared.Add(new ConfigButton(manifest.Id, label, buttonText, onClick));

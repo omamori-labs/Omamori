@@ -1,5 +1,8 @@
 namespace Omamori.API
 {
+    /// <summary>
+    ///     lets mods share an object with each other, safe from any thread
+    /// </summary>
     public interface IModServices
     {
         /// <summary>from <see cref="IMod.Load"/>, other mods find it by <typeparamref name="T"/>, throws if this mod already provides one</summary>

@@ -7,7 +7,8 @@ using osu.Game.Skinning;
 namespace Omamori.API
 {
     /// <summary>
-    ///     the factory runs every time its screen is created, so return a new drawable each call
+    ///     register from <see cref="IMod.Load"/> or the update thread, factories run on the update thread
+    ///     a factory runs every time its screen is built, so return a new drawable each call, the global overlay and toolbar are built once
     /// </summary>
     public interface IModUi
     {

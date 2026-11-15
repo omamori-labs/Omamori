@@ -2,7 +2,7 @@ namespace Omamori.API
 {
     /// <summary>
     ///     the text on the player's discord status, set through osu!'s own rich presence
-    ///     the most recent mod to call <see cref="Set"/> controls presence
+    ///     the most recent mod to call <see cref="Set"/> controls presence, safe from any thread
     /// </summary>
     public interface IModPresence
     {

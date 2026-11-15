@@ -13,7 +13,7 @@ namespace Omamori.Core.Events.Sources
             foreach (var (overlay, kind) in GameOverlays.Of(game))
             {
                 overlay?.State.BindValueChanged(e => FeatureRegistry.Run(Feature.OverlayEvents, () =>
-                    GameEvents.Raise(GameEvent.OverlayChanged, new OverlayChange { Overlay = kind, IsVisible =e.NewValue == Visibility.Visible })));
+                    GameEvents.Raise(GameEvent.OverlayChanged, new OverlayChange { Overlay = kind, IsVisible = e.NewValue == Visibility.Visible })));
             }
         }
     }

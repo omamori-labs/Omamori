@@ -34,7 +34,7 @@ namespace Omamori.Core.Events.Sources
 
                 if (selected_mods.Update(mods))
                     GameEvents.Raise(GameEvent.ModsChanged, mods);
-            }));
+            }), true);
         }
     }
 }

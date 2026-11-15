@@ -52,8 +52,8 @@ namespace Omamori.API
         bool IsModLoaded(string id);
 
         /// <summary>
-        ///     opens a folder in the systems file browser or show a file
-        ///     false when the path doesn't exist
+        ///     opens a folder in the system's file browser, or shows a file selected in its folder
+        ///     a file is never opened, false when the path doesn't exist
         /// </summary>
         bool ShowInFileBrowser(string path);
     }

@@ -3,7 +3,8 @@ using System;
 namespace Omamori.API
 {
     /// <summary>
-    ///     writes to osu!'s runtime log with the mod's id, tell them with <see cref="IModContext.Notifications"/>
+    ///     writes to osu!'s runtime log with the mod's id, safe from any thread
+    ///     the player rarely reads the log, tell them with <see cref="IModContext.Notifications"/>
     /// </summary>
     public interface IModLogger
     {

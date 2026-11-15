@@ -17,7 +17,7 @@ namespace Omamori.API
         /// <summary>shown when hovering the large image</summary>
         public string? LargeImageText { get; init; }
 
-        /// <summary>the corner icon same rules as <see cref="LargeImage"/></summary>
+        /// <summary>the corner icon, same rules as <see cref="LargeImage"/></summary>
         public string? SmallImage { get; init; }
 
         /// <summary>shown when hovering the small image</summary>
