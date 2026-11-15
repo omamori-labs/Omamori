@@ -8,8 +8,7 @@ namespace Omamori.API
 
         public string Ruleset { get; init; } = string.Empty;
 
-        /// <summary>acronyms like HD, DT</summary>
-        public IReadOnlyList<string> Mods { get; init; } = [];
+        public IReadOnlyList<ModDetails> Mods { get; init; } = [];
 
         public PlayKind Kind { get; init; }
 

@@ -59,6 +59,22 @@ namespace Omamori.Tests
         }
 
         [Test]
+        public void SavedModKeepsItsSettings()
+        {
+            var mod = GameDetails.ModOf(new osu.Game.Online.API.APIMod { Acronym = "DT", Settings = { ["speed_change"] = 1.5 } });
+
+            Assert.That(mod.Acronym, Is.EqualTo("DT"));
+            Assert.That(mod.Settings["speed_change"], Is.EqualTo("1.5"));
+        }
+
+        [TestCase(true, "true")]
+        [TestCase(1.5, "1.5")]
+        [TestCase(1.5f, "1.5")]
+        [TestCase(3L, "3")]
+        [TestCase(GameScreen.SongSelect, "2")]
+        public void SettingsAreWrittenTheSameWhereverTheyCameFrom(object value, string text) => Assert.That(GameDetails.SettingText(value), Is.EqualTo(text));
+
+        [Test]
         public void FailedScoreIsGradedF() => Assert.That(GameDetails.Score(new ScoreInfo { Rank = ScoreRank.F }).Grade, Is.EqualTo(ScoreGrade.F));
 
         [Test]

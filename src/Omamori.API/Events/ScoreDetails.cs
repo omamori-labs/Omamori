@@ -24,7 +24,7 @@ namespace Omamori.API
 
         public string Ruleset { get; init; } = string.Empty;
 
-        public IReadOnlyList<string> Mods { get; init; } = [];
+        public IReadOnlyList<ModDetails> Mods { get; init; } = [];
 
         /// <summary>null when the beatmap isn't in the library</summary>
         public BeatmapDetails? Beatmap { get; init; }

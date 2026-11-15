@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using Omamori.API;
 
 namespace Omamori.NowPlaying
@@ -11,10 +12,10 @@ namespace Omamori.NowPlaying
 
         public GameScreen Screen { get; set; }
         public BeatmapDetails? Beatmap { get; set; }
-        public IReadOnlyList<string> Mods { get; set; } = [];
+        public IReadOnlyList<ModDetails> Mods { get; set; } = [];
         public PlayDetails? Play { get; set; }
 
-        public (BeatmapDetails Beatmap, IReadOnlyList<string> Mods)? Shown() => Screen switch
+        public (BeatmapDetails Beatmap, IReadOnlyList<ModDetails> Mods)? Shown() => Screen switch
         {
             GameScreen.Gameplay when Play != null => (Play.Beatmap, Play.Mods),
             GameScreen.Results when Beatmap != null => (Beatmap, Mods),
@@ -22,7 +23,7 @@ namespace Omamori.NowPlaying
             _ => null,
         };
 
-        public static string Fill(string format, BeatmapDetails beatmap, IReadOnlyList<string> mods) =>
+        public static string Fill(string format, BeatmapDetails beatmap, IReadOnlyList<ModDetails> mods) =>
             format.Replace("{artist}", beatmap.Artist, StringComparison.Ordinal)
                   .Replace("{title}", beatmap.Title, StringComparison.Ordinal)
                   .Replace("{diff}", beatmap.DifficultyName, StringComparison.Ordinal)
@@ -30,7 +31,7 @@ namespace Omamori.NowPlaying
                   .Replace("{stars}", beatmap.StarRating is { } stars ? stars.ToString("0.00", CultureInfo.InvariantCulture) : "?", StringComparison.Ordinal)
                   .Replace("{bpm}", Math.Round(beatmap.Bpm).ToString(CultureInfo.InvariantCulture), StringComparison.Ordinal)
                   .Replace("{length}", beatmap.Length.ToString(@"m\:ss", CultureInfo.InvariantCulture), StringComparison.Ordinal)
-                  .Replace("{mods}", mods.Count == 0 ? string.Empty : "+" + string.Concat(mods), StringComparison.Ordinal)
+                  .Replace("{mods}", mods.Count == 0 ? string.Empty : "+" + string.Concat(mods.Select(m => m.Acronym)), StringComparison.Ordinal)
                   .Trim();
     }
 }

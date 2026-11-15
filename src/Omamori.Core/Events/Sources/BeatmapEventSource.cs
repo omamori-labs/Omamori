@@ -30,7 +30,7 @@ namespace Omamori.Core.Events.Sources
 
             game.SelectedMods.BindValueChanged(e => FeatureRegistry.Run(Feature.BeatmapEvents, () =>
             {
-                var mods = GameDetails.Acronyms(e.NewValue);
+                var mods = GameDetails.Mods(e.NewValue);
 
                 if (selected_mods.Update(mods))
                     GameEvents.Raise(GameEvent.ModsChanged, mods);

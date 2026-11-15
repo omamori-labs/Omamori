@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using Omamori.API;
 using osu.Framework.Screens;
 using osu.Game.Beatmaps;
+using osu.Game.Online.API;
 using osu.Game.Rulesets;
 using osu.Game.Rulesets.Mods;
 using osu.Game.Rulesets.Objects;
@@ -75,7 +77,7 @@ namespace Omamori.Core.Details
         {
             Beatmap = Beatmap(beatmap),
             Ruleset = ruleset.ShortName,
-            Mods = Acronyms(mods),
+            Mods = Mods(mods),
             HitObjects = [.. playable.HitObjects.Select(HitObjectOf)],
             TimingPoints = [.. playable.ControlPointInfo.TimingPoints.Select(t => new TimingPointDetails { Time = Time(t.Time), BeatLength = Time(t.BeatLength), Bpm = t.BPM, BeatsPerBar = t.TimeSignature.Numerator })],
             Breaks = [.. playable.Breaks.Select(b => new BreakDetails { StartTime = Time(b.StartTime), EndTime = Time(b.EndTime) })],
@@ -101,8 +103,7 @@ namespace Omamori.Core.Details
             IsPassed = score.Passed,
             Date = score.Date,
             Ruleset = score.Ruleset is { } ruleset ? ruleset.ShortName : string.Empty,
-            // api mods don't need the ruleset instantiated
-            Mods = [.. score.APIMods.Select(m => m.Acronym)],
+            Mods = [.. score.APIMods.Select(ModOf)],
             Beatmap = score.BeatmapInfo is { } beatmap ? Beatmap(beatmap) : null,
         };
 
@@ -161,7 +162,25 @@ namespace Omamori.Core.Details
             RankedScore = statistics.RankedScore,
         };
 
-        public static IReadOnlyList<string> Acronyms(IReadOnlyList<Mod>? mods) => [.. (mods ?? []).Select(m => m.Acronym)];
+        public static IReadOnlyList<ModDetails> Mods(IReadOnlyList<Mod>? mods) => [.. (mods ?? []).Select(m => ModOf(new APIMod(m)))];
+
+        /// <summary>
+        ///     the form scores store, so a live mod and a saved one come out the same, and a score's mods don't need its ruleset
+        /// </summary>
+        public static ModDetails ModOf(APIMod mod) => new ModDetails
+        {
+            Acronym = mod.Acronym,
+            Settings = mod.Settings.ToDictionary(s => s.Key, s => SettingText(s.Value)),
+        };
+
+        /// <summary>a saved score's settings come back from json, where an option is its number, so a live option is written as one too</summary>
+        public static string SettingText(object? value) => value switch
+        {
+            null => string.Empty,
+            bool b => b ? "true" : "false",
+            Enum e => Convert.ToInt64(e, CultureInfo.InvariantCulture).ToString(CultureInfo.InvariantCulture),
+            _ => Convert.ToString(value, CultureInfo.InvariantCulture) ?? string.Empty,
+        };
 
         /// <summary>
         ///     lazer's enum value as the api enum with the same name, so a value lazer adds later becomes <paramref name="fallback"/>

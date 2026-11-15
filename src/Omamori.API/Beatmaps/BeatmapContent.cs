@@ -9,8 +9,8 @@ namespace Omamori.API
         /// <summary>the ruleset it was converted for, which can differ from <see cref="BeatmapDetails.Ruleset"/> for a converted osu! map</summary>
         public string Ruleset { get; init; } = string.Empty;
 
-        /// <summary>acronyms of the mods applied</summary>
-        public IReadOnlyList<string> Mods { get; init; } = [];
+        /// <summary>the mods applied</summary>
+        public IReadOnlyList<ModDetails> Mods { get; init; } = [];
 
         /// <summary>in time order, after the mods have changed them</summary>
         public IReadOnlyList<HitObjectDetails> HitObjects { get; init; } = [];

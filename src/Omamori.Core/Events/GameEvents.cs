@@ -27,7 +27,7 @@ namespace Omamori.Core.Events
 
         public void OnRulesetChanged(Action<RulesetDetails> handler) => register(Hook.BeatmapEvents, GameEvent.RulesetChanged, handler);
 
-        public void OnModsChanged(Action<IReadOnlyList<string>> handler) => register(Hook.BeatmapEvents, GameEvent.ModsChanged, handler);
+        public void OnModsChanged(Action<IReadOnlyList<ModDetails>> handler) => register(Hook.BeatmapEvents, GameEvent.ModsChanged, handler);
 
         public void OnPlayStarted(Action<PlayDetails> handler) => register(Hook.PlayEvents, GameEvent.PlayStarted, handler);
 

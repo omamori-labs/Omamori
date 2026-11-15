@@ -28,8 +28,8 @@ namespace Omamori.API
         /// <summary><see cref="Hook.PlayEvents"/>, true when the player pauses, false when they resume, every play starts unpaused</summary>
         void OnPlayPauseChanged(Action<bool> handler);
 
-        /// <summary><see cref="Hook.BeatmapEvents"/>, the selected mods as acronyms, also raised once when the game starts</summary>
-        void OnModsChanged(Action<IReadOnlyList<string>> handler);
+        /// <summary><see cref="Hook.BeatmapEvents"/>, the selected mods, raised when a setting changes too, also raised once when the game starts</summary>
+        void OnModsChanged(Action<IReadOnlyList<ModDetails>> handler);
 
         /// <summary><see cref="Hook.LifecycleEvents"/>, the game is closing, save anything you need to now</summary>
         void OnGameExiting(Action handler);
