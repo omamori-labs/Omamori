@@ -2,25 +2,28 @@ using System.Collections.Generic;
 
 namespace Omamori.API
 {
+    /// <summary>
+    ///     the mod's mod.json, read-only once loaded
+    /// </summary>
     public sealed class ModManifest
     {
-        public string Id { get; set; } = string.Empty;
-        public string Name { get; set; } = string.Empty;
-        public string Version { get; set; } = string.Empty;
-        public string Author { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
+        public string Id { get; init; } = string.Empty;
+        public string Name { get; init; } = string.Empty;
+        public string Version { get; init; } = string.Empty;
+        public string Author { get; init; } = string.Empty;
+        public string Description { get; init; } = string.Empty;
 
         /// <summary>the file name of the mod's assembly</summary>
-        public string Entry { get; set; } = string.Empty;
+        public string Entry { get; init; } = string.Empty;
 
         /// <summary>the <see cref="ApiInfo.VERSION"/> the mod was built for</summary>
-        public string ApiVersion { get; set; } = string.Empty;
+        public string ApiVersion { get; init; } = string.Empty;
 
-        public List<ModCapability> Capabilities { get; set; } = [];
+        public IReadOnlyList<ModCapability> Capabilities { get; init; } = [];
 
         /// <summary>hooks the mod uses, undeclared ones count as optional</summary>
-        public Dictionary<Hook, HookRequirement> Hooks { get; set; } = [];
+        public IReadOnlyDictionary<Hook, HookRequirement> Hooks { get; init; } = new Dictionary<Hook, HookRequirement>();
 
-        public List<ModDependency> Dependencies { get; set; } = [];
+        public IReadOnlyList<ModDependency> Dependencies { get; init; } = [];
     }
 }

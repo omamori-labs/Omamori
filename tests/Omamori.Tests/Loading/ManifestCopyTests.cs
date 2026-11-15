@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using NUnit.Framework;
@@ -32,18 +33,26 @@ namespace Omamori.Tests
         }
 
         [Test]
-        public void ChangingTheCopyLeavesTheOriginal()
+        public void CopysCollectionsCantBeCastBackAndChanged()
         {
             var original = manifest();
             var copy = ManifestCopy.Of(original);
 
-            copy.Id = "other.mod";
-            copy.Capabilities.Add(ModCapability.Informational);
-            copy.Hooks[Hook.Input] = HookRequirement.Required;
-            copy.Dependencies[0].Optional = true;
-            copy.Dependencies.Clear();
-
+            Assert.Throws<NotSupportedException>(() => ((IList<ModCapability>)copy.Capabilities).Add(ModCapability.Informational));
+            Assert.Throws<NotSupportedException>(() => ((IDictionary<Hook, HookRequirement>)copy.Hooks)[Hook.Input] = HookRequirement.Required);
+            Assert.Throws<NotSupportedException>(() => ((IList<ModDependency>)copy.Dependencies).Clear());
             Assert.That(JsonSerializer.Serialize(original), Is.EqualTo(JsonSerializer.Serialize(manifest())));
+        }
+
+        [Test]
+        public void CopySharesNothingWithTheOriginal()
+        {
+            var original = manifest();
+            var copy = ManifestCopy.Of(original);
+
+            Assert.That(copy.Capabilities, Is.Not.SameAs(original.Capabilities));
+            Assert.That(copy.Hooks, Is.Not.SameAs(original.Hooks));
+            Assert.That(copy.Dependencies[0], Is.Not.SameAs(original.Dependencies[0]));
         }
     }
 }

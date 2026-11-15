@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using NUnit.Framework;
 using Omamori.API;
 using Omamori.Core.Features;
@@ -100,7 +101,7 @@ namespace Omamori.Tests
 
         private static ModPresence presenceFor(string id)
         {
-            var manifest = new ModManifest { Id = id, Hooks = { [Hook.Presence] = HookRequirement.Optional } };
+            var manifest = new ModManifest { Id = id, Hooks = new Dictionary<Hook, HookRequirement> { [Hook.Presence] = HookRequirement.Optional } };
             return new ModPresence(manifest, new ModLogger(id));
         }
     }

@@ -81,8 +81,7 @@ namespace Omamori.Tests
         [Test]
         public void OnlyModsDeclaringPatchesAreMarkedAsPatching()
         {
-            var patching = unique();
-            patching.Capabilities = [ModCapability.Cosmetic, ModCapability.Patches];
+            var patching = new ModManifest { Id = uniqueId(), Version = "1.0.0", Capabilities = [ModCapability.Cosmetic, ModCapability.Patches] };
 
             Assert.That(new InstalledMod("Patching", patching, true, null).Patches, Is.True);
             Assert.That(new InstalledMod("Cosmetic", unique(), true, null).Patches, Is.False);
@@ -112,9 +111,7 @@ namespace Omamori.Tests
         [Test]
         public void SearchNeedsEveryTermButIgnoresCase()
         {
-            var manifest = unique();
-            manifest.Author = "catforgor";
-            manifest.Description = "shows the current song";
+            var manifest = new ModManifest { Id = uniqueId(), Version = "1.0.0", Author = "catforgor", Description = "shows the current song" };
 
             var mod = new InstalledMod("Now Playing", manifest, true, null);
 
@@ -123,6 +120,8 @@ namespace Omamori.Tests
             Assert.That(mod.Matches([]), Is.True);
         }
 
-        private static ModManifest unique() => new ModManifest { Id = $"test.installed-{Guid.NewGuid():N}", Version = "1.0.0" };
+        private static ModManifest unique() => new ModManifest { Id = uniqueId(), Version = "1.0.0" };
+
+        private static string uniqueId() => $"test.installed-{Guid.NewGuid():N}";
     }
 }
