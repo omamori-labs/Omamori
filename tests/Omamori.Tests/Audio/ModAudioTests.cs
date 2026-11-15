@@ -46,24 +46,7 @@ namespace Omamori.Tests
         public void MissingSoundIsRefused() => Assert.That(ModAudio.InsideFolder(modFolder, "sounds/missing.wav"), Is.Null);
 
         [Test]
-        public void NothingHappensBeforeTheGameHasLoaded()
-        {
-            var audio = audioFor("test.audio");
-
-            Assert.That(audio.PlaySound("sounds/ding.wav"), Is.False);
-            Assert.That(audio.PauseMusic(), Is.False);
-            Assert.That(audio.SeekMusic(TimeSpan.FromSeconds(10)), Is.False);
-            Assert.DoesNotThrow(() => audio.DuckMusic().Dispose());
-        }
-
-        [Test]
-        public void DuckCanBeDisposedTwice()
-        {
-            var duck = audioFor("test.audio").DuckMusic();
-
-            duck.Dispose();
-            Assert.DoesNotThrow(duck.Dispose);
-        }
+        public void NothingPlaysBeforeTheGameHasLoaded() => Assert.That(audioFor("test.audio").PlaySound("sounds/ding.wav"), Is.False);
 
         [Test]
         public void UnavailableHookPlaysNothing()

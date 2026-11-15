@@ -39,6 +39,7 @@ namespace Omamori.Tests
             GameNavigation.Clear();
             GameBeatmaps.Clear();
             ModAudio.Clear();
+            GameMusic.Clear();
             ModInput.Clear();
             ModServices.Clear();
             ModPresence.Reset();

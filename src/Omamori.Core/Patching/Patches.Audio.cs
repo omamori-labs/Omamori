@@ -15,7 +15,11 @@ namespace Omamori.Core.Patching
         internal static class AudioReady
         {
             [HarmonyPostfix]
-            private static void postfix(OsuGame __instance) => FeatureRegistry.Run(Feature.Audio, () => ModAudio.Attach(__instance));
+            private static void postfix(OsuGame __instance) => FeatureRegistry.Run(Feature.Audio, () =>
+            {
+                ModAudio.Attach(__instance);
+                GameMusic.Attach(__instance);
+            });
         }
     }
 }

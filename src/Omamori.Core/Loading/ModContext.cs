@@ -50,6 +50,7 @@ namespace Omamori.Core.Loading
         public IGameNavigation GameNavigation { get; }
         public IGameBeatmaps GameBeatmaps { get; }
         public IModAudio Audio { get; }
+        public IGameMusic GameMusic { get; }
 
         public ModContext(ModManifest manifest, string modDirectory, string dataDirectory, GameHost? host = null)
         {
@@ -71,6 +72,7 @@ namespace Omamori.Core.Loading
             GameNavigation = new GameNavigation(manifest, Log);
             GameBeatmaps = new GameBeatmaps(manifest, Log);
             Audio = new ModAudio(manifest, modDirectory, Log);
+            GameMusic = new GameMusic(manifest, Log);
         }
 
         public bool IsHookAvailable(Hook hook) => FeatureRegistry.IsAvailable(hook);
