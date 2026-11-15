@@ -14,7 +14,7 @@ namespace Omamori.Tests
     [TestFixture]
     public class ManifestSchemaTests
     {
-        private const string minimal = """{"id":"a.b","name":"A","version":"1.0.0","entry":"A.dll","apiVersion":"0.2"}""";
+        private const string minimal = """{"id":"a.b","name":"A","version":"1.0.0","entry":"A.dll","apiVersion":"1.0"}""";
 
         [Test]
         public void MinimalManifestIsValid() => Assert.That(validate(minimal), Is.Empty);

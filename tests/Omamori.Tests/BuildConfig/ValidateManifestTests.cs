@@ -14,7 +14,7 @@ namespace Omamori.Tests
     [TestFixture]
     public class ValidateManifestTests
     {
-        private const string valid = """{"id":"a.b","name":"A","version":"1.2.0","entry":"A.dll","apiVersion":"0.2"}""";
+        private const string valid = """{"id":"a.b","name":"A","version":"1.2.0","entry":"A.dll","apiVersion":"1.0"}""";
 
         private string directory = null!;
 
@@ -61,7 +61,7 @@ namespace Omamori.Tests
 
         [Test]
         public void ApiNewerThanTheBuildConfigFails() =>
-            Assert.That(run(valid.Replace("\"0.2\"", "\"0.9\"", StringComparison.Ordinal)).Errors.Single().Code, Is.EqualTo("OMA005"));
+            Assert.That(run(valid.Replace("\"1.0\"", "\"1.9\"", StringComparison.Ordinal)).Errors.Single().Code, Is.EqualTo("OMA005"));
 
         [Test]
         public void DependingOnItselfFails() =>

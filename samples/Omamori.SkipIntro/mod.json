@@ -6,6 +6,6 @@
   "author": "catforgor",
   "description": "Goes straight to the main menu when osu! starts",
   "entry": "Omamori.SkipIntro.dll",
-  "apiVersion": "0.6",
+  "apiVersion": "1.0",
   "capabilities": ["Patches"]
 }
