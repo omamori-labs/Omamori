@@ -1,4 +1,3 @@
-using System;
 using NUnit.Framework;
 using Omamori.API;
 using Omamori.Core.Features;
@@ -84,8 +83,7 @@ namespace Omamori.Tests
         {
             FeatureRegistry.Set(Feature.DiscordPresence, FeatureState.Pending, null);
 
-            presenceFor("test.mod").Set(new PresenceStatus { Details = "playing" });
-
+            Assert.That(presenceFor("test.mod").Set(new PresenceStatus { Details = "playing" }), Is.False);
             Assert.That(ModPresence.Current(), Is.Null);
             Assert.That(refreshes, Is.Zero);
         }
@@ -95,8 +93,9 @@ namespace Omamori.Tests
         {
             var status = new PresenceStatus { LargeImage = "https://example.com/" + new string('a', ModPresence.MAX_IMAGE_BYTES) };
 
-            Assert.Throws<ArgumentException>(() => presenceFor("test.mod").Set(status));
+            Assert.That(presenceFor("test.mod").Set(status), Is.False);
             Assert.That(ModPresence.Current(), Is.Null);
+            Assert.That(refreshes, Is.Zero);
         }
 
         private static ModPresence presenceFor(string id)

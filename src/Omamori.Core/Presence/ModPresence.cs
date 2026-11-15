@@ -19,24 +19,30 @@ namespace Omamori.Core.Presence
         private static Action? refresh;
 
         private readonly ModManifest manifest;
+        private readonly IModLogger log;
         private readonly HookCheck hooks;
         private bool unavailable;
 
         public ModPresence(ModManifest manifest, IModLogger log)
         {
             this.manifest = manifest;
+            this.log = log;
             hooks = new HookCheck(manifest, log);
         }
 
-        public void Set(PresenceStatus status)
+        // an image url can come from anywhere at runtime, refusing it keeps the mod running where a throw would turn it off
+        public bool Set(PresenceStatus status)
         {
             ArgumentNullException.ThrowIfNull(status);
 
             if (tooLong(status.LargeImage) || tooLong(status.SmallImage))
-                throw new ArgumentException($"presence images can be at most {MAX_IMAGE_BYTES} bytes", nameof(status));
+            {
+                log.Error($"Presence wasn't set, images can be at most {MAX_IMAGE_BYTES} bytes.");
+                return false;
+            }
 
             if (ModFaults.IsFaulted(manifest.Id) || !canSet())
-                return;
+                return false;
 
             lock (set_by_mods)
             {
@@ -45,6 +51,7 @@ namespace Omamori.Core.Presence
             }
 
             Refresh();
+            return true;
         }
 
         public void Clear()

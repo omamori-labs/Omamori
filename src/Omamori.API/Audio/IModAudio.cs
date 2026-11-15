@@ -4,7 +4,8 @@ namespace Omamori.API
 {
     /// <summary>
     ///     sounds and the music player, calls can come from any thread and are carried out on the update thread
-    ///     nothing happens before the game has finished loading, or when <see cref="Hook.Audio"/> isn't available
+    ///     true means the request was accepted, osu! can still refuse it when it runs
+    ///     nothing happens, and false comes back, before the game has finished loading or when <see cref="Hook.Audio"/> isn't available
     /// </summary>
     public interface IModAudio
     {

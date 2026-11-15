@@ -11,9 +11,9 @@ namespace Omamori.API
         /// <summary>acronyms like HD, DT</summary>
         public IReadOnlyList<string> Mods { get; init; } = [];
 
-        /// <summary>watching a replay, autoplay or spectating, not the player playing</summary>
-        public bool IsReplay { get; init; }
-
         public PlayKind Kind { get; init; }
+
+        /// <summary>watching a replay, autoplay or spectating, not the player playing</summary>
+        public bool IsReplay => Kind is PlayKind.Replay or PlayKind.Spectator;
     }
 }

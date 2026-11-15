@@ -7,6 +7,7 @@ using Omamori.Core.Features;
 using Omamori.Core.Plays;
 using osu.Game.Beatmaps;
 using osu.Game.Rulesets.Objects;
+using osu.Game.Screens.Play;
 
 namespace Omamori.Tests
 {
@@ -188,6 +189,32 @@ namespace Omamori.Tests
 
         [Test]
         public void NothingIsRunningOutsideGameplay() => Assert.That(gamePlays("test.plays").Running, Is.Null);
+
+        [Test]
+        public void RunningPlayKnowsItsKind()
+        {
+            GamePlays.Entered(new SoloPlayer());
+
+            var running = gamePlays("test.plays").Running!;
+
+            Assert.That(running.Kind, Is.EqualTo(PlayKind.Solo));
+            Assert.That(running.IsSolo, Is.True);
+        }
+
+        [Test]
+        public void PlayThePlayerLeftRefusesEverything()
+        {
+            var player = new SoloPlayer();
+            GamePlays.Entered(player);
+            var running = gamePlays("test.plays").Running!;
+
+            GamePlays.Left(player);
+
+            Assert.That(running.Kind, Is.EqualTo(PlayKind.Other));
+            Assert.That(running.Pause(), Is.False);
+            Assert.That(running.Exit(), Is.False);
+            Assert.That(running.SeekTo(TimeSpan.FromSeconds(1)), Is.False);
+        }
 
         [Test]
         public void PlayFailsWhenNobodyPrevents()

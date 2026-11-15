@@ -1,5 +1,6 @@
 using System;
 using Omamori.API;
+using Omamori.Core.Details;
 using osu.Framework.Screens;
 using osu.Game.Screens.Play;
 
@@ -21,19 +22,19 @@ namespace Omamori.Core.Plays
 
         public bool IsPaused => player.TryGetTarget(out var p) && p.GameplayClockContainer is { } clock && clock.IsPaused.Value;
 
-        public bool IsSolo => player.TryGetTarget(out var p) && p is SoloPlayer;
+        public PlayKind Kind => player.TryGetTarget(out var p) && GamePlays.IsOnScreen(p) ? GameDetails.KindOf(p.GetType()) : PlayKind.Other;
 
-        public void Pause() => schedule(p => p.Pause());
+        public bool Pause() => schedule(p => p.Pause());
 
-        public void Resume() => schedule(p => p.Resume());
+        public bool Resume() => schedule(p => p.Resume());
 
-        public void Restart() => schedule(p => p.Restart(false));
+        public bool Restart() => schedule(p => p.Restart(false));
 
-        public void Exit() => schedule(p => p.PerformExit(false));
+        public bool Exit() => schedule(p => p.PerformExit(false));
 
         public bool SeekTo(TimeSpan time)
         {
-            if (!player.TryGetTarget(out var p) || p is not SoloPlayer)
+            if (!player.TryGetTarget(out var p) || p is not SoloPlayer || !GamePlays.IsOnScreen(p))
                 return false;
 
             // before the seek is even scheduled, so there's no window where a seeked play could still be submitted
@@ -42,16 +43,19 @@ namespace Omamori.Core.Plays
             return true;
         }
 
-        private void schedule(Action<Player> action)
+        /// <summary>false once the player has left the play, it's checked again on the update thread</summary>
+        private bool schedule(Action<Player> action)
         {
-            if (!player.TryGetTarget(out var p))
-                return;
+            if (!player.TryGetTarget(out var p) || !GamePlays.IsOnScreen(p))
+                return false;
 
             p.Schedule((Action)(() =>
             {
                 if (p.IsCurrentScreen())
                     action(p);
             }));
+
+            return true;
         }
     }
 }

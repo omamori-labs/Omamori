@@ -44,7 +44,6 @@ namespace Omamori.Core.Events.Sources
                 Beatmap = GameDetails.Beatmap(player.Beatmap.Value.BeatmapInfo),
                 Ruleset = player.Ruleset.Value is { } ruleset ? ruleset.ShortName : string.Empty,
                 Mods = GameDetails.Acronyms(player.Mods.Value),
-                IsReplay = kind is PlayKind.Replay or PlayKind.Spectator,
                 Kind = kind,
             };
 

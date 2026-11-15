@@ -69,6 +69,9 @@ namespace Omamori.Core.Plays
 
         public static void Entered(Player player) => onScreen = new WeakReference<Player>(player);
 
+        /// <summary>the field is only written on the update thread, a stale read from another one is checked again when the request runs</summary>
+        public static bool IsOnScreen(Player player) => onScreen is { } current && current.TryGetTarget(out var shown) && ReferenceEquals(shown, player);
+
         public static void Left(Player player)
         {
             if (onScreen is { } current && current.TryGetTarget(out var shown) && ReferenceEquals(shown, player))

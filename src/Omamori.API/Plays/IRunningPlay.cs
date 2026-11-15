@@ -3,8 +3,8 @@ using System;
 namespace Omamori.API
 {
     /// <summary>
-    ///     the play on screen right now, every call does nothing once the player has left it
-    ///     calls can come from any thread, they're carried out on the update thread
+    ///     the play on screen right now, calls can come from any thread and are carried out on the update thread
+    ///     true means the request was accepted, osu! can still refuse it when it runs, false means the player has left the play
     /// </summary>
     public interface IRunningPlay
     {
@@ -13,19 +13,22 @@ namespace Omamori.API
 
         bool IsPaused { get; }
 
+        /// <summary><see cref="PlayKind.Other"/> once the player has left the play</summary>
+        PlayKind Kind { get; }
+
         /// <summary>a solo play from song select, the only kind that can be seeked</summary>
-        bool IsSolo { get; }
+        bool IsSolo => Kind == PlayKind.Solo;
 
         /// <summary>shows the pause menu, osu! still refuses where it always would, like right after resuming or in multiplayer</summary>
-        void Pause();
+        bool Pause();
 
         /// <summary>resumes the way the pause menu's continue does</summary>
-        void Resume();
+        bool Resume();
 
-        void Restart();
+        bool Restart();
 
         /// <summary>leaves the play as if the player quit</summary>
-        void Exit();
+        bool Exit();
 
         /// <summary>
         ///     jumps to <paramref name="time"/>, objects skipped over count as misses
