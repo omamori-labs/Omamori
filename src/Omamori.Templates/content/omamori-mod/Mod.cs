@@ -28,7 +28,7 @@ namespace OmamoriMod
             context.GameEvents.OnPlayEnded(result =>
             {
                 if (result.Score is { } score && !result.Play.IsReplay)
-                    context.Notifications.Post($"finished with {score.Rank}, {score.Accuracy:P2}");
+                    context.Notifications.Post($"finished with {score.Grade}, {score.Accuracy:P2}");
             });
 #if (harmony)
             MainMenuPatch.Log = context.Log;

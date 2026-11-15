@@ -10,8 +10,8 @@ namespace Omamori.API
         /// <summary>0 to 1</summary>
         public double Accuracy { get; init; }
 
-        /// <summary>D, C, B, A, S, SH, X, XH, or F for a fail</summary>
-        public string Rank { get; init; } = string.Empty;
+        /// <summary><see cref="ScoreGrade.F"/> for a fail</summary>
+        public ScoreGrade Grade { get; init; }
 
         public int MaxCombo { get; init; }
 

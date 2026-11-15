@@ -85,7 +85,7 @@ public class Mod : IMod
         context.GameEvents.OnPlayEnded(result =>
         {
             if (result.Score is { } score)
-                context.Notifications.Post($"finished with {score.Rank}");
+                context.Notifications.Post($"finished with {score.Grade}");
         });
     }
 }

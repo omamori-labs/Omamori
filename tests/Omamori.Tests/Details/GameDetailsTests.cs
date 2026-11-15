@@ -34,6 +34,7 @@ namespace Omamori.Tests
 
             Assert.That(details.Title, Is.EqualTo("song"));
             Assert.That(details.DifficultyName, Is.EqualTo("Insane"));
+            Assert.That(details.StarRating, Is.EqualTo(5.5));
             Assert.That(details.Length, Is.EqualTo(TimeSpan.FromSeconds(90)));
             Assert.That(details.OnlineId, Is.Null, "local beatmaps have no online id");
             Assert.That(details.SetOnlineId, Is.Null);
@@ -53,8 +54,25 @@ namespace Omamori.Tests
             var details = GameDetails.Score(new ScoreInfo { TotalScore = 1_000_000, Accuracy = 0.98, Rank = ScoreRank.S, MaxCombo = 500, Passed = true });
 
             Assert.That(details.TotalScore, Is.EqualTo(1_000_000));
-            Assert.That(details.Rank, Is.EqualTo("S"));
+            Assert.That(details.Grade, Is.EqualTo(ScoreGrade.S));
             Assert.That(details.Pp, Is.Null);
+        }
+
+        [Test]
+        public void FailedScoreIsGradedF() => Assert.That(GameDetails.Score(new ScoreInfo { Rank = ScoreRank.F }).Grade, Is.EqualTo(ScoreGrade.F));
+
+        [Test]
+        public void UncalculatedStarRatingIsNull() => Assert.That(GameDetails.Beatmap(new BeatmapInfo { StarRating = -1 }).StarRating, Is.Null);
+
+        [Test]
+        public void LazerValueWithoutAnApiNameFallsBack() =>
+            Assert.That(GameDetails.ByName((osu.Game.Online.Rooms.MatchType)999, RoomMatchType.Other), Is.EqualTo(RoomMatchType.Other));
+
+        [Test]
+        public void EveryLazerGradeHasAnApiGrade()
+        {
+            foreach (var rank in Enum.GetValues<ScoreRank>())
+                Assert.That(Enum.IsDefined(GameDetails.ByName(rank, (ScoreGrade)(-1))), rank.ToString());
         }
 
         [Test]

@@ -54,7 +54,7 @@ namespace Omamori.Core.Details
             Artist = beatmap.Metadata.Artist,
             Creator = beatmap.Metadata.Author is { } author ? author.Username : string.Empty,
             DifficultyName = beatmap.DifficultyName,
-            StarRating = beatmap.StarRating,
+            StarRating = beatmap.StarRating >= 0 ? beatmap.StarRating : null,
             Bpm = beatmap.BPM,
             Length = Time(beatmap.Length),
             OnlineId = beatmap.OnlineID > 0 ? beatmap.OnlineID : null,
@@ -95,7 +95,7 @@ namespace Omamori.Core.Details
         {
             TotalScore = score.TotalScore,
             Accuracy = score.Accuracy,
-            Rank = score.Rank.ToString(),
+            Grade = ByName(score.Rank, ScoreGrade.F),
             MaxCombo = score.MaxCombo,
             Pp = score.PP,
             IsPassed = score.Passed,
@@ -124,7 +124,7 @@ namespace Omamori.Core.Details
             Combo = score.Combo.Value,
             MaxCombo = score.HighestCombo.Value,
             Health = health.Health.Value,
-            Rank = score.Rank.Value.ToString(),
+            Grade = ByName(score.Rank.Value, ScoreGrade.F),
             JudgedCount = score.JudgedHits,
         };
 
@@ -162,6 +162,12 @@ namespace Omamori.Core.Details
         };
 
         public static IReadOnlyList<string> Acronyms(IReadOnlyList<Mod>? mods) => [.. (mods ?? []).Select(m => m.Acronym)];
+
+        /// <summary>
+        ///     lazer's enum value as the api enum with the same name, so a value lazer adds later becomes <paramref name="fallback"/>
+        /// </summary>
+        public static T ByName<T>(Enum value, T fallback)
+            where T : struct, Enum => Enum.TryParse(value.ToString(), out T result) && Enum.IsDefined(result) ? result : fallback;
 
         /// <summary>lazer's milliseconds, through ticks so fractions of a millisecond survive</summary>
         public static TimeSpan Time(double milliseconds) => TimeSpan.FromTicks((long)Math.Round(milliseconds * TimeSpan.TicksPerMillisecond));

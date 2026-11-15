@@ -1,4 +1,5 @@
 using Omamori.API;
+using Omamori.Core.Details;
 using Omamori.Core.Features;
 using osu.Game;
 
@@ -19,8 +20,8 @@ namespace Omamori.Core.Events.Sources
                     {
                         Id = r.RoomID,
                         Name = r.Settings.Name,
-                        MatchType = r.Settings.MatchType.ToString(),
-                        State = r.State.ToString(),
+                        MatchType = GameDetails.ByName(r.Settings.MatchType, RoomMatchType.Other),
+                        State = GameDetails.ByName(r.State, RoomState.Other),
                         UserCount = r.Users.Count,
                         HasPassword = r.Settings.Password.Length > 0,
                     }

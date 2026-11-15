@@ -14,8 +14,8 @@ namespace Omamori.API
         /// <summary>0 to 1</summary>
         public double Health { get; init; }
 
-        /// <summary>D, C, B, A, S, SH, X, XH, the rank the play is on track for</summary>
-        public string Rank { get; init; } = string.Empty;
+        /// <summary>the grade the play is on track for</summary>
+        public ScoreGrade Grade { get; init; }
 
         /// <summary>how many objects have been judged, goes down when a replay seeks backwards</summary>
         public int JudgedCount { get; init; }

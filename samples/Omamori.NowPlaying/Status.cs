@@ -27,7 +27,7 @@ namespace Omamori.NowPlaying
                   .Replace("{title}", beatmap.Title, StringComparison.Ordinal)
                   .Replace("{diff}", beatmap.DifficultyName, StringComparison.Ordinal)
                   .Replace("{mapper}", beatmap.Creator, StringComparison.Ordinal)
-                  .Replace("{stars}", beatmap.StarRating < 0 ? "?" : beatmap.StarRating.ToString("0.00", CultureInfo.InvariantCulture), StringComparison.Ordinal)
+                  .Replace("{stars}", beatmap.StarRating is { } stars ? stars.ToString("0.00", CultureInfo.InvariantCulture) : "?", StringComparison.Ordinal)
                   .Replace("{bpm}", Math.Round(beatmap.Bpm).ToString(CultureInfo.InvariantCulture), StringComparison.Ordinal)
                   .Replace("{length}", beatmap.Length.ToString(@"m\:ss", CultureInfo.InvariantCulture), StringComparison.Ordinal)
                   .Replace("{mods}", mods.Count == 0 ? string.Empty : "+" + string.Concat(mods), StringComparison.Ordinal)

@@ -7,11 +7,9 @@ namespace Omamori.API
 
         public string Name { get; init; } = string.Empty;
 
-        /// <summary>HeadToHead, TeamVersus and so on</summary>
-        public string MatchType { get; init; } = string.Empty;
+        public RoomMatchType MatchType { get; init; }
 
-        /// <summary>Open, WaitingForLoad, Playing, Closed</summary>
-        public string State { get; init; } = string.Empty;
+        public RoomState State { get; init; }
 
         public int UserCount { get; init; }
         public bool HasPassword { get; init; }

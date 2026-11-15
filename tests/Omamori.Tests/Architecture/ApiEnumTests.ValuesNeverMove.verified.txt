@@ -82,5 +82,31 @@
     Joined: 0,
     Left: 1,
     Updated: 2
+  },
+  RoomMatchType: {
+    HeadToHead: 2,
+    Matchmaking: 4,
+    Other: 0,
+    Playlists: 1,
+    RankedPlay: 5,
+    TeamVersus: 3
+  },
+  RoomState: {
+    Closed: 4,
+    Open: 1,
+    Other: 0,
+    Playing: 3,
+    WaitingForLoad: 2
+  },
+  ScoreGrade: {
+    A: 4,
+    B: 3,
+    C: 2,
+    D: 1,
+    F: 0,
+    S: 5,
+    SH: 6,
+    X: 7,
+    XH: 8
   }
 }

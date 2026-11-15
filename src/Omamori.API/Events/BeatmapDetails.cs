@@ -13,8 +13,8 @@ namespace Omamori.API
         /// <summary>the difficulty's name, like Insane, the numbers are <see cref="DifficultyDetails"/></summary>
         public string DifficultyName { get; init; } = string.Empty;
 
-        /// <summary>-1 when it hasn't been calculated yet</summary>
-        public double StarRating { get; init; }
+        /// <summary>without mods, null when it hasn't been calculated yet, <see cref="IGameBeatmaps.GetCurrentDifficultyAsync"/> has it with mods</summary>
+        public double? StarRating { get; init; }
 
         public double Bpm { get; init; }
         public TimeSpan Length { get; init; }

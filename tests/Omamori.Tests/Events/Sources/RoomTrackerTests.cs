@@ -7,7 +7,7 @@ namespace Omamori.Tests
     [TestFixture]
     public class RoomTrackerTests
     {
-        private static readonly RoomDetails room = new RoomDetails { Id = 1, Name = "room", State = "Open", UserCount = 1 };
+        private static readonly RoomDetails room = new RoomDetails { Id = 1, Name = "room", State = RoomState.Open, UserCount = 1 };
 
         [Test]
         public void FirstRoomIsAJoin()
