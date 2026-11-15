@@ -21,7 +21,7 @@ namespace Omamori.Core.Events.Sources
                         Name = r.Settings.Name,
                         MatchType = r.Settings.MatchType.ToString(),
                         State = r.State.ToString(),
-                        Users = r.Users.Count,
+                        UserCount = r.Users.Count,
                         HasPassword = r.Settings.Password.Length > 0,
                     }
                     : null;

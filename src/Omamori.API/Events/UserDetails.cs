@@ -2,9 +2,9 @@ namespace Omamori.API
 {
     public sealed record UserDetails
     {
-        public bool LoggedIn { get; init; }
+        public bool IsLoggedIn { get; init; }
 
-        /// <summary>null when not logged in</summary>
+        /// <summary>the osu! website's user id, null when not logged in</summary>
         public int? Id { get; init; }
 
         public string Username { get; init; } = string.Empty;

@@ -53,7 +53,7 @@ namespace Omamori.Core.Details
             Title = beatmap.Metadata.Title,
             Artist = beatmap.Metadata.Artist,
             Creator = beatmap.Metadata.Author is { } author ? author.Username : string.Empty,
-            Difficulty = beatmap.DifficultyName,
+            DifficultyName = beatmap.DifficultyName,
             StarRating = beatmap.StarRating,
             Bpm = beatmap.BPM,
             Length = Time(beatmap.Length),
@@ -68,7 +68,7 @@ namespace Omamori.Core.Details
             Artist = set.Metadata.Artist,
             Creator = set.Metadata.Author is { } author ? author.Username : string.Empty,
             OnlineId = set.OnlineID > 0 ? set.OnlineID : null,
-            Difficulties = set.Beatmaps.Count,
+            DifficultyCount = set.Beatmaps.Count,
         };
 
         public static BeatmapContent Content(IBeatmap playable, BeatmapInfo beatmap, RulesetInfo ruleset, IReadOnlyList<Mod> mods) => new BeatmapContent
@@ -98,7 +98,7 @@ namespace Omamori.Core.Details
             Rank = score.Rank.ToString(),
             MaxCombo = score.MaxCombo,
             Pp = score.PP,
-            Passed = score.Passed,
+            IsPassed = score.Passed,
             Date = score.Date,
             Ruleset = score.Ruleset is { } ruleset ? ruleset.ShortName : string.Empty,
             // api mods don't need the ruleset instantiated
@@ -122,10 +122,10 @@ namespace Omamori.Core.Details
             TotalScore = score.TotalScore.Value,
             Accuracy = score.Accuracy.Value,
             Combo = score.Combo.Value,
-            HighestCombo = score.HighestCombo.Value,
+            MaxCombo = score.HighestCombo.Value,
             Health = health.Health.Value,
             Rank = score.Rank.Value.ToString(),
-            Judged = score.JudgedHits,
+            JudgedCount = score.JudgedHits,
         };
 
         /// <summary>

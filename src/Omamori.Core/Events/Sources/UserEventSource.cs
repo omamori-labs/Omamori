@@ -24,7 +24,7 @@ namespace Omamori.Core.Events.Sources
 
                 GameEvents.RaiseChanged(GameEvent.UserChanged, new UserDetails
                 {
-                    LoggedIn = loggedIn,
+                    IsLoggedIn = loggedIn,
                     Id = loggedIn ? local.Id : null,
                     Username = loggedIn ? local.Username : string.Empty,
                     Country = loggedIn && local.CountryCode != CountryCode.Unknown ? local.CountryCode.ToString() : string.Empty,

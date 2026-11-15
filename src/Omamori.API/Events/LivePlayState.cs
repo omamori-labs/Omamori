@@ -9,7 +9,7 @@ namespace Omamori.API
 
         public int Combo { get; init; }
 
-        public int HighestCombo { get; init; }
+        public int MaxCombo { get; init; }
 
         /// <summary>0 to 1</summary>
         public double Health { get; init; }
@@ -18,6 +18,6 @@ namespace Omamori.API
         public string Rank { get; init; } = string.Empty;
 
         /// <summary>how many objects have been judged, goes down when a replay seeks backwards</summary>
-        public int Judged { get; init; }
+        public int JudgedCount { get; init; }
     }
 }

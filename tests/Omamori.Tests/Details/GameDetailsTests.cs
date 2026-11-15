@@ -33,7 +33,7 @@ namespace Omamori.Tests
             var details = GameDetails.Beatmap(beatmap);
 
             Assert.That(details.Title, Is.EqualTo("song"));
-            Assert.That(details.Difficulty, Is.EqualTo("Insane"));
+            Assert.That(details.DifficultyName, Is.EqualTo("Insane"));
             Assert.That(details.Length, Is.EqualTo(TimeSpan.FromSeconds(90)));
             Assert.That(details.OnlineId, Is.Null, "local beatmaps have no online id");
             Assert.That(details.SetOnlineId, Is.Null);

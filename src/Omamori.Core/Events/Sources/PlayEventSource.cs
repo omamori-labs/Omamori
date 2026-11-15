@@ -89,7 +89,7 @@ namespace Omamori.Core.Events.Sources
             GameEvents.Raise(GameEvent.PlayEnded, new PlayResult
             {
                 Play = play,
-                Completed = score is not null,
+                IsCompleted = score is not null,
                 Score = score is null ? null : GameDetails.Score(score),
                 Hits = detailed ? GameDetails.Hits(score!) : [],
                 Replay = detailed ? GameDetails.Replay(player) : [],

@@ -18,7 +18,7 @@ namespace Omamori.API
         /// <summary>null until the server works it out, or when it doesn't give pp</summary>
         public double? Pp { get; init; }
 
-        public bool Passed { get; init; }
+        public bool IsPassed { get; init; }
 
         public DateTimeOffset Date { get; init; }
 

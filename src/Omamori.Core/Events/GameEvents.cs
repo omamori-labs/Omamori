@@ -33,7 +33,7 @@ namespace Omamori.Core.Events
 
         public void OnPlayEnded(Action<PlayResult> handler) => register(Hook.PlayEvents, GameEvent.PlayEnded, handler);
 
-        public void OnPlayPaused(Action<bool> handler) => register(Hook.PlayEvents, GameEvent.PlayPaused, handler);
+        public void OnPlayPauseChanged(Action<bool> handler) => register(Hook.PlayEvents, GameEvent.PlayPaused, handler);
 
         public void OnHit(Action<HitDetails> handler) => register(Hook.LivePlayEvents, GameEvent.Hit, handler);
 

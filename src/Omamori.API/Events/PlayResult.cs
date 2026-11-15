@@ -7,15 +7,15 @@ namespace Omamori.API
         public PlayDetails Play { get; init; } = new PlayDetails();
 
         /// <summary>false when the player quit, failed and left, or retried</summary>
-        public bool Completed { get; init; }
+        public bool IsCompleted { get; init; }
 
-        /// <summary>only when <see cref="Completed"/></summary>
+        /// <summary>only when <see cref="IsCompleted"/></summary>
         public ScoreDetails? Score { get; init; }
 
-        /// <summary>every judgement, only when <see cref="Completed"/>, for hit error graphs and the like</summary>
+        /// <summary>every judgement, only when <see cref="IsCompleted"/>, for hit error graphs and the like</summary>
         public IReadOnlyList<HitDetails> Hits { get; init; } = [];
 
-        /// <summary>the replay, only when <see cref="Completed"/>, for cursor paths and key visualisers after the map</summary>
+        /// <summary>the replay, only when <see cref="IsCompleted"/>, for cursor paths and key visualisers after the map</summary>
         public IReadOnlyList<ReplayFrameDetails> Replay { get; init; } = [];
     }
 }

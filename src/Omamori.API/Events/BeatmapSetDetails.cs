@@ -9,6 +9,6 @@ namespace Omamori.API
         /// <summary>null for sets that aren't on the website</summary>
         public int? OnlineId { get; init; }
 
-        public int Difficulties { get; init; }
+        public int DifficultyCount { get; init; }
     }
 }

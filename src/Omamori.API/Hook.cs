@@ -17,7 +17,7 @@ namespace Omamori.API
         /// <summary><see cref="IGameEvents.OnBeatmapChanged"/>, <see cref="IGameEvents.OnRulesetChanged"/> and <see cref="IGameEvents.OnModsChanged"/></summary>
         BeatmapEvents,
 
-        /// <summary><see cref="IGameEvents.OnPlayStarted"/>, <see cref="IGameEvents.OnPlayEnded"/> and <see cref="IGameEvents.OnPlayPaused"/></summary>
+        /// <summary><see cref="IGameEvents.OnPlayStarted"/>, <see cref="IGameEvents.OnPlayEnded"/> and <see cref="IGameEvents.OnPlayPauseChanged"/></summary>
         PlayEvents,
 
         /// <summary><see cref="IGameEvents.OnGameExiting"/> and <see cref="IGameEvents.OnWindowChanged"/></summary>

@@ -7,7 +7,7 @@ namespace Omamori.Tests
     [TestFixture]
     public class RoomTrackerTests
     {
-        private static readonly RoomDetails room = new RoomDetails { Id = 1, Name = "room", State = "Open", Users = 1 };
+        private static readonly RoomDetails room = new RoomDetails { Id = 1, Name = "room", State = "Open", UserCount = 1 };
 
         [Test]
         public void FirstRoomIsAJoin()
@@ -34,10 +34,10 @@ namespace Omamori.Tests
             var rooms = new RoomTracker();
             rooms.Update(room);
 
-            var change = rooms.Update(room with { Users = 2 });
+            var change = rooms.Update(room with { UserCount = 2 });
 
             Assert.That(change?.Kind, Is.EqualTo(RoomChangeKind.Updated));
-            Assert.That(change?.Room.Users, Is.EqualTo(2));
+            Assert.That(change?.Room.UserCount, Is.EqualTo(2));
         }
 
         [Test]

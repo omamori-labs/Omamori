@@ -17,8 +17,8 @@ namespace Omamori.Core.Events.Sources
         {
             void raise() => FeatureRegistry.Run(Feature.LifecycleEvents, () => GameEvents.RaiseChanged(GameEvent.WindowChanged, new WindowDetails
             {
-                Focused = game.Host.IsActive.Value,
-                Fullscreen = game.Host.Window is { } window && window.WindowMode.Value != WindowMode.Windowed,
+                IsFocused = game.Host.IsActive.Value,
+                IsFullscreen =game.Host.Window is { } window && window.WindowMode.Value != WindowMode.Windowed,
             }));
 
             // both can change off the update thread

@@ -66,9 +66,9 @@ namespace Omamori.Tests
             int calls = 0;
 
             new GameEvents(manifest(), Substitute.For<IModLogger>()).OnWindowChanged(_ => calls++);
-            GameEvents.RaiseChanged(GameEvent.WindowChanged, new WindowDetails { Focused = true });
-            GameEvents.RaiseChanged(GameEvent.WindowChanged, new WindowDetails { Focused = true });
-            GameEvents.RaiseChanged(GameEvent.WindowChanged, new WindowDetails { Focused = false });
+            GameEvents.RaiseChanged(GameEvent.WindowChanged, new WindowDetails { IsFocused =true });
+            GameEvents.RaiseChanged(GameEvent.WindowChanged, new WindowDetails { IsFocused =true });
+            GameEvents.RaiseChanged(GameEvent.WindowChanged, new WindowDetails { IsFocused =false });
 
             Assert.That(calls, Is.EqualTo(2));
         }

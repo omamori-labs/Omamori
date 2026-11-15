@@ -10,7 +10,8 @@ namespace Omamori.API
         /// <summary>the mapper</summary>
         public string Creator { get; init; } = string.Empty;
 
-        public string Difficulty { get; init; } = string.Empty;
+        /// <summary>the difficulty's name, like Insane, the numbers are <see cref="DifficultyDetails"/></summary>
+        public string DifficultyName { get; init; } = string.Empty;
 
         /// <summary>-1 when it hasn't been calculated yet</summary>
         public double StarRating { get; init; }

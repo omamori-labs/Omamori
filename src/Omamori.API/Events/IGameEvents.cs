@@ -25,7 +25,7 @@ namespace Omamori.API
         void OnPlayEnded(Action<PlayResult> handler);
 
         /// <summary><see cref="Hook.PlayEvents"/>, true when the player pauses, false when they resume</summary>
-        void OnPlayPaused(Action<bool> handler);
+        void OnPlayPauseChanged(Action<bool> handler);
 
         /// <summary><see cref="Hook.BeatmapEvents"/>, the selected mods as acronyms</summary>
         void OnModsChanged(Action<IReadOnlyList<string>> handler);
