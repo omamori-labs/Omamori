@@ -56,7 +56,7 @@ namespace Omamori.Core.Details
             Difficulty = beatmap.DifficultyName,
             StarRating = beatmap.StarRating,
             Bpm = beatmap.BPM,
-            Length = TimeSpan.FromMilliseconds(beatmap.Length),
+            Length = Time(beatmap.Length),
             OnlineId = beatmap.OnlineID > 0 ? beatmap.OnlineID : null,
             SetOnlineId = beatmap.BeatmapSet is { OnlineID: > 0 } set ? set.OnlineID : null,
             Ruleset = beatmap.Ruleset is { } ruleset ? ruleset.ShortName : string.Empty,
@@ -77,14 +77,14 @@ namespace Omamori.Core.Details
             Ruleset = ruleset.ShortName,
             Mods = Acronyms(mods),
             HitObjects = [.. playable.HitObjects.Select(HitObjectOf)],
-            TimingPoints = [.. playable.ControlPointInfo.TimingPoints.Select(t => new TimingPointDetails { Time = t.Time, BeatLength = t.BeatLength, Bpm = t.BPM, BeatsPerBar = t.TimeSignature.Numerator })],
-            Breaks = [.. playable.Breaks.Select(b => new BreakDetails { StartTime = b.StartTime, EndTime = b.EndTime })],
+            TimingPoints = [.. playable.ControlPointInfo.TimingPoints.Select(t => new TimingPointDetails { Time = Time(t.Time), BeatLength = Time(t.BeatLength), Bpm = t.BPM, BeatsPerBar = t.TimeSignature.Numerator })],
+            Breaks = [.. playable.Breaks.Select(b => new BreakDetails { StartTime = Time(b.StartTime), EndTime = Time(b.EndTime) })],
         };
 
         public static HitObjectDetails HitObjectOf(HitObject hit) => new HitObjectDetails
         {
-            StartTime = hit.StartTime,
-            EndTime = hit.GetEndTime(),
+            StartTime = Time(hit.StartTime),
+            EndTime = Time(hit.GetEndTime()),
             Type = hit.GetType().Name,
             X = hit is IHasXPosition x ? x.X : null,
             Y = hit is IHasYPosition y ? y.Y : null,
@@ -110,8 +110,8 @@ namespace Omamori.Core.Details
 
         public static HitDetails Hit(HitEvent hit) => new HitDetails
         {
-            Time = hit.HitObject.StartTime,
-            Offset = hit.TimeOffset,
+            Time = Time(hit.HitObject.StartTime),
+            Offset = Time(hit.TimeOffset),
             Result = hit.Result.ToString(),
             X = hit.Position?.X,
             Y = hit.Position?.Y,
@@ -141,7 +141,7 @@ namespace Omamori.Core.Details
                 [
                     .. player.Score.Replay.Frames.OfType<IConvertibleReplayFrame>()
                              .Select(f => f.ToLegacy(beatmap))
-                             .Select(f => new ReplayFrameDetails { Time = f.Time, X = f.MouseX ?? 0, Y = f.MouseY ?? 0, Buttons = (ReplayButtons)f.ButtonState }),
+                             .Select(f => new ReplayFrameDetails { Time = Time(f.Time), X = f.MouseX ?? 0, Y = f.MouseY ?? 0, Buttons = (ReplayButtons)f.ButtonState }),
                 ];
             }
             catch (Exception e)
@@ -162,5 +162,8 @@ namespace Omamori.Core.Details
         };
 
         public static IReadOnlyList<string> Acronyms(IReadOnlyList<Mod>? mods) => [.. (mods ?? []).Select(m => m.Acronym)];
+
+        /// <summary>lazer's milliseconds, through ticks so fractions of a millisecond survive</summary>
+        public static TimeSpan Time(double milliseconds) => TimeSpan.FromTicks((long)Math.Round(milliseconds * TimeSpan.TicksPerMillisecond));
     }
 }

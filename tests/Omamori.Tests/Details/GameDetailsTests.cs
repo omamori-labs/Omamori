@@ -75,8 +75,8 @@ namespace Omamori.Tests
 
             var hit = GameDetails.Hits(score).Single();
 
-            Assert.That(hit.Time, Is.EqualTo(1500));
-            Assert.That(hit.Offset, Is.EqualTo(-12));
+            Assert.That(hit.Time, Is.EqualTo(TimeSpan.FromMilliseconds(1500)));
+            Assert.That(hit.Offset, Is.EqualTo(TimeSpan.FromMilliseconds(-12)));
             Assert.That(hit.Result, Is.EqualTo("Great"));
             Assert.That(hit.X, Is.EqualTo(3));
         }

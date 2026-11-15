@@ -1,12 +1,13 @@
+using System;
+
 namespace Omamori.API
 {
     public sealed record HitObjectDetails
     {
-        /// <summary>in milliseconds</summary>
-        public double StartTime { get; init; }
+        public TimeSpan StartTime { get; init; }
 
         /// <summary>the same as <see cref="StartTime"/> for objects without a length, like circles</summary>
-        public double EndTime { get; init; }
+        public TimeSpan EndTime { get; init; }
 
         /// <summary>the ruleset's own name for it, like HitCircle, Slider, Hit or HoldNote</summary>
         public string Type { get; init; } = string.Empty;

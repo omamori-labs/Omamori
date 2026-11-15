@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using NUnit.Framework;
 using Omamori.Core.Details;
@@ -24,10 +25,11 @@ namespace Omamori.Tests
 
             var content = GameDetails.Content(beatmap, new BeatmapInfo(), new RulesetInfo { ShortName = "osu" }, []);
 
-            Assert.That(content.HitObjects.Select(h => h.StartTime), Is.EqualTo([1000, 2000]));
+            Assert.That(content.HitObjects.Select(h => h.StartTime), Is.EqualTo([TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(2)]));
             Assert.That(content.TimingPoints.Single().Bpm, Is.EqualTo(120));
+            Assert.That(content.TimingPoints.Single().BeatLength, Is.EqualTo(TimeSpan.FromMilliseconds(500)));
             Assert.That(content.TimingPoints.Single().BeatsPerBar, Is.EqualTo(4));
-            Assert.That(content.Breaks.Single().EndTime, Is.EqualTo(1800));
+            Assert.That(content.Breaks.Single().EndTime, Is.EqualTo(TimeSpan.FromMilliseconds(1800)));
             Assert.That(content.Ruleset, Is.EqualTo("osu"));
         }
 
@@ -36,9 +38,12 @@ namespace Omamori.Tests
         {
             var details = GameDetails.HitObjectOf(new HitObject { StartTime = 750 });
 
-            Assert.That(details.EndTime, Is.EqualTo(750));
+            Assert.That(details.EndTime, Is.EqualTo(TimeSpan.FromMilliseconds(750)));
             Assert.That(details.Type, Is.EqualTo(nameof(HitObject)));
         }
+
+        [Test]
+        public void FractionsOfAMillisecondAreKept() => Assert.That(GameDetails.Time(0.25), Is.EqualTo(TimeSpan.FromTicks(2500)));
 
         [Test]
         public void ObjectWithoutAPositionHasNone()

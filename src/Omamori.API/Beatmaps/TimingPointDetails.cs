@@ -1,12 +1,13 @@
+using System;
+
 namespace Omamori.API
 {
     public sealed record TimingPointDetails
     {
-        /// <summary>in milliseconds</summary>
-        public double Time { get; init; }
+        public TimeSpan Time { get; init; }
 
-        /// <summary>milliseconds per beat</summary>
-        public double BeatLength { get; init; }
+        /// <summary>how long one beat lasts</summary>
+        public TimeSpan BeatLength { get; init; }
 
         public double Bpm { get; init; }
 

@@ -1,3 +1,5 @@
+using System;
+
 namespace Omamori.API
 {
     /// <summary>
@@ -5,7 +7,7 @@ namespace Omamori.API
     /// </summary>
     public sealed record ReplayFrameDetails
     {
-        public double Time { get; init; }
+        public TimeSpan Time { get; init; }
         public float X { get; init; }
         public float Y { get; init; }
         public ReplayButtons Buttons { get; init; }
