@@ -19,7 +19,7 @@ namespace Omamori.Tests
             Description = "a mod",
             Entry = "Copy.dll",
             ApiVersion = ApiInfo.VERSION,
-            Capabilities = [ModCapability.Cosmetic],
+            Capabilities = [ModCapability.Patches],
             Hooks = new Dictionary<Hook, HookRequirement> { [Hook.MainMenu] = HookRequirement.Required },
             Dependencies = [new ModDependency { Id = "test.dep", MinVersion = "1.0.0" }],
         };
@@ -38,7 +38,7 @@ namespace Omamori.Tests
             var original = manifest();
             var copy = ManifestCopy.Of(original);
 
-            Assert.Throws<NotSupportedException>(() => ((IList<ModCapability>)copy.Capabilities).Add(ModCapability.Informational));
+            Assert.Throws<NotSupportedException>(() => ((IList<ModCapability>)copy.Capabilities).Clear());
             Assert.Throws<NotSupportedException>(() => ((IDictionary<Hook, HookRequirement>)copy.Hooks)[Hook.Input] = HookRequirement.Required);
             Assert.Throws<NotSupportedException>(() => ((IList<ModDependency>)copy.Dependencies).Clear());
             Assert.That(JsonSerializer.Serialize(original), Is.EqualTo(JsonSerializer.Serialize(manifest())));

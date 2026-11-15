@@ -27,10 +27,7 @@
     /capabilities/0: Value should match one of the values specified by the enum
   ],
   missing required: [
-    /: Required properties ["name","version","entry","apiVersion","capabilities"] are not present
-  ],
-  no capabilities: [
-    /capabilities: Value should have at least 1 items
+    /: Required properties ["name","version","entry","apiVersion"] are not present
   ],
   nulls: [
     /capabilities: Value is "null" but should be "array",
@@ -45,6 +42,9 @@
   ],
   typo property: [
     /dependancies isn't a known property
+  ],
+  unknown capability: [
+    /capabilities/0: Value should match one of the values specified by the enum
   ],
   unknown hook: [
     /hooks/MainMenuu: Value should match one of the values specified by the enum

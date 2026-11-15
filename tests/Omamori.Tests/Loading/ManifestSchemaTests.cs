@@ -14,14 +14,17 @@ namespace Omamori.Tests
     [TestFixture]
     public class ManifestSchemaTests
     {
-        private const string minimal = """{"id":"a.b","name":"A","version":"1.0.0","entry":"A.dll","apiVersion":"0.2","capabilities":["Cosmetic"]}""";
+        private const string minimal = """{"id":"a.b","name":"A","version":"1.0.0","entry":"A.dll","apiVersion":"0.2"}""";
 
         [Test]
         public void MinimalManifestIsValid() => Assert.That(validate(minimal), Is.Empty);
 
         [Test]
+        public void EmptyCapabilitiesAreValid() => Assert.That(validate(with(minimal, """{"capabilities":[]}""")), Is.Empty);
+
+        [Test]
         public void FullManifestIsValid() => Assert.That(validate(with(minimal, """
-            {"$schema":"x","author":"me","description":"d","hooks":{"MainMenu":"optional","GlobalOverlay":"required"},
+            {"$schema":"x","author":"me","description":"d","capabilities":["Patches"],"hooks":{"MainMenu":"optional","GlobalOverlay":"required"},
              "dependencies":[{"id":"c.d","minVersion":"1.2"},{"id":"e-f_g","optional":true}]}
             """)), Is.Empty);
 
@@ -30,9 +33,9 @@ namespace Omamori.Tests
         public Task BrokenManifests() => Verify(new Dictionary<string, List<string>>
         {
             ["typo property"] = validate(with(minimal, """{"dependancies":[]}""")),
-            ["lowercase enum"] = validate(with(minimal, """{"capabilities":["cosmetic"]}""")),
+            ["lowercase enum"] = validate(with(minimal, """{"capabilities":["patches"]}""")),
             ["integer enum"] = validate(with(minimal, """{"capabilities":[99]}""")),
-            ["no capabilities"] = validate(with(minimal, """{"capabilities":[]}""")),
+            ["unknown capability"] = validate(with(minimal, """{"capabilities":["Cosmetic"]}""")),
             ["nulls"] = validate(with(minimal, """{"version":null,"capabilities":null,"dependencies":[null]}""")),
             ["padded id"] = validate(with(minimal, """{"id":" A.B "}""")),
             ["uppercase id"] = validate(with(minimal, """{"id":"Yourname.Mod"}""")),

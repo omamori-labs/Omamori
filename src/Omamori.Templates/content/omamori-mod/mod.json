@@ -7,7 +7,7 @@
   "description": "",
   "entry": "OmamoriMod.dll",
   "apiVersion": "0.6",
-  "capabilities": ["Cosmetic"],
+  "capabilities": [],
   "hooks": {
     "MainMenu": "optional",
     "PlayEvents": "optional",

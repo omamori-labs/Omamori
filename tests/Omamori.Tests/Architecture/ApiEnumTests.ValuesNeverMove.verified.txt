@@ -58,8 +58,6 @@
     Required: 0
   },
   ModCapability: {
-    Cosmetic: 0,
-    Informational: 1,
     Patches: 2
   },
   PlayKind: {

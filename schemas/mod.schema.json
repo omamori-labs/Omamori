@@ -9,8 +9,7 @@
     "name",
     "version",
     "entry",
-    "apiVersion",
-    "capabilities"
+    "apiVersion"
   ],
   "additionalProperties": false,
   "properties": {
@@ -51,14 +50,12 @@
       ]
     },
     "capabilities": {
-      "description": "What the mod does, shown to users before install. Gameplay affecting mods are not allowed. Patches means the mod changes osu!'s own code with Harmony.",
+      "description": "What the mod does beyond the API, shown to users. Patches means the mod changes osu!'s own code with Harmony, and is required for one that does.",
       "type": "array",
-      "minItems": 1,
       "uniqueItems": true,
+      "default": [],
       "items": {
         "enum": [
-          "Cosmetic",
-          "Informational",
           "Patches"
         ]
       }

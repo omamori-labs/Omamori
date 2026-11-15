@@ -81,10 +81,10 @@ namespace Omamori.Tests
         [Test]
         public void OnlyModsDeclaringPatchesAreMarkedAsPatching()
         {
-            var patching = new ModManifest { Id = uniqueId(), Version = "1.0.0", Capabilities = [ModCapability.Cosmetic, ModCapability.Patches] };
+            var patching = new ModManifest { Id = uniqueId(), Version = "1.0.0", Capabilities = [ModCapability.Patches] };
 
             Assert.That(new InstalledMod("Patching", patching, true, null).Patches, Is.True);
-            Assert.That(new InstalledMod("Cosmetic", unique(), true, null).Patches, Is.False);
+            Assert.That(new InstalledMod("Plain", unique(), true, null).Patches, Is.False);
             Assert.That(new InstalledMod("Unreadable", null, false, "unreadable mod.json").Patches, Is.False);
         }
 

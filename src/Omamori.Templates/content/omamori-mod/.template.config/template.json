@@ -33,12 +33,12 @@
       "type": "generated",
       "generator": "switch",
       "datatype": "string",
-      "replaces": "[\"Cosmetic\"]",
+      "replaces": "\"capabilities\": []",
       "parameters": {
         "evaluator": "C++",
         "cases": [
-          { "condition": "(harmony)", "value": "[\"Cosmetic\", \"Patches\"]" },
-          { "condition": "(!harmony)", "value": "[\"Cosmetic\"]" }
+          { "condition": "(harmony)", "value": "\"capabilities\": [\"Patches\"]" },
+          { "condition": "(!harmony)", "value": "\"capabilities\": []" }
         ]
       }
     },

@@ -7,7 +7,6 @@
   "description": "Shows the beatmap on your Discord status in your own format.",
   "entry": "Omamori.NowPlaying.dll",
   "apiVersion": "0.5",
-  "capabilities": ["Informational"],
   "hooks": {
     "Presence": "required",
     "ScreenEvents": "required",

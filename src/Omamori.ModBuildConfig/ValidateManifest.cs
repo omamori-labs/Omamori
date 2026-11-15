@@ -83,7 +83,8 @@ namespace Omamori.ModBuildConfig
                     && ManifestRules.DependsOnItself(ModId, dependencies.EnumerateArray().Select(d => d.GetProperty("id").GetString())))
                     error("OMA007", "dependencies lists this mod's own id, a mod can't depend on itself");
 
-                if (UsesHarmony && !ManifestRules.DeclaresPatches(root.GetProperty("capabilities").EnumerateArray().Select(c => c.GetString())))
+                if (UsesHarmony && !(root.TryGetProperty("capabilities", out var capabilities)
+                                     && ManifestRules.DeclaresPatches(capabilities.EnumerateArray().Select(c => c.GetString()))))
                     error("OMA008", "OmamoriHarmony is on, add \"Patches\" to capabilities so players know this mod changes osu!'s code");
             }
 

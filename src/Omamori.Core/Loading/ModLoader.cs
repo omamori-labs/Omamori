@@ -369,7 +369,8 @@ namespace Omamori.Core.Loading
             Add(new LoadedMod(manifest, instance, loader, candidate.Label, candidate.Directory));
 
             string[] facts = [manifest.Name, manifest.Version, ManifestText.Byline(manifest)];
-            LoaderLog.Info($"Loaded {string.Join(' ', facts.Where(f => f.Length > 0))} [{string.Join(", ", manifest.Capabilities)}].");
+            string capabilities = manifest.Capabilities.Count > 0 ? $" [{string.Join(", ", manifest.Capabilities)}]" : string.Empty;
+            LoaderLog.Info($"Loaded {string.Join(' ', facts.Where(f => f.Length > 0))}{capabilities}.");
             return null;
         }
 

@@ -14,7 +14,7 @@ namespace Omamori.Tests
     [TestFixture]
     public class ValidateManifestTests
     {
-        private const string valid = """{"id":"a.b","name":"A","version":"1.2.0","entry":"A.dll","apiVersion":"0.2","capabilities":["Cosmetic"]}""";
+        private const string valid = """{"id":"a.b","name":"A","version":"1.2.0","entry":"A.dll","apiVersion":"0.2"}""";
 
         private string directory = null!;
 
@@ -50,7 +50,7 @@ namespace Omamori.Tests
         [Test]
         public void SchemaProblemsAreEachAnError()
         {
-            var errors = run(valid.Replace("\"Cosmetic\"", "\"cosmetic\"", StringComparison.Ordinal).Replace("}", ",\"dependancies\":[]}", StringComparison.Ordinal)).Errors;
+            var errors = run(valid.Replace("}", ",\"capabilities\":[\"patches\"],\"dependancies\":[]}", StringComparison.Ordinal)).Errors;
 
             Assert.That(errors, Has.Count.EqualTo(2).And.All.Matches<BuildErrorEventArgs>(e => e.Code == "OMA003"));
         }
@@ -68,12 +68,16 @@ namespace Omamori.Tests
             Assert.That(run(valid.Replace("}", ",\"dependencies\":[{\"id\":\"a.b\"}]}", StringComparison.Ordinal)).Errors.Single().Code, Is.EqualTo("OMA007"));
 
         [Test]
-        public void HarmonyWithoutPatchesCapabilityFails() =>
+        public void HarmonyWithoutCapabilitiesFails() =>
             Assert.That(run(valid, usesHarmony: true).Errors.Single().Code, Is.EqualTo("OMA008"));
 
         [Test]
+        public void HarmonyWithEmptyCapabilitiesFails() =>
+            Assert.That(run(valid.Replace("}", ",\"capabilities\":[]}", StringComparison.Ordinal), usesHarmony: true).Errors.Single().Code, Is.EqualTo("OMA008"));
+
+        [Test]
         public void HarmonyWithPatchesCapabilityPasses() =>
-            Assert.That(run(valid.Replace("[\"Cosmetic\"]", "[\"Cosmetic\",\"Patches\"]", StringComparison.Ordinal), usesHarmony: true).Errors, Is.Empty);
+            Assert.That(run(valid.Replace("}", ",\"capabilities\":[\"Patches\"]}", StringComparison.Ordinal), usesHarmony: true).Errors, Is.Empty);
 
         [Test]
         [Platform("Win")]

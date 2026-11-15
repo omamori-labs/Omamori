@@ -7,5 +7,5 @@
   "description": "Goes straight to the main menu when osu! starts",
   "entry": "Omamori.SkipIntro.dll",
   "apiVersion": "0.6",
-  "capabilities": ["Cosmetic", "Patches"]
+  "capabilities": ["Patches"]
 }

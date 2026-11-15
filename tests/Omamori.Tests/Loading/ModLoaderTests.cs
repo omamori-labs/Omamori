@@ -347,7 +347,7 @@ namespace Omamori.Tests
             installTestMod("open", "test.open", m =>
             {
                 m["description"] = "patches";
-                m["capabilities"] = new JsonArray("Cosmetic", "Patches");
+                m["capabilities"] = new JsonArray("Patches");
             });
 
             loadAll();
@@ -412,7 +412,6 @@ namespace Omamori.Tests
                 ["version"] = "1.0.0",
                 ["entry"] = "Mod.dll",
                 ["apiVersion"] = ApiInfo.VERSION,
-                ["capabilities"] = new JsonArray("Cosmetic"),
             };
 
             change?.Invoke(manifest);
